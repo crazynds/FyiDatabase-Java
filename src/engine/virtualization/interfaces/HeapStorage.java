@@ -32,7 +32,7 @@ public class HeapStorage implements ByteStream{
 	}
 		
 	public HeapStorage(FileManager origin) throws IOException {
-		this(origin,8);
+		this(origin,16);
 	}
 	
 	

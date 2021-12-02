@@ -8,15 +8,15 @@ import engine.file.FileManager;
 import engine.table.prototype.Prototype;
 import engine.table.prototype.RowData;
 
-public class Table {
+public abstract class Table implements Iterable<RowData>{
 
 	private FileManager header,body;
 	
 	private Prototype columns;
 	
 	public Table(Prototype pt,String table)  {
-		header = new FileManager(table+"header.dat");
-		body = new FileManager(table+"body.dat");
+		header = new FileManager(table+"header.dab");
+		body = new FileManager(table+"body.dab");
 		pt.validateColumns();
 		this.columns=pt;
 		writeHeader();

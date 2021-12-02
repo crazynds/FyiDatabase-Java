@@ -7,35 +7,32 @@ import java.nio.ByteOrder;
 import java.util.*;
 
 import engine.file.FileManager;
-import engine.file.buffers.FIFOBlockBuffer;
-import engine.file.buffers.UpdatedFIFOBlockBuffer;
+import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.info.Parameters;
-import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
-import engine.virtualization.record.manager.storage.RecordStorageController;
-import engine.virtualization.record.manager.storage.FixedRecordStorage;
+import engine.virtualization.record.manager.FixedRecordManager;
+import engine.virtualization.record.manager.RecordManager;
 
 public class Main {
-
-	public static TreeMap<BigInteger,Long> map = new TreeMap<>();
 
 	public static class AuxRecordInterface implements RecordInterface{
 
 		@Override
 		public BigInteger getPrimaryKey(Record r)  {
 			byte[] inteiro = new byte[4];
+			byte[] data = r.getData();
 			for(int x=0;x<4;x++) {
-				inteiro[3-x] = r.pos(x+1);
+				inteiro[3-x] = data[x+1];
 			}
 			return new BigInteger(inteiro);
 		}
 
 		@Override
 		public boolean isActiveRecord(Record r) {
-			return (r.pos(0)&0x1)!=0;
+			return (r.getData()[0]&0x1)!=0;
 		}
 		
 		@Override
@@ -45,16 +42,16 @@ public class Main {
 
 		@Override
 		public void setActiveRecord(Record r, boolean active) {
-			r.set(0,(byte)( (r.pos(0)&(~0x1)) | ((active)?0x1:0x0)));
+			byte[] arr = r.getData();
+			arr[0] = (byte)( (arr[0]&(~0x1)) | ((active)?0x1:0x0));
 		}
 		
 	}
 
-	public static void createBase(RecordInterface ri,RecordStorageController rm,int sizeOfRecord,int qtdOfRecords,int sizePerList, int maxPk){
+	public static void createBase(RecordInterface ri,RecordManager rm,int sizeOfRecord,int qtdOfRecords,int sizePerList, int maxPk){
 		Random rand = new Random(100);
-		Record r;
 		ArrayList<Record> list = new ArrayList<>();
-		rm.restartFileSet();
+		rm.restart();
 
 		for(int x=0;x<qtdOfRecords;x+=sizePerList) {
 			list.clear();
@@ -75,79 +72,40 @@ public class Main {
 				ri.setActiveRecord(r1, true);
 				list.add(r1);
 			}
-			rm.writeNew(list);
+			rm.write(list);
 			System.out.println("x->"+x);
 		}
 		rm.flush();
-
-/*
-		int sizeRemove = 15;
-		for(int x=0;x<sizeRemove;x++){
-			int val = rand.nextInt(maxPk);
-			BigInteger i = BigInteger.valueOf(val);
-			r = rm.read(map.get(i));
-			ri.setActiveRecord(r,false);
-			rm.write(r,map.get(i));
-		}
-		rm.flush();
- */
 
 	}
 	
 	
 	public static void main(String[] args) {
 		Long time = System.nanoTime();
-		ArrayList<Record> list = new ArrayList<>();
 		Record r;
 
-		int sizeOfRecord = 500;
-		int qtdOfRecords = 100000;
-		int qtdPerList = 10000;
+		int sizeOfRecord = 300;
+		int qtdOfRecords = 4000;
+		int qtdPerList = 100;
 		int maxPK = 100000000;
 
-		FileManager f = new FileManager("E:\\teste.dat", new UpdatedFIFOBlockBuffer(16));
+		FileManager f = new FileManager("E:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
 		RecordInterface ri = new AuxRecordInterface();
-		RecordStorageController rm = new FixedRecordStorage(f,ri,sizeOfRecord,16);
+		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
 
 
 		createBase(ri,rm,sizeOfRecord,qtdOfRecords,qtdPerList,maxPK);
 
-		/*
-		int[] array2 = {
-				9,13,15
-		};
-		list = new ArrayList<>();
-		for(int y=0;y<array2.length;y++) {
-			byte[] data = new byte[sizeOfRecord];
-			for(int x=0;x<data.length;x++) {
-				data[x]=(byte)y;
-			}
-			Record r1 = new GenericRecord(data);
-			//ri.setActiveRecord(r1, true);
-
-			int val = array2[y];
-			//int val = rand.nextInt(10000);
-			ByteBuffer b = ByteBuffer.allocate(4);
-			b.order(ByteOrder.LITTLE_ENDIAN);
-			b.putInt(val);
-			byte[] pk = b.array();
-			for(int x=0;x<4;x++){
-				data[x+1]=pk[x];
-			}
-			ri.setActiveRecord(r1, true);
-			list.add(r1);
-		}
-		rm.writeNew(list);
-		rm.flush();
-		 */
-
 
 		RecordStream rs = rm.sequencialRead();
 		rs.open();
+		rs.setPointer(BigInteger.valueOf(100000));
 
+		ArrayList<BigInteger> selecionadoRandom = new ArrayList<>();
 		long x=0;
 		int oldPk = -1;
-		long oldPos = 0;
+		long oldPos = rs.getPointer();
+		Random rand = new Random();
 
 		while(rs.hasNext()) {
 			r = rs.next();
@@ -165,8 +123,26 @@ public class Main {
 			oldPk = aux;
 			oldPos = position;
 
-			System.out.println("("+(x++)+"|"+ri.isActiveRecord(r)+") ->"+position+" - [PK: "+aux+" Data: "+r.getData()[5]+","+r.getData()[6]+","+r.getData()[7]+"]");
+			//System.out.println("("+(x++)+"|"+ri.isActiveRecord(r)+") ->"+position+" - [PK: "+aux+" Data: "+r.getData()[5]+","+r.getData()[6]+","+r.getData()[7]+"]");
+			if(x%1==0){
+				selecionadoRandom.add(BigInteger.valueOf(aux));
+			}
+			if(x%23==0) {
+				ri.setActiveRecord(r, false);
+				rs.write(r);
+			}
 		}
+
+		r = new GenericRecord(new byte[sizeOfRecord]);
+		x = 0;
+		for (BigInteger pk:
+			 selecionadoRandom) {
+			rm.read(pk,r.getData());
+			BigInteger pk2 = ri.getPrimaryKey(r);
+			if(pk.compareTo(pk2)!=0 || ri.isActiveRecord(r)==false)
+				System.out.println("("+(x++)+"|"+ri.isActiveRecord(r)+") -> [PK: "+pk.intValue()+" = "+pk2.intValue()+", Data: "+r.getData()[5]+","+r.getData()[6]+","+r.getData()[7]+"]");
+		}
+
 		rs.close();
 		f.close();
 
@@ -176,11 +152,16 @@ public class Main {
 		System.out.println("Tempo seek leitura: "+(Parameters.IO_SEEK_READ_TIME)/1000000f+"ms");
 		System.out.println("Tempo leitura: "+(Parameters.IO_READ_TIME)/1000000f+"ms");
 		System.out.println("Tempo de sync: "+(Parameters.IO_SYNC_TIME)/1000000f+"ms");
+		System.out.println("Tempo total IO: "+(Parameters.IO_SYNC_TIME
+				+Parameters.IO_SEEK_WRITE_TIME
+				+Parameters.IO_READ_TIME
+				+Parameters.IO_SEEK_READ_TIME
+				+Parameters.IO_WRITE_TIME)/1000000f+"ms");
 		System.out.println("Blocos carregados: "+Parameters.BLOCK_LOADED);
 		System.out.println("Blocos salvos: "+Parameters.BLOCK_SAVED);
 		System.out.println("Memoria usada para blocos: "+Parameters.MEMORY_ALLOCATED_BY_BLOCKS);
 		System.out.println("Finalizou o arquivo!");
-		
+
 	}
 
 }

@@ -12,7 +12,7 @@ public class PointerArrayRecord extends Record {
 		this.size=size;
 		if(arr.length<offset+size)throw new ArrayIndexOutOfBoundsException();
 	}
-
+/*
 	@Override
 	public byte pos(int x) {
 		return arr[offset+x];
@@ -22,6 +22,7 @@ public class PointerArrayRecord extends Record {
 	public void set(int x, byte b) {
 		arr[offset+x]=b;
 	}
+ */
 
 	public byte[] getData(){
 		byte[] buff = new byte[size];

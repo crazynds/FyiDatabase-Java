@@ -1,6 +1,7 @@
 package engine.virtualization.record.manager;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import engine.file.FileManager;
 import engine.file.blocks.BlockBuffer;
@@ -32,12 +33,7 @@ public abstract class RecordManager{
 	 * Inicia um arquivo do zero
 	 * Reinicia todos os dados necessários
 	 */
-	public abstract void restart(FileManager fm) ;
-	
-	/*
-	 * Abre um arquivo e carrega as informações necessárias
-	 */
-	public abstract void open(FileManager fm) ;
+	public abstract void restart() ;
 	
 	/*
 	 * Força os buffers a liberarem as modificações escritas
@@ -50,9 +46,7 @@ public abstract class RecordManager{
 	public abstract void close() ;
 
 	/*
-	 * Le um record a partir de uma chave de armazenamento
-	 * Essa chave é gerenciada pelo record manager e não é necessária ser salva, mas 
-	 * torna a tarefa do record manager mais facil caso enviada
+	 * Le um record a partir de uma chave primaria
 	 */
 	public abstract Record read(BigInteger pk);
 	public abstract void read(BigInteger pk,byte[] buffer);
@@ -62,12 +56,13 @@ public abstract class RecordManager{
 	 * e atualiza-la com as informações do record correspondente.
 	 * Caso não encontre ela deve ser adicionada a lista
 	 */
-	public abstract Object write(Record r,BigInteger pk) ;
+	public abstract void write(Record r) ;
+	public abstract void write(List<Record> list) ;
 	
 	/*
 	 * Retorna true se o record manager garante os dados ordenados
 	 */
-	public abstract boolean isOrdened();	
+	public abstract boolean isOrdened();
 	
 	/*
 	 * Retorna um objeto que vai fazer a leitura sequencial dos records.

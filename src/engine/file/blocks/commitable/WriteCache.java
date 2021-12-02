@@ -6,9 +6,12 @@ public class WriteCache{
 	byte[] data;
 	long pos;
 
-	public WriteCache(long pos,byte[] data) {
-		this.data=data.clone();
-		Parameters.MEMORY_ALLOCATED_BY_COMMITTABLE_BLOCKS +=this.data.length;
+	public WriteCache(long pos,byte[] data, boolean clone) {
+		if(clone) {
+			this.data = data.clone();
+			Parameters.MEMORY_ALLOCATED_BY_COMMITTABLE_BLOCKS +=this.data.length;
+		}else
+			this.data=data;
 		this.pos=pos;
 	}
 	

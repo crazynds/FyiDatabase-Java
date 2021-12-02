@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-public class UpdatedFIFOBlockBuffer extends BlockBuffer {
+public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
     protected BlockStream stream;
 
@@ -28,7 +28,7 @@ public class UpdatedFIFOBlockBuffer extends BlockBuffer {
 
     protected int maxSize;
 
-    public UpdatedFIFOBlockBuffer(int bufferSize) {
+    public OptimizedFIFOBlockBuffer(int bufferSize) {
         maxSize = (bufferSize<=0)?1:bufferSize;
 
         entries = new EntryBlock[bufferSize];

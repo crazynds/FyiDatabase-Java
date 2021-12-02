@@ -21,6 +21,11 @@ public class GenericRecord extends Record {
 		this.size= size;
 	}
 
+	public void setData(byte[] data){
+		this.data = data;
+		this.size = data.length;
+	}
+
 	@Override
 	public byte[] getData(){
 		return data;
@@ -28,18 +33,8 @@ public class GenericRecord extends Record {
 
 	@Override
 	public int size() {
-		if(size<0)return data.length;
+		if (size < 0) return data.length;
 		return size;
-	}
-
-
-	@Override
-	public byte pos(int x) {
-		return data[x];
-	}
-	@Override
-	public void set(int x,byte b) {
-		data[x]=b;
 	}
 
 	@Override

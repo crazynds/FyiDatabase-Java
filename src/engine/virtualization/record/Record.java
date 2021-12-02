@@ -10,9 +10,6 @@ public abstract class Record implements ReadByteStream{
 	}
 	
 	public abstract int size();
-	public abstract byte pos(int x);
-	public abstract void set(int x,byte b);
-
 
 	public abstract byte[] getData();
 	

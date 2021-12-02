@@ -5,8 +5,7 @@ import java.util.Map.Entry;
 
 import engine.file.Block;
 import engine.file.FileManager;
-import engine.file.buffers.FIFOBlockBuffer;
-import engine.file.buffers.UpdatedFIFOBlockBuffer;
+import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 
@@ -41,7 +40,7 @@ public class TemporaryBuffer{
 	}
 	public TemporaryBuffer(FileManager origin, int blockBufferSize) {
 		this.origin=origin;
-		buffer = new FileManager(origin.getNameFile()+".temp",new UpdatedFIFOBlockBuffer(blockBufferSize));
+		buffer = new FileManager(origin.getNameFile()+".temp",new OptimizedFIFOBlockBuffer(blockBufferSize));
 		buffer.clearFile();
 		buffer.changeBlockSize(origin.getBlockSize());
 		bufferedBlocks = new TreeMap<Integer, Integer>();

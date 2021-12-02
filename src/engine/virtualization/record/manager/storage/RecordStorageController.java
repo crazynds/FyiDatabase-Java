@@ -18,7 +18,6 @@ public interface RecordStorageController {
 	 */
 	public void flush() ;
 
-
 	public Record read(long key) ;
 	public void read(long key,byte[] buffer) ;
 

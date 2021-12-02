@@ -45,7 +45,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	private Record invalidRecord;
 
 	public FixedRecordStorage(FileManager fm, RecordInterface ri, int sizeOfEachRecord){
-		this(fm,ri,sizeOfEachRecord,8);
+		this(fm,ri,sizeOfEachRecord,16);
 	}
 
 	public FixedRecordStorage(FileManager fm, RecordInterface ri, int sizeOfEachRecord,int tempBufferSize)  {
@@ -99,6 +99,20 @@ public class FixedRecordStorage implements RecordStorageController {
 		}
 	}
 
+	public boolean search(BigInteger pk, byte[] buffer) {
+		try {
+			long startPos;
+			GenericRecord r = new GenericRecord(buffer);
+			startPos = findRecordBinarySearch(pk, 0, qtdOfRecords - 1, r);
+
+			checkKey(startPos);
+			heap.read(startPos,sizeOfEachRecord,buffer,0);
+
+			return recordInterface.getPrimaryKey(r).compareTo(pk)==0;
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
 
 	@Override
 	public Record read(long key) {
@@ -250,25 +264,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		return position;
 	}
 
-	@Override
-	public void writeNew(List<Record> list) {
-		TreeMap<BigInteger,Record> records = new TreeMap<BigInteger,Record>();
-		byte[] data = null;
-
-		GenericRecord buffer = new GenericRecord(new byte[sizeOfEachRecord]);
-		long pos = 0;
-
-		for (Record r:list) {
-			if(r.size()==sizeOfEachRecord){
-				data = r.getData();
-				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados é menor que o informado na classe record");
-			}else{
-				data = new byte[sizeOfEachRecord];
-				System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
-			}
-			records.put(recordInterface.getPrimaryKey(r),new GenericRecord(data));
-		}
-
+	private long writeNewP1(TreeMap<BigInteger,byte[]> records, GenericRecord buffer){
 		lock.readLock().lock();
 		try {
 			long startPos;
@@ -282,88 +278,193 @@ public class FixedRecordStorage implements RecordStorageController {
 				}
 			}
 
-			pos = (startPos-sizeOfBytesQtdRecords)/sizeOfEachRecord;
+			return (startPos-sizeOfBytesQtdRecords)/sizeOfEachRecord;
 		} finally {
 			lock.readLock().unlock();
 		}
+	}
+
+	private long writeNewP2(TreeMap<BigInteger,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long pos){
+		Map.Entry<BigInteger,byte[]> entry=null;
+		LinkedList<byte[]> list = new LinkedList<>();
+		LinkedList<BigInteger> listKey = new LinkedList<>();
+		byte[] data = null;
+		long readOffset= pos;
+		long writeOffset = pos;
+
+		while(readOffset<qtdOfRecords && !records.isEmpty()){
+			long readPosition = getPositionOfRecord(readOffset);
+			heap.read(readPosition,sizeOfEachRecord,buffer.getData(),0);
+
+
+			if(recordInterface.isActiveRecord(buffer)) {
+				long writePosition = getPositionOfRecord(writeOffset);
+				BigInteger firstKey = records.firstKey();
+				BigInteger buffPk = recordInterface.getPrimaryKey(buffer);
+				switch (firstKey.compareTo(buffPk)) {
+					case -1:
+						do{
+							entry = records.pollFirstEntry();
+							firstKey = records.firstKey();
+							data = entry.getValue();
+							wbs.write(writePosition, data, sizeOfEachRecord);
+							recordInterface.updeteReference(entry.getKey(), writePosition);
+							writeOffset++;
+							writePosition+= sizeOfEachRecord;
+						}while (writeOffset <= readOffset && !records.isEmpty() && firstKey.compareTo(buffPk) == -1);
+						if(writeOffset>readOffset) {
+							records.putIfAbsent(buffPk, buffer.getData());
+							buffer.setData(data);
+
+							readOffset++;
+
+							/*
+								Estratégia de otimização para o pior caso
+								Caso não encontre nenhum espaço em branco, ele pode se utilizar desse loop para aumentar o desempenho do programa
+							 */
+							if(readOffset<qtdOfRecords) {
+								readPosition = getPositionOfRecord(readOffset);
+								heap.read(readPosition, sizeOfEachRecord, data, 0);
+								buffPk = recordInterface.getPrimaryKey(buffer);
+
+								BigInteger maxKey = records.higherKey(buffPk);
+								if(maxKey!=null && recordInterface.isActiveRecord(buffer)) {
+									list.clear();
+									listKey.clear();
+									BigInteger tempKey;
+									int ly = 0;
+
+									for (; records.firstKey().compareTo(maxKey) == -1; ) {
+										entry = records.pollFirstEntry();
+										list.addLast(entry.getValue());
+										listKey.addLast(entry.getKey());
+									}
+									//Loop-Unroling -> Buscar sobre
+
+									while(!list.isEmpty() && recordInterface.isActiveRecord(buffer)){
+										ly++;
+										switch(buffPk.compareTo(maxKey)){
+											case -1:
+												list.add(buffer.getData());
+												listKey.add(buffPk);
+												break;
+											case 0:
+												break;
+											case 1:
+												records.putIfAbsent(buffPk,buffer.getData());
+												break;
+										}
+										data = list.removeFirst();
+										tempKey = listKey.removeFirst();
+										wbs.write(writePosition, data, sizeOfEachRecord);
+										recordInterface.updeteReference(tempKey, writePosition);
+
+										writeOffset++;
+										writePosition+= sizeOfEachRecord;
+										readOffset++;
+										readPosition+= sizeOfEachRecord;
+										if(readOffset>=qtdOfRecords)break;
+
+										buffer.setData(data);
+										heap.read(readPosition, sizeOfEachRecord, buffer.getData(), 0);
+										buffPk = recordInterface.getPrimaryKey(buffer);
+									};
+
+
+
+									while(!list.isEmpty()){
+										records.putIfAbsent(listKey.removeFirst(),list.removeFirst());
+									}
+								}
+							}
+
+							readOffset--;
+						}else if(writeOffset<readOffset) {
+							writePosition = getPositionOfRecord(writeOffset);
+							while (readOffset - writeOffset > records.size()) {
+								wbs.write(writePosition, invalidRecord.getData(), invalidRecord.size());
+								writeOffset++;
+								writePosition+=sizeOfEachRecord;
+							}
+							data = buffer.getData();
+							wbs.write(writePosition, data, sizeOfEachRecord);
+							recordInterface.updeteReference(buffPk, writePosition);
+							writeOffset++;
+						}else{
+							writeOffset++;
+						}
+						break;
+					case 0:
+						entry = records.pollFirstEntry();
+						data = entry.getValue();
+						wbs.write(writePosition, data, sizeOfEachRecord);
+						recordInterface.updeteReference(entry.getKey(), writePosition);
+						writeOffset++;
+						break;
+					case 1:
+						if(writeOffset<readOffset) {
+							writePosition = getPositionOfRecord(writeOffset);
+							while (readOffset - writeOffset > records.size()) {
+								wbs.write(writePosition, invalidRecord.getData(), invalidRecord.size());
+								writeOffset++;
+								writePosition+=sizeOfEachRecord;
+							}
+							data = buffer.getData();
+							wbs.write(writePosition, data, sizeOfEachRecord);
+							recordInterface.updeteReference(buffPk, writePosition);
+							writeOffset++;
+						}else{
+							writeOffset=readOffset+1;
+						}
+						break;
+				}
+			}
+			readOffset++;
+		}
+		return writeOffset;
+	}
+
+	private void writeNewP3(TreeMap<BigInteger,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long writeOffset){
+		Map.Entry<BigInteger,byte[]> entry=null;
+		byte[] data = null;
+		while((entry = records.pollFirstEntry())!=null){
+			long position = getPositionOfRecord(writeOffset);
+			data = entry.getValue();
+			wbs.write(position, data, sizeOfEachRecord);
+			recordInterface.updeteReference(entry.getKey(), position);
+			if(writeOffset>=qtdOfRecords)
+				qtdOfRecords++;
+			writeOffset++;
+		}
+	}
+
+
+	@Override
+	public void writeNew(List<Record> list) {
+		TreeMap<BigInteger,byte[]> records = new TreeMap<BigInteger,byte[]>();
+		byte[] data = null;
+
+		GenericRecord buffer = new GenericRecord(new byte[sizeOfEachRecord]);
+		long pos = 0;
+
+		for (Record r:list) {
+			if(r.size()==sizeOfEachRecord){
+				data = r.getData();
+				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados é menor que o informado na classe record");
+			}else{
+				data = new byte[sizeOfEachRecord];
+				System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
+			}
+			records.put(recordInterface.getPrimaryKey(r),data);
+		}
+
+		pos = writeNewP1(records,buffer);
 
 		lock.writeLock().lock();
 		try {
 			WriteByteStream wbs = getWriteByteStream();
-			Map.Entry<BigInteger,Record> entry=null;
-			long readOffset= pos;
-			long writeOffset = pos;
-
-			while(readOffset<qtdOfRecords && records.size()>0){
-				long position = getPositionOfRecord(readOffset);
-				long writePosition = getPositionOfRecord(writeOffset);
-				heap.read(position,sizeOfEachRecord,buffer.getData(),0);
-
-
-				if(recordInterface.isActiveRecord(buffer)) {
-					BigInteger buffPk = recordInterface.getPrimaryKey(buffer);
-					switch (records.firstKey().compareTo(buffPk)) {
-						case -1:
-							while (writeOffset <= readOffset && records.size()>0 && records.firstKey().compareTo(buffPk) == -1) {
-								entry = records.pollFirstEntry();
-								data = entry.getValue().getData();
-								wbs.write(writePosition, data, (data.length < sizeOfEachRecord) ? data.length : sizeOfEachRecord);
-								recordInterface.updeteReference(entry.getKey(), writePosition);
-								writeOffset++;
-								writePosition = getPositionOfRecord(writeOffset);
-							}
-							if(writeOffset>readOffset) {
-								records.put(buffPk, buffer);
-								buffer = new GenericRecord(data);
-							}else if(writeOffset<readOffset) {
-								while (readOffset - writeOffset > records.size()) {
-									wbs.write(getPositionOfRecord(writeOffset), invalidRecord.getData(), invalidRecord.size());
-									writeOffset++;
-								}
-								data = buffer.getData();
-								writePosition = getPositionOfRecord(writeOffset);
-								wbs.write(writePosition, data, (data.length < sizeOfEachRecord) ? data.length : sizeOfEachRecord);
-								recordInterface.updeteReference(buffPk, writePosition);
-								writeOffset++;
-							}else{
-								writeOffset++;
-							}
-							break;
-						case 0:
-							entry = records.pollFirstEntry();
-							data = entry.getValue().getData();
-							wbs.write(writePosition, data, (data.length < sizeOfEachRecord) ? data.length : sizeOfEachRecord);
-							recordInterface.updeteReference(entry.getKey(), writePosition);
-							writeOffset++;
-							break;
-						case 1:
-							if(writeOffset<readOffset) {
-								while (readOffset - writeOffset > records.size()) {
-									wbs.write(getPositionOfRecord(writeOffset), invalidRecord.getData(), invalidRecord.size());
-									writeOffset++;
-								}
-								data = buffer.getData();
-								writePosition = getPositionOfRecord(writeOffset);
-								wbs.write(writePosition, data, (data.length < sizeOfEachRecord) ? data.length : sizeOfEachRecord);
-								recordInterface.updeteReference(buffPk, writePosition);
-								writeOffset++;
-							}else{
-								writeOffset=readOffset+1;
-							}
-							break;
-					}
-				}
-				readOffset++;
-			}
-			while((entry = records.pollFirstEntry())!=null){
-				long position = getPositionOfRecord(writeOffset);
-				data = entry.getValue().getData();
-				wbs.write(position, data, (data.length < sizeOfEachRecord) ? data.length : sizeOfEachRecord);
-				recordInterface.updeteReference(entry.getKey(), position);
-				if(writeOffset>=qtdOfRecords)
-					qtdOfRecords++;
-				writeOffset++;
-			}
+			long writeOffset = writeNewP2(records,buffer,wbs,pos);
+			writeNewP3(records,buffer,wbs,writeOffset);
 			flush();
 		} finally {
 			lock.writeLock().unlock();
@@ -478,7 +579,12 @@ public class FixedRecordStorage implements RecordStorageController {
 
 			@Override
 			public long write(Record r) {
-				return fixedRecordStorage.write(r,pos);
+				lock.writeLock().lock();
+				try {
+					return fixedRecordStorage.write(r, pos);
+				}finally {
+					lock.writeLock().unlock();
+				}
 			}
 
 			@Override
@@ -492,7 +598,8 @@ public class FixedRecordStorage implements RecordStorageController {
 			}
 
 			@Override
-			public void setPointer(long position) {
+			public void setPointer(BigInteger pk) {
+				long position = findRecordBinarySearch(pk,0,qtdOfRecords-1,new GenericRecord(new byte[sizeOfEachRecord]));
 				checkKey(position);
 				pos = (position-sizeOfBytesQtdRecords)/sizeOfEachRecord;
 			}
@@ -505,8 +612,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	}
 
 	private long getPositionOfRecord(long record){
-		long pos = record*sizeOfEachRecord+sizeOfBytesQtdRecords;
-		return pos;
+		return record*sizeOfEachRecord+sizeOfBytesQtdRecords;
 	}
 
 	private long checkKey(long position) {

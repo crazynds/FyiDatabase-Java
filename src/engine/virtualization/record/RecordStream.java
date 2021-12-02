@@ -1,6 +1,8 @@
 package engine.virtualization.record;
 
 
+import java.math.BigInteger;
+
 public interface RecordStream {
 	
 	/*
@@ -46,7 +48,7 @@ public interface RecordStream {
 	/*
 	 * Define a posição para a leitura, caso seja passado uma posição inválida, a leitura pode ocorrer de forma errada.
 	 */
-	public void setPointer(long position);
+	public void setPointer(BigInteger pk);
 	public long getPointer();
 	
 }
