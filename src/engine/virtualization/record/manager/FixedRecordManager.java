@@ -2,6 +2,8 @@ package engine.virtualization.record.manager;
 
 import com.sun.source.tree.Tree;
 import engine.Main;
+import engine.exceptions.DataBaseException;
+import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.virtualization.record.Record;
@@ -24,6 +26,7 @@ public class FixedRecordManager extends RecordManager{
 
     private RecordInterface customInterface;
 
+
     private int sizeOfEachRecord;
 
 
@@ -42,12 +45,14 @@ public class FixedRecordManager extends RecordManager{
     @Override
     public void flush() {
         recordStorage.flush();
+        super.flush();
     }
 
     @Override
     public void close() {
         this.flush();
         recordMap.clear();
+        super.close();
     }
 
     @Override
@@ -63,13 +68,30 @@ public class FixedRecordManager extends RecordManager{
             Long pos = recordMap.get(pk);
             recordStorage.read(pos,buffer);
         }else{
-            recordStorage.search(pk,buffer);
+            boolean b = recordStorage.search(pk,buffer);
+            if(!b)
+                throw new NotFoundRowException("FixedRecordManager->Read",pk);
         }
     }
 
     @Override
     public void write(Record r) {
-        recordStorage.writeNew(r);
+        BigInteger pk = recordInterface.getPrimaryKey(r);
+
+        if(recordMap.containsKey(pk)){
+            /*
+             * Nessa função vc tem que ter certeza de qual a posição real do item
+             * porém garante um maior desempenho
+             */
+            Long pos = recordMap.get(pk);
+            recordStorage.write(r,pos);
+        }else{
+            /*
+             * Essa função já garante que o item não sera duplicado
+             * porém tem um menor desempenho
+             */
+            recordStorage.writeNew(r);
+        }
     }
 
     @Override

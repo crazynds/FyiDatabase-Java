@@ -4,6 +4,10 @@ import java.math.BigInteger;
 
 public class Util {
 
+	public static BigInteger convertIntegerToByteArray(long num){
+		return BigInteger.valueOf(num);
+	}
+
 	public static BigInteger convertByteArrayToNumber(byte[] arr) {
     	arr = invertByteArray(arr);
     	return new BigInteger(arr);
@@ -23,10 +27,6 @@ public class Util {
 		for(int x=0;x<size&&num>0;x++,num>>=8)
 			arr[x] = (byte)num;
 		return arr;
-	}
-	
-	public static BigInteger convertToPrimaryKey(byte[] arr) {
-		return convertByteArrayToNumber(arr);
 	}
 	
 	public final static byte[] invertByteArray(byte[] array) {

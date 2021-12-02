@@ -38,12 +38,16 @@ public abstract class RecordManager{
 	/*
 	 * Força os buffers a liberarem as modificações escritas
 	 */
-	public abstract void flush() ;
+	public void flush(){
+		fileManager.flush();
+	}
 	
 	/*
 	 * Fecha a manipulação do arquivo e faz o salvametno dos dados
 	 */
-	public abstract void close() ;
+	public void close(){
+		fileManager.close();
+	}
 
 	/*
 	 * Le um record a partir de uma chave primaria

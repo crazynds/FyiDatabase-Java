@@ -1,14 +1,19 @@
 package engine;
 
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 
+import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.info.Parameters;
+import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
@@ -85,7 +90,7 @@ public class Main {
 		Record r;
 
 		int sizeOfRecord = 300;
-		int qtdOfRecords = 4000;
+		int qtdOfRecords = 100;
 		int qtdPerList = 100;
 		int maxPK = 100000000;
 
@@ -93,58 +98,104 @@ public class Main {
 		RecordInterface ri = new AuxRecordInterface();
 		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
 
+		boolean exec = true;
+		Scanner in = new Scanner(System.in);
+		int qtd = 0;
+		do{
+			System.out.println("Escolha uma opção abaixo:");
+			System.out.println("");
+			System.out.println("1-Inserir");
+			System.out.println("2-Remover");
+			System.out.println("3-Visualizar itens");
+			System.out.println("4-Resetar arquivo");
+			System.out.println("5-Flush nos dados");
+			System.out.println("0-Sair");
 
-		createBase(ri,rm,sizeOfRecord,qtdOfRecords,qtdPerList,maxPK);
+			int option = in.nextInt();
+			System.out.print("\033[H\033[2J");
+			System.out.flush();
 
+			switch(option){
+				case 0:
+					exec = false;
+					break;
+				case 1:
+					int pk = 0;
+					do{
+						System.out.println("Digite um valor para primary key(0 para sair): ");
+						System.out.println("--os dados serao preenchidos aleatoriamente-- ");
+						pk = in.nextInt();
 
-		RecordStream rs = rm.sequencialRead();
-		rs.open();
-		rs.setPointer(BigInteger.valueOf(100000));
+						if(pk!=0) {
+							ByteBuffer b = ByteBuffer.allocate(4);
+							b.order(ByteOrder.LITTLE_ENDIAN);
+							b.putInt(pk);
+							byte[] pkArray = b.array();
+							byte[] data = new byte[sizeOfRecord];
+							for (int x = 0; x < data.length; x++) data[x] = (byte) qtd;
+							qtd++;
+							System.arraycopy(pkArray, 0, data, 1, 4);
+							r = new GenericRecord(data);
 
-		ArrayList<BigInteger> selecionadoRandom = new ArrayList<>();
-		long x=0;
-		int oldPk = -1;
-		long oldPos = rs.getPointer();
-		Random rand = new Random();
+							ri.setActiveRecord(r, true);
+							rm.write(r);
+						}
+					}while(pk!=0);
+					break;
+				case 2:
+					do{
+						System.out.println("Digite um valor para primary key(0 para sair): ");
+						System.out.println("--O record sera apagado--");
+						pk = in.nextInt();
+						if(pk!=0) {
+							try {
+								r = rm.read(Util.convertIntegerToByteArray(pk));
+								ri.setActiveRecord(r, false);
+								rm.write(r);
+							} catch (NotFoundRowException e) {
+								System.out.println("Não encontrado um item com essa primary key");
+							}
+						}
+					}while(pk!=0);
+					break;
+				case 3:
+					RecordStream rs = rm.sequencialRead();
+					long x=0;
+					long lastPos = 0;
+					int lastPk = -1;
+					rs.open(false);
+					while(rs.hasNext()){
+						r = rs.next();
 
-		while(rs.hasNext()) {
-			r = rs.next();
-			long position = rs.getPointer();
-
-			ByteBuffer b = ByteBuffer.wrap(r.getData(), 1, 4);
-			b.order(ByteOrder.LITTLE_ENDIAN);
-			int aux = b.getInt();
-			if(oldPos+sizeOfRecord<position){
-				System.out.println("(WARNING) GAP aq de "+(position - (oldPos+sizeOfRecord))/sizeOfRecord+" !!");
+						ByteBuffer wrapped = ByteBuffer.wrap(r.getData(),1,4);
+						wrapped.order(ByteOrder.LITTLE_ENDIAN);
+						int num = wrapped.getInt();
+						if(lastPk>=num){
+							System.out.println("(WARNING) Ordem PK invalida -> "+num+" <= "+lastPk);
+						}
+						if(lastPos<rs.getPointer()-sizeOfRecord){
+							System.out.println("(WARNING) GAP AQ DE "+((rs.getPointer()-lastPos)/sizeOfRecord-1));
+						}
+						System.out.println("("+(x++)+") -> "+rs.getPointer()+" - [ PK="+num+", DATA=["+r.getData()[5]+", "+r.getData()[6]+"] ]");
+						lastPk = num;
+						lastPos = rs.getPointer();
+					}
+					rs.close();
+					break;
+				case 4:
+					rm.restart();
+					break;
+				case 5:
+					rm.flush();
+					break;
 			}
-			if(aux<oldPk) {
-				System.out.println("(WARNING) Menor aqui ("+oldPk+")<("+aux+") !!");
-			}
-			oldPk = aux;
-			oldPos = position;
+			System.out.print("\033[H\033[2J");
+			System.out.flush();
+		}while(exec);
 
-			//System.out.println("("+(x++)+"|"+ri.isActiveRecord(r)+") ->"+position+" - [PK: "+aux+" Data: "+r.getData()[5]+","+r.getData()[6]+","+r.getData()[7]+"]");
-			if(x%1==0){
-				selecionadoRandom.add(BigInteger.valueOf(aux));
-			}
-			if(x%23==0) {
-				ri.setActiveRecord(r, false);
-				rs.write(r);
-			}
-		}
 
-		r = new GenericRecord(new byte[sizeOfRecord]);
-		x = 0;
-		for (BigInteger pk:
-			 selecionadoRandom) {
-			rm.read(pk,r.getData());
-			BigInteger pk2 = ri.getPrimaryKey(r);
-			if(pk.compareTo(pk2)!=0 || ri.isActiveRecord(r)==false)
-				System.out.println("("+(x++)+"|"+ri.isActiveRecord(r)+") -> [PK: "+pk.intValue()+" = "+pk2.intValue()+", Data: "+r.getData()[5]+","+r.getData()[6]+","+r.getData()[7]+"]");
-		}
+		rm.close();
 
-		rs.close();
-		f.close();
 
 		System.out.println("Tempo total: "+(System.nanoTime()-time)/1000000f+"ms");
 		System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

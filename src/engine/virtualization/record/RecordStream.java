@@ -8,8 +8,9 @@ public interface RecordStream {
 	/*
 	 * Abre e fecha o leitor sequencial
 	 * É importante caso seja necessário bloquear a tabela dependendo do record manager
+	 * Na função open deve ser passado true caso possa ser chamado a função write
 	 */
-	public void open();
+	public void open(boolean lockToWrite);
 	public void close();
 	
 	/*
@@ -31,10 +32,14 @@ public interface RecordStream {
 	
 	/*
 	 * Faz a chamada de escrita do record na posição em que estava
-	 * Retorna a nova posição no arquivo. Pode ser a mesma em que estava
 	 * Caso seja necessário, o objeto ira fazer chamadas de atualização da posição dos outros records
 	 */
-	public long write(Record r);
+	public void write(Record r);
+
+	/*
+	 * Diz que o item atual deve ser definido como removido
+	 */
+	public void remove();
 	
 	/*
 	 * Informa se os records estão ordenados 
