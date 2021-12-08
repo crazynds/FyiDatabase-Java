@@ -112,8 +112,6 @@ public class Main {
 			System.out.println("0-Sair");
 
 			int option = in.nextInt();
-			System.out.print("\033[H\033[2J");
-			System.out.flush();
 
 			switch(option){
 				case 0:
@@ -192,10 +190,8 @@ public class Main {
 			System.out.print("\033[H\033[2J");
 			System.out.flush();
 		}while(exec);
-
-
+		
 		rm.close();
-
 
 		System.out.println("Tempo total: "+(System.nanoTime()-time)/1000000f+"ms");
 		System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

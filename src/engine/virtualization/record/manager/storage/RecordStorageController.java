@@ -3,6 +3,7 @@ package engine.virtualization.record.manager.storage;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordStream;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public interface RecordStorageController {
@@ -31,7 +32,11 @@ public interface RecordStorageController {
 	 */
 	public long writeNew(Record r);
 	public void writeNew(List<Record> list);
-	
+
+	/*
+	 *
+	 */
+	public boolean search(BigInteger pk, byte[] buffer);
 
 	/*
 	 * Retorna um objeto para efetuar a leitura sequencial

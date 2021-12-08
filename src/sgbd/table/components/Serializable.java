@@ -1,4 +1,4 @@
-package engine.table;
+package sgbd.table.components;
 
 import engine.file.streams.ByteStream;
 

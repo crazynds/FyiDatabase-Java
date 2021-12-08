@@ -1,13 +1,15 @@
-package engine.table.prototype;
+package sgbd.prototype;
 
 import engine.exceptions.DataBaseException;
 
 public class Column {
-	
+
+	public static final byte NONE= 0;
 	public static final byte DINAMIC_COLUMN_SIZE = (1<<0);
 	public static final byte CAM_NULL_COLUMN = (1<<1);
 	public static final byte SHIFT_8_SIZE_COLUMN = (1<<2);
 	public static final byte SIGNED_INTEGER_COLUMN = (1<<3);
+	public static final byte PRIMARY_KEY = (1<<4);
 	
 	protected short size;
 	protected String name;
@@ -65,6 +67,9 @@ public class Column {
 	}
 	public boolean camBeNull(){
 		return (flags&CAM_NULL_COLUMN)!=0;
+	}
+	public boolean isPrimaryKey(){
+		return (flags&PRIMARY_KEY)!=0;
 	}
 
 	public String getName() {

@@ -1,11 +1,7 @@
 package engine.virtualization.record.manager;
 
-import com.sun.source.tree.Tree;
-import engine.Main;
-import engine.exceptions.DataBaseException;
 import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
-import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
@@ -14,8 +10,6 @@ import engine.virtualization.record.manager.storage.FixedRecordStorage;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
 
 public class FixedRecordManager extends RecordManager{

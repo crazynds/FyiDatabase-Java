@@ -12,7 +12,5 @@ public abstract class BlockBuffer implements BlockStream{
 	public abstract void forceBlock(int num);//Força um bloco em cache
 
 	public abstract void clearBuffer(); // Limpa o buffer independente se é necessário salvar ou não
-	
-	
-	
+
 }

@@ -81,7 +81,6 @@ public class FileManager implements BlockFace,BlockStream {
 		try {
 			file.close();
 		}catch (IOException e){
-
 		};
 	}
 	

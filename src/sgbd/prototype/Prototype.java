@@ -1,6 +1,7 @@
-package engine.table.prototype;
+package sgbd.prototype;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import engine.exceptions.DataBaseException;
@@ -48,60 +49,6 @@ public class Prototype implements Iterable<Column>{
 		return (short)columns.size();
 	}
 	
-	public int getRecomendedChunckStorage()  {
-		int sum=0;
-		boolean isStatic=true;
-		int qtd=1;
-
-
-		int header=3; // Present, sobre size (3 bytes)
-		for(Column a:columns){
-			header++; // Column null bit
-			sum+=a.getSize();
-			if(a.isDinamicSize())isStatic=false;
-		}
-		if(sum==0){
-			String error="Tamanho de cada linha igual tem que ser maior que zero.";
-			DataBaseException e = new DataBaseException("PrototypeColumns->getRecomendedChunckStorage",error);
-			e.addValidation("size(row) > 0B");
-			e.addValidation("size(row) < 24MB");
-			throw e;
-		}else if(sum>24*MB){ // 3 bytes de tamanho 
-			String error="Tamanho de cada linha deve ser de não maior que 24 MB.";
-			DataBaseException e= new DataBaseException("PrototypeColumns->getRecomendedChunckStorage",error);
-			e.addValidation("size(row) > 0B");
-			e.addValidation("size(row) < 24MB");
-			throw e;
-		}
-		headerSize=(int) (Math.ceil(header/8f));
-		sum+=headerSize +((sum>=64*KB)?4:((sum>=256)?2:1));
-		while(sum%512!=0 && isStatic){ // Max mult = *512 items
-			qtd<<=1;
-			sum<<=1;
-		}
-		while(sum%32!=0 && !isStatic){ // Max multi = *32 items
-			qtd<<=1;
-			sum<<=1;
-		}
-		if(isStatic){
-			int aux=sum;
-			int auxQtd=qtd;
-			while(qtd<64|| sum < 16*KB){ //Min 512 items e 16 KB do tamanho de cluster
-				qtd+=auxQtd;
-				sum+=aux;
-			}
-		}else{
-			int aux=sum;
-			int auxQtd=qtd;
-			while(qtd<8 || sum < 16*KB){ //Min 8 items e 16 Kb de tamanho de cluster
-				qtd+=auxQtd;
-				sum+=aux;
-			}
-		}
-		this.stat=isStatic;
-		return sum;
-	}
-	
 	public void validateColumns()  {
 		DataBaseException ex =null;
 		if(size()==0){
@@ -114,10 +61,16 @@ public class Prototype implements Iterable<Column>{
 			Column col=getColumn(x);
 			int namelen=col.getName().length();
 			if(namelen>240 || namelen<1){
-				String error="Coluna "+x+" tem nomes de tamanhos inválido!";
+				String error="Coluna "+x+" tem nome de tamanhos inválido!";
 				ex=new DataBaseException("Prototype->ValidateColumns",error);
 				ex.addValidation("Max:240");
 				ex.addValidation("Min:1");
+				throw ex;
+			}
+			if(col.isPrimaryKey() && col.isDinamicSize()){
+				String error="Coluna "+x+" não pode ser dinamica ao mesmo tempo que é primary key!";
+				ex=new DataBaseException("Prototype->ValidateColumns",error);
+				ex.addValidation("DINAMIC not in PRIMARY KEY");
 				throw ex;
 			}
 			for(short y=(short) (x+1);y<size();y++){
@@ -129,6 +82,14 @@ public class Prototype implements Iterable<Column>{
 				}
 			}
 		}
+		columns.sort(new Comparator<Column>() {
+			@Override
+			public int compare(Column o1, Column o2) {
+				if(o1.isPrimaryKey()&& !o2.isPrimaryKey())return -1;
+				if(!o1.isPrimaryKey()&& o2.isPrimaryKey())return 1;
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
 	}
 
 	@Override

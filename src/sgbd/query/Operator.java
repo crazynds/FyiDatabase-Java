@@ -1,4 +1,4 @@
-package engine.query;
+package sgbd.query;
 
 public interface Operator {
 

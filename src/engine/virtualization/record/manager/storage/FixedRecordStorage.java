@@ -99,6 +99,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		}
 	}
 
+	@Override
 	public boolean search(BigInteger pk, byte[] buffer) {
 		lock.readLock().lock();
 		try {
@@ -443,7 +444,7 @@ public class FixedRecordStorage implements RecordStorageController {
 				case 0:
 					return getPositionOfRecord(mid+offset-1);
 				case 1:
-					return findRecordBinarySearch(pk,mid+offset-1,max,buffer);
+					return findRecordBinarySearch(pk,mid+offset,max,buffer);
 			}
 
 		}

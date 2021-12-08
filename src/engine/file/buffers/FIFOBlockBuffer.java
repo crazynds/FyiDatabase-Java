@@ -58,7 +58,6 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		stream.flush();
 	}
 
-
 	@Override
 	public void close() {
 		try {
@@ -67,13 +66,11 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		}
 	}
 
-
 	@Override
 	public int getBlockSize() {
 		if(stream==null)return 0;
 		return stream.getBlockSize();
 	}
-
 
 	@Override
 	public Block readBlock(int pos)  {
@@ -83,7 +80,6 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		}
 		return new Block(buffered.getBlock(),true);
 	}
-
 
 	@Override
 	public void readBlock(int pos, byte[] buffer)  {
@@ -113,13 +109,11 @@ public class FIFOBlockBuffer extends BlockBuffer {
 			buffered.getBlock().write(b);
 	}
 
-
 	@Override
 	public WriteByteStream getBlockWriteByteStream(int block)  {
 		EntryBlock buffered = getBlockInBuffer(block);
 		if(buffered==null) {
 			buffered = loadBlock(block);
-			
 		}
 		CommitableBlockStream bc = new CommitableBlockStream(new WriteBack() {
 			int blockToSave = block;
@@ -139,7 +133,6 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		return bc;
 	}
 
-
 	@Override
 	public ReadByteStream getBlockReadByteStream(int block)  {
 		EntryBlock buffered = getBlockInBuffer(block);
@@ -149,12 +142,10 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		return (ReadByteStream)buffered.getBlock();
 	}
 
-
 	@Override
 	public void startBuffering(BlockStream stream) {
 		this.stream=stream;
 	}
-
 
 	@Override
 	public Block getBlockIfExistInBuffer(int num) {
@@ -163,12 +154,10 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		else return eb.getBlock();
 	}
 
-
 	@Override
 	public void hintBlock(int num) {
 		forceBlock(num);
 	}
-
 
 	@Override
 	public void forceBlock(int num) {
@@ -186,7 +175,6 @@ public class FIFOBlockBuffer extends BlockBuffer {
 			e.getBlock().changeBlockID(-1);
 		}
 	}
-
 
 	protected synchronized EntryBlock loadBlock(int block)  {
 		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->loadBlock","BlockStream não definido!");
@@ -235,8 +223,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 			blocks.addLast(e);
 		return e;
 	}
-	
-	
+
 	protected class EntryBlock implements Callable<Void>{
 		private BlockID b;
 		private Boolean saved;
@@ -262,6 +249,4 @@ public class FIFOBlockBuffer extends BlockBuffer {
 			return null;
 		}
 	}
-
-	
 }
