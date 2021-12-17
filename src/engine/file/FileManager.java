@@ -8,7 +8,7 @@ import java.io.RandomAccessFile;
 import java.io.SyncFailedException;
 
 import engine.exceptions.DataBaseException;
-import engine.file.blocks.BlockBuffer;
+import engine.file.buffers.BlockBuffer;
 import engine.file.blocks.BlockFace;
 import engine.file.buffers.NoBlockBuffer;
 import engine.file.streams.BlockStream;

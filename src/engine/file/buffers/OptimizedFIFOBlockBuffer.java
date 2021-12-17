@@ -1,9 +1,7 @@
 package engine.file.buffers;
 
-import com.sun.source.tree.Tree;
 import engine.exceptions.DataBaseException;
 import engine.file.Block;
-import engine.file.blocks.BlockBuffer;
 import engine.file.blocks.BlockID;
 import engine.file.blocks.commitable.CommitableBlockStream;
 import engine.file.blocks.commitable.WriteBack;
@@ -12,16 +10,12 @@ import engine.file.streams.BlockStream;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
 public class OptimizedFIFOBlockBuffer extends BlockBuffer {
-
-    protected BlockStream stream;
-
     protected EntryBlock[] entries;
     protected TreeMap<Integer,Integer> blockMaping;
     protected TreeMap<Long,Integer> timeMaping;
@@ -39,7 +33,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
     @Override
     public void startBuffering(BlockStream stream) {
-        this.stream=stream;
+        super.startBuffering(stream);
         for(int x=0;x<entries.length;x++){
             entries[x] = new EntryBlock(new BlockID(new Block(stream.getBlockSize()),-1),true);
             timeMaping.put(entries[x].getTime()+x,x);

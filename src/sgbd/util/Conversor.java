@@ -1,0 +1,30 @@
+package sgbd.util;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+
+public class Conversor {
+
+    public static byte[] longToByteArray(long l){
+        return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(l).array();
+    }
+
+    public static byte[] intToByteArray(int i){
+        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(i).array();
+    }
+
+    public static byte[] shortToByteArray(short s){
+        return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(s).array();
+    }
+
+    public static byte[] byteToByteArray(byte b){
+        return new byte[]{b};
+    }
+
+    public static byte[] stringToByteArray(String s){
+        return s.getBytes(StandardCharsets.UTF_8);
+    }
+
+
+}

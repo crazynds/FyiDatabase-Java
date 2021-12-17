@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class RowData {
 	private Map<String,byte[]> data;
-	
+
 	public RowData() {
 		data=new HashMap<String, byte[]>();
 	}

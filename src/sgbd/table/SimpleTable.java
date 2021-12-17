@@ -5,6 +5,7 @@ import sgbd.prototype.RowData;
 
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.List;
 
 public class SimpleTable extends Table {
     public SimpleTable(Prototype pt) {
@@ -22,18 +23,21 @@ public class SimpleTable extends Table {
     }
 
     @Override
-    public void insert(RowData r) {
+    public BigInteger insert(RowData r) {
+        translatorApi.validateRowData(r);
+        BigInteger pk = translatorApi.getPrimaryKey(r);
 
+        return pk;
     }
 
     @Override
-    public RowData find(BigInteger pk) {
+    public RowData find(BigInteger pk, List<String> colunas) {
         return null;
     }
 
     @Override
-    public void update(RowData r) {
-
+    public RowData update(BigInteger pk,RowData r) {
+        return null;
     }
 
     @Override

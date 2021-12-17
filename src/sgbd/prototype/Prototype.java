@@ -49,7 +49,7 @@ public class Prototype implements Iterable<Column>{
 		return (short)columns.size();
 	}
 	
-	public void validateColumns()  {
+	public TranslatorApi validateColumns()  {
 		DataBaseException ex =null;
 		if(size()==0){
 			String error="Não é valido uma tabela com nenhuma coluna!";
@@ -67,8 +67,14 @@ public class Prototype implements Iterable<Column>{
 				ex.addValidation("Min:1");
 				throw ex;
 			}
+			if(col.isPrimaryKey() && col.camBeNull()){
+				String error="Coluna "+col.getName()+" não pode ser nula e ao mesmo tempo ser primary key!";
+				ex=new DataBaseException("Prototype->ValidateColumns",error);
+				ex.addValidation("NULL not in PRIMARY KEY");
+				throw ex;
+			}
 			if(col.isPrimaryKey() && col.isDinamicSize()){
-				String error="Coluna "+x+" não pode ser dinamica ao mesmo tempo que é primary key!";
+				String error="Coluna "+col.getName()+" não pode ser dinamica ao mesmo tempo que é primary key!";
 				ex=new DataBaseException("Prototype->ValidateColumns",error);
 				ex.addValidation("DINAMIC not in PRIMARY KEY");
 				throw ex;
@@ -82,14 +88,22 @@ public class Prototype implements Iterable<Column>{
 				}
 			}
 		}
+
 		columns.sort(new Comparator<Column>() {
 			@Override
 			public int compare(Column o1, Column o2) {
 				if(o1.isPrimaryKey()&& !o2.isPrimaryKey())return -1;
 				if(!o1.isPrimaryKey()&& o2.isPrimaryKey())return 1;
-				return o1.getName().compareTo(o2.getName());
+				if(o1.isPrimaryKey()&& o2.isPrimaryKey())
+					return Integer.compare(columns.indexOf(o1),columns.indexOf(o2));
+				else {
+					if(o1.isDinamicSize() && !o2.isDinamicSize())return 1;
+					if(!o1.isDinamicSize() && o2.isDinamicSize())return -1;
+					return o1.getName().compareTo(o2.getName());
+				}
 			}
 		});
+		return new TranslatorApi(columns);
 	}
 
 	@Override

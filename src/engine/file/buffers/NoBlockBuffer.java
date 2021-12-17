@@ -2,21 +2,13 @@ package engine.file.buffers;
 
 import engine.exceptions.DataBaseException;
 import engine.file.Block;
-import engine.file.blocks.BlockBuffer;
 import engine.file.streams.BlockStream;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 
 public class NoBlockBuffer extends BlockBuffer {
-	
-	private BlockStream fm;
 
 	public NoBlockBuffer() {
-	}
-
-	@Override
-	public void startBuffering(BlockStream directStream) {
-		this.fm=directStream;
 	}
 
 	@Override
@@ -26,13 +18,12 @@ public class NoBlockBuffer extends BlockBuffer {
 
 	@Override
 	public void hintBlock(int num) {
-		if(fm==null)return;
-		
+		if(stream==null)return;
 	}
 
 	@Override
 	public void forceBlock(int num) {
-		if(fm==null)return;
+		if(stream==null)return;
 	}
 
 	@Override
@@ -41,9 +32,9 @@ public class NoBlockBuffer extends BlockBuffer {
 
 	@Override
 	public Block readBlock(int pos)  {
-		if(fm==null)throw new DataBaseException("NoBlockBuffer->readBlock","BlockStream não definido!");
+		if(stream==null)throw new DataBaseException("NoBlockBuffer->readBlock","BlockStream não definido!");
 		try {
-			return fm.readBlock(pos);
+			return stream.readBlock(pos);
 		}catch(DataBaseException e) {
 			e.addLocationToPath("NoBlockBuffer");
 			throw e;
@@ -52,9 +43,9 @@ public class NoBlockBuffer extends BlockBuffer {
 
 	@Override
 	public void writeBlock(int pos, Block b)  {
-		if(fm==null)throw new DataBaseException("NoBlockBuffer->writeBlock","BlockStream não definido!");
+		if(stream==null)throw new DataBaseException("NoBlockBuffer->writeBlock","BlockStream não definido!");
 		try {
-			fm.writeBlock(pos,b);
+			stream.writeBlock(pos,b);
 		}catch(DataBaseException e) {
 			e.addLocationToPath("NoBlockBuffer");
 			throw e;
@@ -63,37 +54,37 @@ public class NoBlockBuffer extends BlockBuffer {
 
 	@Override
 	public void flush()  {
-		fm.flush();
+		stream.flush();
 	}
 
 	@Override
 	public void close() {
-		fm.close();
+		stream.close();
 	}
 
 	@Override
 	public int getBlockSize() {
-		return fm.getBlockSize();
+		return stream.getBlockSize();
 	}
 
 	@Override
 	public ReadByteStream getBlockReadByteStream(int block)  {
-		return fm.getBlockReadByteStream(block);
+		return stream.getBlockReadByteStream(block);
 	}
 
 	@Override
 	public WriteByteStream getBlockWriteByteStream(int block)  {
-		return fm.getBlockWriteByteStream(block);
+		return stream.getBlockWriteByteStream(block);
 	}
 
 	@Override
 	public int lastBlock()  {
-		return fm.lastBlock();
+		return stream.lastBlock();
 	}
 
 	@Override
 	public void readBlock(int pos, byte[] buffer)  {
-		fm.readBlock(pos, buffer);
+		stream.readBlock(pos, buffer);
 	}
 
 

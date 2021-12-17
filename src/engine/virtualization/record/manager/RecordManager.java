@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 import engine.file.FileManager;
-import engine.file.blocks.BlockBuffer;
+import engine.file.buffers.BlockBuffer;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;

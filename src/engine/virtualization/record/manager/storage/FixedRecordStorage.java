@@ -199,10 +199,10 @@ public class FixedRecordStorage implements RecordStorageController {
 			TreeMap<BigInteger,byte[]> arr = new TreeMap<>();
 			arr.put(pk,r.getData());
 			GenericRecord buffer =new GenericRecord(new byte[sizeOfEachRecord]);
-			position = writeNewP1(arr,buffer);
 
 			lock.writeLock().lock();
 			try {
+				position = writeNewP1(arr,buffer);
 				WriteByteStream wbs = getWriteByteStream();
 				long writeOffset = writeNewP2(arr,buffer,wbs,position);
 				writeNewP3(arr,buffer,wbs,writeOffset);
@@ -216,23 +216,18 @@ public class FixedRecordStorage implements RecordStorageController {
 	}
 
 	private long writeNewP1(TreeMap<BigInteger,byte[]> records, GenericRecord buffer){
-		lock.readLock().lock();
-		try {
-			long startPos;
-			startPos = findRecordBinarySearch(records.firstKey(), 0, qtdOfRecords - 1, buffer);
+		long startPos;
+		startPos = findRecordBinarySearch(records.firstKey(), 0, qtdOfRecords - 1, buffer);
 
-			if(startPos > sizeOfBytesQtdRecords) {
+		if(startPos > sizeOfBytesQtdRecords) {
+			heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
+			while(recordInterface.isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
+				startPos-=sizeOfEachRecord;
 				heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
-				while(recordInterface.isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
-					startPos-=sizeOfEachRecord;
-					heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
-				}
 			}
-
-			return (startPos-sizeOfBytesQtdRecords)/sizeOfEachRecord;
-		} finally {
-			lock.readLock().unlock();
 		}
+
+		return (startPos-sizeOfBytesQtdRecords)/sizeOfEachRecord;
 	}
 
 	private long writeNewP2(TreeMap<BigInteger,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long pos){
@@ -272,6 +267,7 @@ public class FixedRecordStorage implements RecordStorageController {
 							/*
 								Estratégia de otimização para o pior caso
 								Caso não encontre nenhum espaço em branco, ele pode se utilizar desse loop para aumentar o desempenho do programa
+								Obs: ganho muito pouco. Obs2: comentar esse trecho mantem o código funcionando normalmente
 							 */
 							if(readOffset<qtdOfRecords) {
 								readPosition = getPositionOfRecord(readOffset);
@@ -409,10 +405,9 @@ public class FixedRecordStorage implements RecordStorageController {
 			records.put(recordInterface.getPrimaryKey(r),data);
 		}
 
-		pos = writeNewP1(records,buffer);
-
 		lock.writeLock().lock();
 		try {
+			pos = writeNewP1(records,buffer);
 			WriteByteStream wbs = getWriteByteStream();
 			long writeOffset = writeNewP2(records,buffer,wbs,pos);
 			writeNewP3(records,buffer,wbs,writeOffset);
