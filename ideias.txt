@@ -1,0 +1,12 @@
+- Ao invez de retornar um record, retornar uma interface de leitura do record.
+ Para o manager estatico o ideial mesmo é armazera em um array todos os dados e retornar a interface que le direto desse array.
+ Para outros manager, ele ao invez de ler todos os dados necessários ele le apenas os que ele precisa conforme for lido pela interface de leitura. 
+ Deve ser necessário fechar a interface para concluir a operação de leitura.
+
+
+- Manager dinamico, usar o record estatico para armazenar os N primeiros bytes.
+ Utilizar um segundo arquivo para armazenar os bytes restantes. Será usado uma memoria heap, ou continua com mapeamento de espaço livre usando os bits do inicio do espaço heap.
+
+- Criar função copy no espaço heap e no buffer temporario.
+ Essa função é util para não fazer a escrita e depois leitura de uma memoria buffer que ficaria entre o que esta salvo em disco e a memoria temporaria. Ganha desempenho
+ Dessa forma, para adaptar o manager estatico, ele ao invez de ler todo o record salvo, ele le apenas os dados necessários para pegar a primarykey, e se necessário mudar de posição o record inteiro, ele usa a função copy, economizando recursos e ganhando desempenho.
