@@ -22,6 +22,10 @@ public class Conversor {
         return new byte[]{b};
     }
 
+    public static byte[] floatToByteArray(float f){
+        return intToByteArray(Float.floatToIntBits(f));
+    }
+
     public static byte[] stringToByteArray(String s){
         return s.getBytes(StandardCharsets.UTF_8);
     }

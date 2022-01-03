@@ -94,7 +94,7 @@ public class TemporaryBuffer{
 		Fazer leitura de conjuntos de blocos e ordenar esse conjuntos e escrever de forma sequencial esse conjunto
 		 */
 
-		final int blockSizeHint = 16;
+		final int blockSizeHint = 32;
 		final int blockSize = (blockSizeHint < bufferedBlocks.size()>>2)?blockSizeHint:((bufferedBlocks.size()>>1)+1);
 
 		Block[] arrBuffer = new Block[blockSize];
@@ -115,7 +115,7 @@ public class TemporaryBuffer{
 			}
 			Entry<Integer,Block> entry2;
 			while((entry2 = treeMap.pollFirstEntry())!=null){
-				buffer.writeBlock(entry2.getKey(),entry2.getValue());
+				origin.writeBlock(entry2.getKey(),entry2.getValue());
 			}
 			/*
 			buffer.readBlock(entry.getValue(), b.getData());

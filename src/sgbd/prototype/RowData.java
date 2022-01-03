@@ -1,5 +1,7 @@
 package sgbd.prototype;
 
+import sgbd.util.Conversor;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,9 +12,23 @@ public class RowData {
 		data=new HashMap<String, byte[]>();
 	}
 
-	
-	public void addData(String column,byte[] data) {
+
+	public void setData(String column,byte[] data) {
+		valid=false;
 		this.data.put(column, data);
+	}
+	public void setInt(String column,int data) {
+		this.setData(column, Conversor.intToByteArray(data));
+	}
+	public void setString(String column,String data) {
+		this.setData(column, Conversor.stringToByteArray(data));
+	}
+	public void setFloat(String column,float data) {
+		this.setData(column, Conversor.floatToByteArray(data));
+	}
+	public byte[] unset(String column){
+		valid=false;
+		return this.data.remove(column);
 	}
 
 	public byte[] getData(String column) {
@@ -33,6 +49,15 @@ public class RowData {
 	
 	public int size() {
 		return this.data.size();
+	}
+
+	private boolean valid = false;
+
+	protected boolean isValid(){
+		return valid;
+	}
+	protected void setValid(){
+		valid=true;
 	}
 
 }

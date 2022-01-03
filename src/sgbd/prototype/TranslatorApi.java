@@ -82,6 +82,7 @@ public class TranslatorApi {
     }
 
     public void validateRowData(RowData rw){
+        if(rw.isValid())return;
         for(Column c: columns){
             byte[] data = rw.getData(c.getName());
             if(data == null){
@@ -96,12 +97,13 @@ public class TranslatorApi {
                         throw new DataBaseException("RecordTranslateApi->convertToRecord","Dado passado para a coluna "+c.getName()+" é maior que o limite: "+c.getSize());
                     }
                 }else{
-                    if(data.length!=c.getSize()){
+                    if(data.length>c.getSize()){
                         throw new DataBaseException("RecordTranslateApi->convertToRecord","Dado passado para a coluna "+c.getName()+" é diferente do tamanho fixo: "+c.getSize());
                     }
                 }
             }
         }
+        rw.setValid();
     }
 
     public RowData convertToRowData(Record r){
@@ -120,6 +122,7 @@ public class TranslatorApi {
         byte[] header = new byte[this.headerSize];
         ArrayList<byte[]> dados = new ArrayList<>();
         int size = this.headerSize;
+        header[0] |= 1;
         for(Column c: columns){
             byte[] data = rw.getData(c.getName());
             if(data == null){
@@ -139,7 +142,10 @@ public class TranslatorApi {
                     size+=data.length;
                 }else{
                     dados.add(data);
-                    size+=data.length;
+                    size+=c.getSize();
+                    if(data.length<c.getSize()){
+                        dados.add(new byte[c.getSize()-data.length]);
+                    }
                 }
             }
         }
@@ -152,5 +158,4 @@ public class TranslatorApi {
         }
         return new GenericRecord(bufferRecord);
     }
-
 }
