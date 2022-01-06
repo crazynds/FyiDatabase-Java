@@ -169,5 +169,4 @@ public class HeapStorage implements ByteStream{
 		return increase;
 	}
 
-
 }

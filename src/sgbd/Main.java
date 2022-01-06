@@ -25,7 +25,9 @@ public class Main {
 
         Prototype p = new Prototype();
         p.addColumn("id",4,Column.PRIMARY_KEY);
-        p.addColumn("nome",120,Column.DINAMIC_COLUMN_SIZE);
+        p.addColumn("nome",25000,Column.DINAMIC_COLUMN_SIZE);
+        p.addColumn("teste",100,Column.DINAMIC_COLUMN_SIZE);
+        p.addColumn("description",16,Column.SHIFT_8_SIZE_COLUMN|Column.DINAMIC_COLUMN_SIZE|Column.CAM_NULL_COLUMN);
         p.addColumn("anoNascimento",4,Column.NONE);
         p.addColumn("email",120,Column.NONE);
         p.addColumn("idade",4,Column.CAM_NULL_COLUMN);
@@ -36,6 +38,7 @@ public class Main {
         RowData row = new RowData();
         row.setInt("id",1);
         row.setString("nome","Luiz Henrique");
+        row.setString("teste","Testando");
         row.setString("email","luiz@henrique.com");
         row.setInt("idade",21);
         row.setInt("cidade",1200);
@@ -46,7 +49,7 @@ public class Main {
 
         for (Column c:
              p) {
-            System.out.println("Coluna: "+c.getName()+" Tamanho:"+c.getSize());
+            System.out.println("Coluna: "+c.getName()+" Tamanho:"+c.getSize()+" "+((c.isDinamicSize())?"(Dinamic)":(c.isPrimaryKey())?"(Primary key)":""));
         }
         heap.writeSeq(r.getData(),0,r.size());
         heap.commitWrites();
