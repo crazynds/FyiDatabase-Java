@@ -1,5 +1,8 @@
 package sgbd.table;
 
+import engine.file.FileManager;
+import engine.virtualization.record.manager.FixedRecordManager;
+import engine.virtualization.record.manager.RecordManager;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 
@@ -8,8 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SimpleTable extends Table {
-    public SimpleTable(Prototype pt) {
+
+    RecordManager manager;
+
+    public SimpleTable(FileManager fm, Prototype pt) {
         super(pt);
+        this.manager = new FixedRecordManager(fm,null,this.translatorApi.maxRecordSize());
     }
 
     @Override

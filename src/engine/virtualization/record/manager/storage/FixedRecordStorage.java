@@ -19,30 +19,30 @@ import engine.virtualization.record.instances.GenericRecord;
 
 public class FixedRecordStorage implements RecordStorageController {
 
-	private final ReadWriteLock lock = new ReentrantReadWriteLock();
+	protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-	private RecordInterface recordInterface;
-	private HeapStorage heap;
+	protected RecordInterface recordInterface;
+	protected HeapStorage heap;
 	
 	
 	/*
 	 * Tamanho de cada record fixo
 	 */
-	private int sizeOfEachRecord;
+	protected int sizeOfEachRecord;
 	
 	/*
 	 * Tamanho do inteiro que ira representar quantos records estão armazenados
 	 */
-	private byte sizeOfBytesQtdRecords = 4;
+	protected byte sizeOfBytesQtdRecords = 4;
 	
 	
 	/*
 	 * Quantidade de records armazenados
 	 */
-	private int qtdOfRecords;
-	private boolean changed;
+	protected int qtdOfRecords;
+	protected boolean changed;
 
-	private Record invalidRecord;
+	protected Record invalidRecord;
 
 	public FixedRecordStorage(FileManager fm, RecordInterface ri, int sizeOfEachRecord){
 		this(fm,ri,sizeOfEachRecord,16);
@@ -89,7 +89,6 @@ public class FixedRecordStorage implements RecordStorageController {
 		if(changed) {
 			lock.writeLock().lock();
 			try {
-					WriteByteStream wbs = getWriteByteStream();
 					byte[] num = Util.convertNumberToByteArray(BigInteger.valueOf(qtdOfRecords),sizeOfBytesQtdRecords);
 					heap.write(0,num,0,sizeOfBytesQtdRecords);
 					heap.commitWrites();
@@ -242,7 +241,6 @@ public class FixedRecordStorage implements RecordStorageController {
 			long readPosition = getPositionOfRecord(readOffset);
 			heap.read(readPosition,sizeOfEachRecord,buffer.getData(),0);
 
-
 			if(recordInterface.isActiveRecord(buffer)) {
 				long writePosition = getPositionOfRecord(writeOffset);
 				BigInteger firstKey = records.firstKey();
@@ -251,81 +249,20 @@ public class FixedRecordStorage implements RecordStorageController {
 					case -1:
 						do{
 							entry = records.pollFirstEntry();
-//							firstKey = records.firstKey();
 							data = entry.getValue();
 							wbs.write(writePosition, data, sizeOfEachRecord);
 							recordInterface.updeteReference(entry.getKey(), writePosition);
 							writeOffset++;
 							writePosition+= sizeOfEachRecord;
+							/**
+							 * Estrategia de otimização:
+							 * Remover a verificaçõa writeOffset <= readOffset
+							 * Enquanto a key alvo for menor do que a key na fila, vai escrevendo.
+							 */
 						}while (writeOffset <= readOffset && !records.isEmpty() && records.firstKey().compareTo(buffPk) == -1);
 						if(writeOffset>readOffset) {
 							records.putIfAbsent(buffPk, buffer.getData());
 							buffer.setData(data);
-
-							readOffset++;
-
-							/*
-								Estratégia de otimização para o pior caso
-								Caso não encontre nenhum espaço em branco, ele pode se utilizar desse loop para aumentar o desempenho do programa
-								Obs: ganho muito pouco. Obs2: comentar esse trecho mantem o código funcionando normalmente
-							 */
-							if(readOffset<qtdOfRecords) {
-								readPosition = getPositionOfRecord(readOffset);
-								heap.read(readPosition, sizeOfEachRecord, data, 0);
-								buffPk = recordInterface.getPrimaryKey(buffer);
-
-								BigInteger maxKey = records.higherKey(buffPk);
-								if(maxKey!=null && recordInterface.isActiveRecord(buffer)) {
-									list.clear();
-									listKey.clear();
-									BigInteger tempKey;
-									int ly = 0;
-
-									for (; records.firstKey().compareTo(maxKey) == -1; ) {
-										entry = records.pollFirstEntry();
-										list.addLast(entry.getValue());
-										listKey.addLast(entry.getKey());
-									}
-									//Loop-Unroling -> Buscar sobre
-
-									while(!list.isEmpty() && recordInterface.isActiveRecord(buffer)){
-										ly++;
-										switch(buffPk.compareTo(maxKey)){
-											case -1:
-												list.add(buffer.getData());
-												listKey.add(buffPk);
-												break;
-											case 0:
-												break;
-											case 1:
-												records.putIfAbsent(buffPk,buffer.getData());
-												break;
-										}
-										data = list.removeFirst();
-										tempKey = listKey.removeFirst();
-										wbs.write(writePosition, data, sizeOfEachRecord);
-										recordInterface.updeteReference(tempKey, writePosition);
-
-										writeOffset++;
-										writePosition+= sizeOfEachRecord;
-										readOffset++;
-										readPosition+= sizeOfEachRecord;
-										if(readOffset>=qtdOfRecords)break;
-
-										buffer.setData(data);
-										heap.read(readPosition, sizeOfEachRecord, buffer.getData(), 0);
-										buffPk = recordInterface.getPrimaryKey(buffer);
-									};
-
-
-
-									while(!list.isEmpty()){
-										records.putIfAbsent(listKey.removeFirst(),list.removeFirst());
-									}
-								}
-							}
-
-							readOffset--;
 						}else if(writeOffset<readOffset) {
 							writePosition = getPositionOfRecord(writeOffset);
 							while (readOffset - writeOffset > records.size()) {
@@ -418,7 +355,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		}
 	}
 
-	private long findRecordBinarySearch(BigInteger pk, long min, long max,GenericRecord buffer){
+	protected long findRecordBinarySearch(BigInteger pk, long min, long max,GenericRecord buffer){
 		if(max>min){
 			long mid = min + (max - min)/2;
 			long offset = 0;
@@ -582,7 +519,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		};
 	}
 
-	private long getPositionOfRecord(long record){
+	protected long getPositionOfRecord(long record){
 		return record*sizeOfEachRecord+sizeOfBytesQtdRecords;
 	}
 
@@ -593,10 +530,10 @@ public class FixedRecordStorage implements RecordStorageController {
 		return checkPosition;
 	}
 
-	private WriteByteStream getWriteByteStream(){
+	protected WriteByteStream getWriteByteStream(){
 		return heap;
 	}
-	private ReadByteStream getReadByteStream(){
+	protected ReadByteStream getReadByteStream(){
 		return heap;
 	}
 	

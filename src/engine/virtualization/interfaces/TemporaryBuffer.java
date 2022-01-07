@@ -53,6 +53,16 @@ public class TemporaryBuffer{
 	private synchronized int loadBlockInVirtualBlock(int block) {
 		Integer virtualBlock = bufferedBlocks.get(block);
 
+
+		if(virtualBlock==null) {
+			while(usedBlocks.get(minimalAvaliable)!=null) {
+				minimalAvaliable++;
+			}
+			virtualBlock = minimalAvaliable++;
+			buffer.writeBlock(virtualBlock,origin.readBlock(block));
+			bufferedBlocks.put(block, virtualBlock);
+			usedBlocks.put(virtualBlock,true);
+		}
 		//Pequeno previsor do proximo bloco a ser buscado
 		if(lastLoaded!=block){
 			//Identificar o padrão e dar hint no bloco de maneira rapida
@@ -65,15 +75,6 @@ public class TemporaryBuffer{
 					buffer.getBuffer().hintBlock(block-1);
 			}
 			lastLoaded = block;
-		}
-		if(virtualBlock==null) {
-			while(usedBlocks.get(minimalAvaliable)!=null) {
-				minimalAvaliable++;
-			}
-			virtualBlock = minimalAvaliable++;
-			buffer.writeBlock(virtualBlock,origin.readBlock(block));
-			bufferedBlocks.put(block, virtualBlock);
-			usedBlocks.put(virtualBlock,true);
 		}
 		return virtualBlock;
 	}
@@ -89,7 +90,6 @@ public class TemporaryBuffer{
 
 	public synchronized void commit() {
 //		Block b = new Block(buffer.getBlockSize());
-		Entry<Integer, Integer> entry;
 		/*
 		Fazer leitura de conjuntos de blocos e ordenar esse conjuntos e escrever de forma sequencial esse conjunto
 		 */
@@ -101,18 +101,26 @@ public class TemporaryBuffer{
 		for (int x=0;x<arrBuffer.length;x++) {
 			arrBuffer[x] = new Block(buffer.getBlockSize());
 		}
+
+		TreeMap<Integer,Integer> auxTreeMap = new TreeMap<>();
+		for(Entry<Integer, Integer> entry: bufferedBlocks.entrySet()){
+			auxTreeMap.put(entry.getValue(),entry.getKey());
+		}
+
+		Entry<Integer, Integer> entry;
 		TreeMap<Integer,Block> treeMap = new TreeMap<>();
-		while (!bufferedBlocks.isEmpty()) {
+		while (!auxTreeMap.isEmpty()) {
 			treeMap.clear();
 			/**
 			 * Carrega N blocos e depois salva esses N blocos em ordem;
 			 */
-			while ((entry = bufferedBlocks.pollFirstEntry()) != null && treeMap.size()<blockSize) {
-				buffer.readBlock(entry.getValue(),arrBuffer[treeMap.size()].getData());
-				treeMap.put(entry.getKey(),arrBuffer[treeMap.size()]);
-				if (entry.getValue() < minimalAvaliable)
-					minimalAvaliable = entry.getValue();
+			while (treeMap.size()<blockSize && (entry = auxTreeMap.pollFirstEntry()) != null) {
+				buffer.readBlock(entry.getKey(),arrBuffer[treeMap.size()].getData());
+				treeMap.put(entry.getValue(),arrBuffer[treeMap.size()]);
+				if (entry.getKey() < minimalAvaliable)
+					minimalAvaliable = entry.getKey();
 			}
+
 			Entry<Integer,Block> entry2;
 			while((entry2 = treeMap.pollFirstEntry())!=null){
 				origin.writeBlock(entry2.getKey(),entry2.getValue());
@@ -125,6 +133,7 @@ public class TemporaryBuffer{
 				*/
 
 		}
+		bufferedBlocks.clear();
 		usedBlocks.clear();
 	}
 

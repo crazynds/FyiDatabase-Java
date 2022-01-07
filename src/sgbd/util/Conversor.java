@@ -31,4 +31,25 @@ public class Conversor {
     }
 
 
+    public static byte byteArrayToByte(byte[] arr){
+        return arr[0];
+    }
+    public static short byteArrayToShort(byte[] arr){
+        return ByteBuffer.wrap(arr,0,2).order(ByteOrder.LITTLE_ENDIAN).getShort();
+    }
+    public static int byteArrayToInt(byte[] arr){
+        return ByteBuffer.wrap(arr,0,4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+    }
+    public static long byteArrayToLong(byte[] arr){
+        return ByteBuffer.wrap(arr,0,8).order(ByteOrder.LITTLE_ENDIAN).getLong();
+    }
+
+    public static float byteArrayToFloat(byte[] arr){
+        return ByteBuffer.wrap(arr,0,4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+    }
+
+    public static String byteArrayToString(byte[] arr){
+        return new String(arr).trim();
+    }
+
 }

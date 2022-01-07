@@ -4,11 +4,13 @@ import engine.exceptions.DataBaseException;
 import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.instances.GenericRecord;
+import sgbd.util.Conversor;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,6 +63,14 @@ public class TranslatorApi {
         primaryKeySize = sizePk;
     }
 
+    public int maxRecordSize(){
+        int size = headerSize;
+        for(Column c: columns){
+            size+=c.getSize();
+            if(c.isDinamicSize())size+=4;
+        }
+        return size;
+    }
 
     public BigInteger getPrimaryKey(RowData rw){
         BigInteger pk;
@@ -107,14 +117,72 @@ public class TranslatorApi {
     }
 
     public RowData convertToRowData(Record r){
+        RowData row = new RowData();
+        byte[] data = r.getData();
+        byte[] header = new byte[this.headerSize];
+        System.arraycopy(data,0,header,0,this.headerSize);
+        int headerPointer = 1;
+        int offset = this.headerSize;
+
         for(Column c: columns){
+            if(c.camBeNull()){
+                try {
+                    if ((header[headerPointer / 8] & (1 << headerPointer%8)) != 0) {
+                        //campo é nulo
+                        continue;
+                    }
+                }finally {
+                    headerPointer++;
+                }
+            }
+            if(c.isDinamicSize()){
+                int size = Conversor.byteArrayToInt(Arrays.copyOfRange(data,offset,offset+4));
+                offset+=4;
+                byte[] arr = Arrays.copyOfRange(data,offset,offset+size);
+                offset+=size;
+                row.setData(c.getName(),arr);
+            }else{
+                byte[] arr = Arrays.copyOfRange(data,offset,offset+c.getSize());
+                offset+=c.getSize();
+                row.setData(c.getName(),arr);
+            }
         }
-        return null;
+        return row;
     }
     public RowData convertToRowData(Record r, List<String> select){
+        RowData row = new RowData();
+        byte[] data = r.getData();
+        byte[] header = new byte[this.headerSize];
+        System.arraycopy(data,0,header,0,this.headerSize);
+        int headerPointer = 1;
+        int offset = this.headerSize;
+
         for(Column c: columns){
+            if(c.camBeNull()){
+                try {
+                    if ((header[headerPointer / 8] & (1 << headerPointer%8)) != 0) {
+                        //campo é nulo
+                        continue;
+                    }
+                }finally {
+                    headerPointer++;
+                }
+            }
+            if(select.contains(c.getName())) {
+                if (c.isDinamicSize()) {
+                    int size = Conversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
+                    offset += 4;
+                    byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
+                    offset += size;
+                    row.setData(c.getName(), arr);
+                } else {
+                    byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
+                    offset += c.getSize();
+                    row.setData(c.getName(), arr);
+                }
+            }
         }
-        return null;
+        return row;
     }
 
     public Record convertToRecord(RowData rw){

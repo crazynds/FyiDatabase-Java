@@ -34,17 +34,20 @@ public class RowData {
 	public byte[] getData(String column) {
 		return this.data.get(column);
 	}
-	public int getDataInt(String column) {
+	public Integer getDataInt(String column) {
 		byte[] data = this.data.get(column);
-		return 0;
+		if(data==null)return null;
+		return Conversor.byteArrayToInt(data);
 	}
-	public float getDataFloat(String column) {
+	public Float getDataFloat(String column) {
 		byte[] data = this.data.get(column);
-		return 0;
+		if(data==null)return null;
+		return Conversor.byteArrayToFloat(data);
 	}
 	public String getDataString(String column) {
 		byte[] data = this.data.get(column);
-		return null;
+		if(data==null)return null;
+		return Conversor.byteArrayToString(data);
 	}
 	
 	public int size() {

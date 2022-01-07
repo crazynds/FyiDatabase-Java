@@ -2,11 +2,13 @@ package engine.virtualization.record.manager;
 
 import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
+import engine.file.streams.ReadByteStream;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.manager.storage.FixedRecordStorage;
+import engine.virtualization.record.manager.storage.OptimizedFixedRecordStorage;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -28,6 +30,7 @@ public class FixedRecordManager extends RecordManager{
         super(fm, ri);
         customInterface = new AuxRecordInterface();
         recordStorage = new FixedRecordStorage(fm,customInterface,sizeOfEachRecord);
+        //recordStorage = new OptimizedFixedRecordStorage(fm,customInterface,sizeOfEachRecord);
         this.sizeOfEachRecord = sizeOfEachRecord;
     }
 
@@ -113,8 +116,18 @@ public class FixedRecordManager extends RecordManager{
         }
 
         @Override
+        public BigInteger getPrimaryKey(ReadByteStream rbs) {
+            return origin.getPrimaryKey(rbs);
+        }
+
+        @Override
         public boolean isActiveRecord(Record r) {
             return origin.isActiveRecord(r);
+        }
+
+        @Override
+        public boolean isActiveRecord(ReadByteStream rbs) {
+            return origin.isActiveRecord(rbs);
         }
 
         @Override

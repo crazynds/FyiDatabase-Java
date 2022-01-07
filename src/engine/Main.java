@@ -12,6 +12,7 @@ import java.util.*;
 import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
+import engine.file.streams.ReadByteStream;
 import engine.info.Parameters;
 import engine.util.Util;
 import engine.virtualization.record.Record;
@@ -20,14 +21,17 @@ import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.RecordManager;
+import sgbd.util.Conversor;
 
 public class Main {
 
 	public static class AuxRecordInterface implements RecordInterface{
 
+		private byte[] buff = new byte[4];
+
 		@Override
-		public BigInteger getPrimaryKey(Record r)  {
-			byte[] inteiro = new byte[4];
+		public synchronized BigInteger getPrimaryKey(Record r)  {
+			byte[] inteiro = buff;
 			byte[] data = r.getData();
 			for(int x=0;x<4;x++) {
 				inteiro[3-x] = data[x+1];
@@ -36,14 +40,27 @@ public class Main {
 		}
 
 		@Override
+		public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
+			rbs.read(1,4,buff,0);
+			return BigInteger.valueOf(Conversor.byteArrayToInt(buff));
+		}
+
+		@Override
 		public boolean isActiveRecord(Record r) {
 			return (r.getData()[0]&0x1)!=0;
 		}
-		
+
 		@Override
-		public void updeteReference(BigInteger pk, long key) {
-			//map.put(pk,key);
+		public synchronized boolean isActiveRecord(ReadByteStream rbs) {
+			rbs.read(0,1,buff,0);
+			if((buff[0]&0x1)==0){
+				System.out.println("aqui");
+			}
+			return (buff[0]&0x1)!=0;
 		}
+
+		@Override
+		public void updeteReference(BigInteger pk, long key) {}
 
 		@Override
 		public void setActiveRecord(Record r, boolean active) {
@@ -51,6 +68,39 @@ public class Main {
 			arr[0] = (byte)( (arr[0]&(~0x1)) | ((active)?0x1:0x0));
 		}
 		
+	}
+
+	public static void printRecords(RecordManager rm,int sizeOfRecord){
+		RecordStream rs = rm.sequencialRead();
+		Record r;
+		long x=0;
+		long lastPos = 0;
+		int lastPk = -1;
+		rs.open(false);
+		while(rs.hasNext()){
+			r = rs.next();
+
+			ByteBuffer wrapped = ByteBuffer.wrap(r.getData(),1,4);
+			wrapped.order(ByteOrder.LITTLE_ENDIAN);
+			int num = wrapped.getInt();
+			if(lastPk>=num){
+				System.out.println("(WARNING) Ordem PK invalida -> "+num+" <= "+lastPk);
+			}
+			if(lastPos<rs.getPointer()-sizeOfRecord){
+				System.out.println("(WARNING) GAP AQ DE "+((rs.getPointer()-lastPos)/sizeOfRecord-1));
+			}
+			byte dat = r.getData()[5];
+			for(int z=6;z<r.size();z++){
+				if(r.getData()[z]!=dat){
+					System.out.println("(WARNING) Dados inválidos -> "+num+" <= arr["+z+"] == "+r.getData()[z]+", esperado => DATA=["+r.getData()[5]+", "+r.getData()[6]+"]");
+					break;
+				}
+			}
+			System.out.println("("+(x++)+") -> "+rs.getPointer()+" - [ PK="+num+", DATA=["+r.getData()[5]+", "+r.getData()[6]+"] ]");
+			lastPk = num;
+			lastPos = rs.getPointer();
+		}
+		rs.close();
 	}
 
 	public static void createBase(RecordInterface ri,RecordManager rm,int sizeOfRecord,int qtdOfRecords,int sizePerList, int maxPk){
@@ -89,15 +139,20 @@ public class Main {
 		Long time = System.nanoTime();
 		Record r;
 
-		int sizeOfRecord = 300;
-		int qtdOfRecords = 100;
+		int sizeOfRecord = 200;
+		int qtdOfRecords = 10000;
 		int qtdPerList = 100;
-		int maxPK = 100000000;
+		int maxPK = 1000;
 
 		FileManager f = new FileManager("E:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
 		RecordInterface ri = new AuxRecordInterface();
 		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
+		rm.restart();
+		createBase(ri,rm,sizeOfRecord,qtdOfRecords,qtdPerList,maxPK);
+		rm.flush();
+		printRecords(rm,sizeOfRecord);
 
+		/*
 		boolean exec = true;
 		Scanner in = new Scanner(System.in);
 		int qtd = 0;
@@ -190,7 +245,8 @@ public class Main {
 			System.out.print("\033[H\033[2J");
 			System.out.flush();
 		}while(exec);
-		
+		 */
+
 		rm.close();
 
 		System.out.println("Tempo total: "+(System.nanoTime()-time)/1000000f+"ms");
@@ -207,7 +263,6 @@ public class Main {
 		System.out.println("Blocos carregados: "+Parameters.BLOCK_LOADED);
 		System.out.println("Blocos salvos: "+Parameters.BLOCK_SAVED);
 		System.out.println("Memoria usada para blocos: "+Parameters.MEMORY_ALLOCATED_BY_BLOCKS);
-		System.out.println("Finalizou o arquivo!");
 
 	}
 
