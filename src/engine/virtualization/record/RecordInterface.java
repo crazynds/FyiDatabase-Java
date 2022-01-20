@@ -4,15 +4,7 @@ import engine.file.streams.ReadByteStream;
 
 import java.math.BigInteger;
 
-public interface RecordInterface {
-
-	public BigInteger getPrimaryKey(Record r);
-	public BigInteger getPrimaryKey(ReadByteStream rbs);
-
-	public boolean isActiveRecord(Record r);
-	public boolean isActiveRecord(ReadByteStream rbs);
-	
-	public void setActiveRecord(Record r,boolean active);
+public interface RecordInterface extends RecordInfoExtraction {
 	
 	/*
 	 * Atualiza a referencia da primary key na tabela de referencias do manipulador;

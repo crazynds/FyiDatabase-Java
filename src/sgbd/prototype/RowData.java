@@ -3,9 +3,10 @@ package sgbd.prototype;
 import sgbd.util.Conversor;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-public class RowData {
+public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 	private Map<String,byte[]> data;
 
 	public RowData() {
@@ -34,17 +35,17 @@ public class RowData {
 	public byte[] getData(String column) {
 		return this.data.get(column);
 	}
-	public Integer getDataInt(String column) {
+	public Integer getInt(String column) {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
 		return Conversor.byteArrayToInt(data);
 	}
-	public Float getDataFloat(String column) {
+	public Float getFloat(String column) {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
 		return Conversor.byteArrayToFloat(data);
 	}
-	public String getDataString(String column) {
+	public String getString(String column) {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
 		return Conversor.byteArrayToString(data);
@@ -63,4 +64,8 @@ public class RowData {
 		valid=true;
 	}
 
+	@Override
+	public Iterator<Map.Entry<String, byte[]>> iterator() {
+		return data.entrySet().iterator();
+	}
 }

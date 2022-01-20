@@ -6,15 +6,16 @@ import java.util.List;
 import engine.file.FileManager;
 import engine.file.buffers.BlockBuffer;
 import engine.virtualization.record.Record;
+import engine.virtualization.record.RecordInfoExtraction;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 
 public abstract class RecordManager{
 	
 	protected FileManager fileManager;
-	protected RecordInterface recordInterface;
+	protected RecordInfoExtraction recordInterface;
 	
-	public RecordManager(FileManager fm,RecordInterface ri) {
+	public RecordManager(FileManager fm,RecordInfoExtraction ri) {
 		this.fileManager=fm;
 		this.recordInterface=ri;
 	}
@@ -22,7 +23,7 @@ public abstract class RecordManager{
 	protected BlockBuffer getBlockBuffer() {
 		return fileManager.getBuffer();
 	}
-	protected RecordInterface getRecordInterface() {
+	protected RecordInfoExtraction getRecordInterface() {
 		return recordInterface;
 	}
 	protected FileManager getFileManager() {

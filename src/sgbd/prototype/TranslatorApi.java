@@ -1,8 +1,10 @@
 package sgbd.prototype;
 
 import engine.exceptions.DataBaseException;
+import engine.file.streams.ReadByteStream;
 import engine.util.Util;
 import engine.virtualization.record.Record;
+import engine.virtualization.record.RecordInfoExtraction;
 import engine.virtualization.record.instances.GenericRecord;
 import sgbd.util.Conversor;
 
@@ -14,14 +16,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class TranslatorApi {
+public class TranslatorApi implements RecordInfoExtraction {
 
     private final int headerSize;
+    private byte[] headerBuffer;
+
 
     private final ArrayList<Column> columns;
     private final HashMap<Integer,Integer> headerPosition;
 
     private final int primaryKeySize;
+    private byte[] bufferArrayPk;
 
     protected TranslatorApi(ArrayList<Column> columns){
         this.columns=columns;
@@ -61,6 +66,8 @@ public class TranslatorApi {
         }
         this.headerSize = headerSize;
         primaryKeySize = sizePk;
+        bufferArrayPk = new byte[sizePk];
+        headerBuffer = new byte[headerSize];
     }
 
     public int maxRecordSize(){
@@ -87,8 +94,34 @@ public class TranslatorApi {
         return Util.convertByteArrayToNumber(buffer.array());
     }
 
-    public BigInteger getPrimaryKey(Record r){
-        return Util.convertByteArrayToNumber(r.read(this.headerSize,primaryKeySize));
+
+    @Override
+    public synchronized BigInteger getPrimaryKey(Record r){
+        r.read(this.headerSize,primaryKeySize,bufferArrayPk,0);
+        return Util.convertByteArrayToNumber(bufferArrayPk);
+    }
+
+    @Override
+    public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
+        rbs.read(this.headerSize,primaryKeySize,bufferArrayPk,0);
+        return Util.convertByteArrayToNumber(bufferArrayPk);
+    }
+
+    @Override
+    public boolean isActiveRecord(Record r) {
+        return (r.getData()[0]&0x1) !=0;
+    }
+
+    @Override
+    public synchronized boolean isActiveRecord(ReadByteStream rbs) {
+        rbs.read(0,1,bufferArrayPk,0);
+        return (bufferArrayPk[0]&0x1) !=0;
+    }
+
+    @Override
+    public void setActiveRecord(Record r, boolean active) {
+        byte[] arr = r.getData();
+        arr[0] = (byte)( (arr[0]&(~0x1)) | ((active)?0x1:0x0));
     }
 
     public void validateRowData(RowData rw){
@@ -116,10 +149,11 @@ public class TranslatorApi {
         rw.setValid();
     }
 
-    public RowData convertToRowData(Record r){
+
+    public synchronized RowData convertToRowData(Record r){
         RowData row = new RowData();
         byte[] data = r.getData();
-        byte[] header = new byte[this.headerSize];
+        byte[] header = headerBuffer;
         System.arraycopy(data,0,header,0,this.headerSize);
         int headerPointer = 1;
         int offset = this.headerSize;
@@ -149,15 +183,21 @@ public class TranslatorApi {
         }
         return row;
     }
-    public RowData convertToRowData(Record r, List<String> select){
+
+
+    public synchronized RowData convertToRowData(Record r, List<String> select){
         RowData row = new RowData();
         byte[] data = r.getData();
-        byte[] header = new byte[this.headerSize];
+        byte[] header = headerBuffer;
         System.arraycopy(data,0,header,0,this.headerSize);
         int headerPointer = 1;
         int offset = this.headerSize;
+        int selecteds = 0;
 
         for(Column c: columns){
+            if(selecteds >= select.size())break;
+            boolean checkColumn = select.contains(c.getName());
+            if(checkColumn)selecteds++;
             if(c.camBeNull()){
                 try {
                     if ((header[headerPointer / 8] & (1 << headerPointer%8)) != 0) {
@@ -168,18 +208,20 @@ public class TranslatorApi {
                     headerPointer++;
                 }
             }
-            if(select.contains(c.getName())) {
-                if (c.isDinamicSize()) {
-                    int size = Conversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
-                    offset += 4;
+            if (c.isDinamicSize()) {
+                int size = Conversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
+                offset += 4;
+                if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
-                    offset += size;
-                    row.setData(c.getName(), arr);
-                } else {
-                    byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
-                    offset += c.getSize();
                     row.setData(c.getName(), arr);
                 }
+                offset += size;
+            } else {
+                if(checkColumn) {
+                    byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
+                    row.setData(c.getName(), arr);
+                }
+                offset += c.getSize();
             }
         }
         return row;

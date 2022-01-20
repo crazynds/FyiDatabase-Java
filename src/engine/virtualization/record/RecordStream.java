@@ -22,13 +22,11 @@ public interface RecordStream {
 	 * Retorna o record no ponteiro atual, e atualiza o ponteiro para o próximo ponteiro;
 	 */
 	public Record next();
-	public void next(byte[] buffer);
 	
 	/*
 	 * Faz a leitura do record ou a posição em que ele está armazendo no banco de dados
 	 */
 	public Record getRecord();
-	public void getRecord(byte[] buffer);
 	
 	/*
 	 * Faz a chamada de escrita do record na posição em que estava

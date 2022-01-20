@@ -1,20 +1,15 @@
 package engine;
 
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 
-import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
 import engine.info.Parameters;
-import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
@@ -53,9 +48,6 @@ public class Main {
 		@Override
 		public synchronized boolean isActiveRecord(ReadByteStream rbs) {
 			rbs.read(0,1,buff,0);
-			if((buff[0]&0x1)==0){
-				System.out.println("aqui");
-			}
 			return (buff[0]&0x1)!=0;
 		}
 
@@ -139,12 +131,12 @@ public class Main {
 		Long time = System.nanoTime();
 		Record r;
 
-		int sizeOfRecord = 200;
-		int qtdOfRecords = 10000;
-		int qtdPerList = 100;
-		int maxPK = 1000;
+		int sizeOfRecord = 400;
+		int qtdOfRecords = 50000;
+		int qtdPerList = 10000;
+		int maxPK = 1000000000;
 
-		FileManager f = new FileManager("E:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
+		FileManager f = new FileManager("W:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
 		RecordInterface ri = new AuxRecordInterface();
 		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
 		rm.restart();

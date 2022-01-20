@@ -180,7 +180,6 @@ public class FixedRecordStorage implements RecordStorageController {
 		int size = r.size();
 		if(size>sizeOfEachRecord)size=sizeOfEachRecord;
 
-
 		if(qtdOfRecords==0){
 			lock.writeLock().lock();
 			try {
@@ -196,8 +195,18 @@ public class FixedRecordStorage implements RecordStorageController {
 			}
 		}else {
 			TreeMap<BigInteger,byte[]> arr = new TreeMap<>();
-			arr.put(pk,r.getData());
+
 			GenericRecord buffer =new GenericRecord(new byte[sizeOfEachRecord]);
+			byte[] data;
+			if(r.size()==sizeOfEachRecord){
+				data = r.getData();
+				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados é menor que o informado na classe record");
+				arr.put(pk,r.getData());
+			}else{
+				data = new byte[sizeOfEachRecord];
+				System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
+				arr.put(pk,data);
+			}
 
 			lock.writeLock().lock();
 			try {
@@ -391,8 +400,8 @@ public class FixedRecordStorage implements RecordStorageController {
 
 			FixedRecordStorage fixedRecordStorage = frs;
 
-			byte[] buffer = new byte[sizeOfEachRecord];
-			byte[] buffer2 = new byte[sizeOfEachRecord];
+			GenericRecord buffer = new GenericRecord(new byte[sizeOfEachRecord]);
+			GenericRecord buffer2 = new GenericRecord(new byte[sizeOfEachRecord]);
 
 			long pos = 0;
 			Record record = null;
@@ -421,52 +430,32 @@ public class FixedRecordStorage implements RecordStorageController {
 				if(pos>=qtdOfRecords)return false;
 				boolean find = false;
 				long actualPos = pos;
-				GenericRecord record = new GenericRecord(buffer2);
 				do {
-					read(getPositionOfRecord(actualPos), buffer2);
+					read(getPositionOfRecord(actualPos), buffer2.getData());
 					actualPos++;
-				}while(recordInterface.isActiveRecord(record)==false && actualPos<qtdOfRecords);
-				if(recordInterface.isActiveRecord(record)){
+				}while(recordInterface.isActiveRecord(buffer2)==false && actualPos<qtdOfRecords);
+				if(recordInterface.isActiveRecord(buffer2)){
 					find =true;
-				}
+				}else pos = actualPos;
 				return find;
 			}
 
 			@Override
 			public Record next() {
 				if(pos>=qtdOfRecords)return null;
-				GenericRecord record = new GenericRecord(buffer);
 				do {
-					read(getPositionOfRecord(pos), buffer);
+					read(getPositionOfRecord(pos), buffer.getData());
 					pos++;
-				}while(recordInterface.isActiveRecord(record)==false && pos<qtdOfRecords);
-				if(recordInterface.isActiveRecord(record)){
-					return new GenericRecord(buffer);
+				}while(recordInterface.isActiveRecord(buffer)==false && pos<qtdOfRecords);
+				if(recordInterface.isActiveRecord(buffer)){
+					return buffer;
 				}
 				return null;
 			}
 
 			@Override
-			public void next(byte[] buff) {
-				if(pos>=qtdOfRecords)return;
-				GenericRecord record = new GenericRecord(buffer);
-				do {
-					read(getPositionOfRecord(pos), buffer);
-					pos++;
-				}while(recordInterface.isActiveRecord(record)==false && pos<qtdOfRecords);
-				if(recordInterface.isActiveRecord(record)){
-					System.arraycopy(buffer,0,buff,0,(buff.length<buffer.length)?buff.length:buffer.length);
-				}
-			}
-
-			@Override
 			public Record getRecord() {
-				return new GenericRecord(buffer.clone());
-			}
-
-			@Override
-			public void getRecord(byte[] buff) {
-				System.arraycopy(buffer,0,buff,0,(buff.length<buffer.length)?buff.length:buffer.length);
+				return buffer;
 			}
 
 			@Override
@@ -487,9 +476,8 @@ public class FixedRecordStorage implements RecordStorageController {
 				if(!b)throw new DataBaseException("RecordStream->write","Não foi possivel adiquirir write lock");
 				try {
 					if(pos<=0)return;
-					GenericRecord r = new GenericRecord(buffer);
-					recordInterface.setActiveRecord(r,false);
-					fixedRecordStorage.write(r, getPositionOfRecord(pos-1));
+					recordInterface.setActiveRecord(buffer,false);
+					fixedRecordStorage.write(buffer, getPositionOfRecord(pos-1));
 				}finally {
 					lock.writeLock().unlock();
 				}

@@ -23,7 +23,7 @@ public class Conversor {
     }
 
     public static byte[] floatToByteArray(float f){
-        return intToByteArray(Float.floatToIntBits(f));
+        return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(f).array();
     }
 
     public static byte[] stringToByteArray(String s){

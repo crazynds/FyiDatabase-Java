@@ -37,23 +37,36 @@ public class GenericRecord extends Record {
 		return size;
 	}
 
+	private long pointer=0;
+
 	@Override
 	public byte[] read(long pos, int len) {
-		return new byte[0];
+		if(pos+len>size()){
+			len -= (pos+len)-size();
+		}
+		byte[] buff = new byte[len];
+		System.arraycopy(this.data, (int) pos,buff,0,len);
+		return buff;
 	}
 
 	@Override
 	public byte[] readSeq(int len) {
-		return new byte[0];
+		return read(pointer,len);
 	}
 
 	@Override
 	public int read(long pos, int len, byte[] buffer, int offset) {
-		return 0;
+		if(pos+len>size()){
+			len -= (pos+len)-size();
+		}
+		System.arraycopy(this.data, (int) pos,buffer,offset,len);
+		return len;
 	}
 
 	@Override
 	public int readSeq(int len, byte[] buffer, int offset) {
-		return 0;
+		int readed = read(pointer,len,buffer,offset);
+		pointer+=readed;
+		return readed;
 	}
 }

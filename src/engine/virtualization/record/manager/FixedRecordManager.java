@@ -4,6 +4,7 @@ import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
 import engine.file.streams.ReadByteStream;
 import engine.virtualization.record.Record;
+import engine.virtualization.record.RecordInfoExtraction;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
@@ -26,7 +27,7 @@ public class FixedRecordManager extends RecordManager{
     private int sizeOfEachRecord;
 
 
-    public FixedRecordManager(FileManager fm, RecordInterface ri, int sizeOfEachRecord) {
+    public FixedRecordManager(FileManager fm, RecordInfoExtraction ri, int sizeOfEachRecord) {
         super(fm, ri);
         customInterface = new AuxRecordInterface();
         recordStorage = new FixedRecordStorage(fm,customInterface,sizeOfEachRecord);
@@ -108,7 +109,7 @@ public class FixedRecordManager extends RecordManager{
 
     private class AuxRecordInterface implements RecordInterface{
 
-        private RecordInterface origin = getRecordInterface();
+        private RecordInfoExtraction origin = getRecordInterface();
 
         @Override
         public BigInteger getPrimaryKey(Record r)  {
