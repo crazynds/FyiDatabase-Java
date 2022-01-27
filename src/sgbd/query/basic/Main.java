@@ -79,9 +79,7 @@ public class Main {
             System.out.println(str);
         }
         executor.close();
-
         users.close();
         cidades.close();
-
     }
 }

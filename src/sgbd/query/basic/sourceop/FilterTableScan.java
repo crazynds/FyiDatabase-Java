@@ -44,7 +44,6 @@ public class FilterTableScan extends TableScan{
 
     private Tuple findNextTuple(){
         if(nextTuple!=null)return nextTuple;
-
         while (super.hasNext()){
             Tuple temp = super.next();
             Query.FILTER++;

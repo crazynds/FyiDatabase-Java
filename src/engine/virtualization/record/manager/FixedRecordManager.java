@@ -18,7 +18,6 @@ import java.util.TreeMap;
 public class FixedRecordManager extends RecordManager{
 
 
-    private TreeMap<BigInteger,Long> recordMap= new TreeMap<>();
     private FixedRecordStorage recordStorage;
 
     private RecordInterface customInterface;
@@ -29,8 +28,35 @@ public class FixedRecordManager extends RecordManager{
 
     public FixedRecordManager(FileManager fm, RecordInfoExtraction ri, int sizeOfEachRecord) {
         super(fm, ri);
-        customInterface = new AuxRecordInterface();
-        recordStorage = new FixedRecordStorage(fm,customInterface,sizeOfEachRecord);
+        recordStorage = new FixedRecordStorage(fm, new RecordInterface() {
+            @Override
+            public void updeteReference(BigInteger pk, long key) {
+            }
+            @Override
+            public BigInteger getPrimaryKey(Record r) {
+                return ri.getPrimaryKey(r);
+            }
+
+            @Override
+            public BigInteger getPrimaryKey(ReadByteStream rbs) {
+                return ri.getPrimaryKey(rbs);
+            }
+
+            @Override
+            public boolean isActiveRecord(Record r) {
+                return ri.isActiveRecord(r);
+            }
+
+            @Override
+            public boolean isActiveRecord(ReadByteStream rbs) {
+                return ri.isActiveRecord(rbs);
+            }
+
+            @Override
+            public void setActiveRecord(Record r, boolean active) {
+                ri.setActiveRecord(r,active);
+            }
+        }, sizeOfEachRecord);
         //recordStorage = new OptimizedFixedRecordStorage(fm,customInterface,sizeOfEachRecord);
         this.sizeOfEachRecord = sizeOfEachRecord;
     }
@@ -49,7 +75,6 @@ public class FixedRecordManager extends RecordManager{
     @Override
     public void close() {
         this.flush();
-        recordMap.clear();
         super.close();
     }
 
@@ -62,34 +87,15 @@ public class FixedRecordManager extends RecordManager{
 
     @Override
     public void read(BigInteger pk, byte[] buffer) {
-        if(recordMap.containsKey(pk)){
-            Long pos = recordMap.get(pk);
-            recordStorage.read(pos,buffer);
-        }else{
-            boolean b = recordStorage.search(pk,buffer);
-            if(!b)
-                throw new NotFoundRowException("FixedRecordManager->Read",pk);
-        }
+        boolean b = recordStorage.search(pk,buffer);
+        if(!b)
+            throw new NotFoundRowException("FixedRecordManager->Read",pk);
     }
 
     @Override
     public void write(Record r) {
         BigInteger pk = recordInterface.getPrimaryKey(r);
-
-        if(recordMap.containsKey(pk)){
-            /*
-             * Nessa função vc tem que ter certeza de qual a posição real do item
-             * porém garante um maior desempenho
-             */
-            Long pos = recordMap.get(pk);
-            recordStorage.write(r,pos);
-        }else{
-            /*
-             * Essa função já garante que o item não sera duplicado
-             * porém tem um menor desempenho
-             */
-            recordStorage.writeNew(r);
-        }
+        recordStorage.writeNew(r);
     }
 
     @Override
@@ -107,39 +113,4 @@ public class FixedRecordManager extends RecordManager{
         return recordStorage.sequencialRead();
     }
 
-    private class AuxRecordInterface implements RecordInterface{
-
-        private RecordInfoExtraction origin = getRecordInterface();
-
-        @Override
-        public BigInteger getPrimaryKey(Record r)  {
-            return origin.getPrimaryKey(r);
-        }
-
-        @Override
-        public BigInteger getPrimaryKey(ReadByteStream rbs) {
-            return origin.getPrimaryKey(rbs);
-        }
-
-        @Override
-        public boolean isActiveRecord(Record r) {
-            return origin.isActiveRecord(r);
-        }
-
-        @Override
-        public boolean isActiveRecord(ReadByteStream rbs) {
-            return origin.isActiveRecord(rbs);
-        }
-
-        @Override
-        public void updeteReference(BigInteger pk, long key) {
-            recordMap.put(pk,key);
-        }
-
-        @Override
-        public void setActiveRecord(Record r, boolean active) {
-            origin.setActiveRecord(r,active);
-        }
-
-    }
 }
