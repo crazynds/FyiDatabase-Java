@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class Tuple implements Iterable<Map.Entry<String,RowData>>{
 
+    private static RowData emptyRowData = new RowData();
+
     private HashMap<String, RowData> sources;
 
     public Tuple(){
@@ -29,7 +31,7 @@ public class Tuple implements Iterable<Map.Entry<String,RowData>>{
 
     public RowData getContent(String name){
         RowData rd=sources.get(name);
-        if(rd == null)rd=new RowData();
+        if(rd == null)rd=emptyRowData;
         return rd;
     }
 
@@ -40,5 +42,17 @@ public class Tuple implements Iterable<Map.Entry<String,RowData>>{
     @Override
     public Iterator<Map.Entry<String, RowData>> iterator() {
         return sources.entrySet().iterator();
+    }
+
+    public int byteSize(){
+        int size = 0;
+        for (Map.Entry<String,RowData> row:
+            sources.entrySet()) {
+            for (Map.Entry<String,byte[]> data:
+                 row.getValue()) {
+                size+=data.getValue().length;
+            }
+        }
+        return size;
     }
 }

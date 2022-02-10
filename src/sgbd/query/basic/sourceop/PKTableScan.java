@@ -1,5 +1,6 @@
 package sgbd.query.basic.sourceop;
 
+import sgbd.info.Query;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Tuple;
 import sgbd.table.Table;
@@ -23,9 +24,14 @@ public class PKTableScan extends SourceOperator{
         this.columns = columns;
     }
 
+    public void setPrimaryKey(BigInteger pk){
+        this.pk = pk;
+    }
+
     @Override
     public void open() {
         try {
+            Query.PK_SEARCH++;
             if (columns != null)
                 row = table.find(pk, columns);
             else row = table.find(pk);

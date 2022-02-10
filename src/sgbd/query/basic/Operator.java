@@ -6,4 +6,5 @@ public interface Operator {
     public Tuple next();
     public boolean hasNext();
     public void close();
+
 }

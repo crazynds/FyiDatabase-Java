@@ -10,6 +10,7 @@ import java.io.SyncFailedException;
 import engine.exceptions.DataBaseException;
 import engine.file.buffers.BlockBuffer;
 import engine.file.blocks.BlockFace;
+import engine.file.buffers.FIFOBlockBuffer;
 import engine.file.buffers.NoBlockBuffer;
 import engine.file.streams.BlockStream;
 import engine.file.streams.ReadByteStream;
@@ -23,6 +24,18 @@ public class FileManager implements BlockFace,BlockStream {
 	private BlockBuffer buffer;
 	private int blockSize;
 
+	public FileManager(File file){
+		try {
+			this.file = new RandomAccessFile(file, "rw");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		nameFile=file.getName();
+		blockSize=4096;
+		buffer = new FIFOBlockBuffer(4);
+		buffer.startBuffering(directAcessFile);
+	}
+
 	public FileManager(String file)  {
 		try {
 			this.file = new RandomAccessFile(file, "rw");
@@ -31,7 +44,7 @@ public class FileManager implements BlockFace,BlockStream {
 		}
 		nameFile=file;
 		blockSize=4096;
-		buffer = new NoBlockBuffer();
+		buffer = new FIFOBlockBuffer(4);
 		buffer.startBuffering(directAcessFile);
 	}
 	public FileManager(String file,BlockBuffer b)  {

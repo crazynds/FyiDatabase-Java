@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class NestedLoopJoin extends BinaryOperator{
 
-    private Tuple nextTuple=null;
-    private Tuple currentLeftTuple=null;
-    private ComparableFilter<Tuple> comparator;
+    protected Tuple nextTuple=null;
+    protected Tuple currentLeftTuple=null;
+    protected ComparableFilter<Tuple> comparator;
 
     public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
         super(left, right);
@@ -41,7 +41,7 @@ public class NestedLoopJoin extends BinaryOperator{
         return (nextTuple==null)?false:true;
     }
 
-    private Tuple findNextTuple(){
+    protected Tuple findNextTuple(){
         //Executa apenas quando o next tuple não existe
         if(nextTuple!=null)return nextTuple;
         //Loopa pelo operador esquerdo

@@ -78,9 +78,6 @@ public class Main {
 			if(lastPk>=num){
 				System.out.println("(WARNING) Ordem PK invalida -> "+num+" <= "+lastPk);
 			}
-			if(lastPos<rs.getPointer()-sizeOfRecord){
-				System.out.println("(WARNING) GAP AQ DE "+((rs.getPointer()-lastPos)/sizeOfRecord-1));
-			}
 			byte dat = r.getData()[5];
 			for(int z=6;z<r.size();z++){
 				if(r.getData()[z]!=dat){
@@ -90,7 +87,6 @@ public class Main {
 			}
 			System.out.println("("+(x++)+") -> "+rs.getPointer()+" - [ PK="+num+", DATA=["+r.getData()[5]+", "+r.getData()[6]+"] ]");
 			lastPk = num;
-			lastPos = rs.getPointer();
 		}
 		rs.close();
 	}

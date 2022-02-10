@@ -1,6 +1,7 @@
 package engine.util;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public class Util {
 
@@ -8,14 +9,21 @@ public class Util {
 		return BigInteger.valueOf(num);
 	}
 
-	public static BigInteger convertByteArrayToNumber(byte[] arr) {
-    	arr = invertByteArray(arr);
-    	return new BigInteger(arr);
+	private static byte[] buffered;
+	public static synchronized BigInteger convertByteArrayToNumber(byte[] arr) {
+		if(buffered == null)buffered = arr.clone();
+		else if(buffered.length<arr.length){
+			buffered = arr.clone();
+		}else{
+			System.arraycopy(arr,0,buffered,0,arr.length);
+		}
+		buffered = invertByteArray(buffered,arr.length);
+    	return new BigInteger(Arrays.copyOfRange(buffered,0,arr.length));
 	}
 
 	public static byte[] convertNumberToByteArray(BigInteger number,int size) {
     	byte[] arr = number.toByteArray();
-    	arr = invertByteArray(arr);
+    	arr = invertByteArray(arr,arr.length);
     	byte[] aux = new byte[size];
     	for(int x=0;x<aux.length && x<arr.length;x++) {
     		aux[x]=arr[x];
@@ -29,12 +37,12 @@ public class Util {
 		return arr;
 	}
 	
-	public final static byte[] invertByteArray(byte[] array) {
+	public final static byte[] invertByteArray(byte[] array,int size) {
 		byte tmp;
-		for(int x=0;x<array.length/2;x++) {
+		for(int x=0;x<size/2;x++) {
 			tmp=array[x];
-			array[x]=array[array.length-x-1];
-			array[array.length-x-1]=tmp;
+			array[x]=array[size-x-1];
+			array[size-x-1]=tmp;
 		}
 		return array;
 	}

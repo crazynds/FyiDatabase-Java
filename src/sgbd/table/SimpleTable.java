@@ -119,6 +119,7 @@ public class SimpleTable extends Table {
 
             @Override
             public Map.Entry<BigInteger,RowData> nextWithPk() {
+                if(recordStream==null)return null;
                 return new Map.Entry<BigInteger,RowData>() {
                     Record record = recordStream.next();
                     @Override
@@ -141,6 +142,7 @@ public class SimpleTable extends Table {
             @Override
             public boolean hasNext() {
                 if(!started)start();
+                if(recordStream==null)return false;
                 boolean val = recordStream.hasNext();
                 if(!val){
                     recordStream.close();
@@ -152,6 +154,7 @@ public class SimpleTable extends Table {
             @Override
             public RowData next() {
                 if(!started)start();
+                if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
                 return translatorApi.convertToRowData(record,columns);
@@ -191,6 +194,7 @@ public class SimpleTable extends Table {
 
             @Override
             public Map.Entry<BigInteger,RowData> nextWithPk() {
+                if(recordStream==null)return null;
                 return new Map.Entry<BigInteger,RowData>() {
                     Record record = recordStream.next();
                     @Override
@@ -213,6 +217,7 @@ public class SimpleTable extends Table {
             @Override
             public boolean hasNext() {
                 if(!started)start();
+                if(recordStream==null)return false;
                 boolean val = recordStream.hasNext();
                 if(!val){
                     recordStream.close();
@@ -224,6 +229,7 @@ public class SimpleTable extends Table {
             @Override
             public RowData next() {
                 if(!started)start();
+                if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
                 return translatorApi.convertToRowData(record);
