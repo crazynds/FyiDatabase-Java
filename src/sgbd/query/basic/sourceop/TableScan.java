@@ -3,6 +3,7 @@ package sgbd.query.basic.sourceop;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Tuple;
 import sgbd.table.Table;
+import sgbd.table.components.RowIterator;
 
 import java.util.Iterator;
 import java.util.List;
@@ -10,16 +11,13 @@ import java.util.List;
 public class TableScan extends SourceOperator {
 
     private List<String> columns;
-    private Iterator<RowData> iterator;
-    private String asName;
+    protected RowIterator iterator;
 
     public TableScan(Table t){
         super(t);
-        asName = t.getTableName();
     }
     public TableScan(Table t,List<String> columns){
         super(t);
-        asName = t.getTableName();
         this.columns=columns;
     }
 

@@ -7,6 +7,7 @@ import java.util.List;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.TranslatorApi;
 import sgbd.prototype.RowData;
+import sgbd.table.components.RowIterator;
 
 public abstract class Table implements Iterable<RowData>{
 
@@ -39,10 +40,11 @@ public abstract class Table implements Iterable<RowData>{
 	}
 
 	/*
-		Aceita apenas novos insertes, verifica chave primaria
+		Aceita apenas novos inserts, verifica chave primaria
 	 */
 	public abstract BigInteger insert(RowData r);
 	public abstract void insert(List<RowData> r);
+	public abstract RowData find(BigInteger pk);
 	public abstract RowData find(BigInteger pk, List<String> colunas);
 	//public abstract List<RowData> find(Query);
 	/*
@@ -59,7 +61,8 @@ public abstract class Table implements Iterable<RowData>{
 	/*
 		Itera sobre os dados na tabela. Recebe como um dos parametros as colunas a serem lidas
 	 */
-	public abstract Iterator<RowData> iterator(List<String> columns);
+	public abstract RowIterator iterator(List<String> columns);
+	public abstract RowIterator iterator();
 
 
 }

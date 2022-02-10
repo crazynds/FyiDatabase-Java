@@ -12,6 +12,7 @@ import sgbd.table.Table;
 import sgbd.util.ComparableFilter;
 import sgbd.util.Filter;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class Main {
@@ -54,7 +55,14 @@ public class Main {
             }
         });
 
-        Operator sorted = new SortOperator(join1,"cidades","nome");
+        Operator sorted = new SortOperator(join1, new Comparator<Tuple>() {
+            @Override
+            public int compare(Tuple o1, Tuple o2) {
+                return o1.getContent("users").getString("name").compareTo(
+                        o2.getContent("users").getString("name")
+                );
+            }
+        });
 
 
 

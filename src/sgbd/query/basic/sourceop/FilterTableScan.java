@@ -8,6 +8,7 @@ import sgbd.util.Filter;
 import java.util.List;
 
 public class FilterTableScan extends TableScan{
+
     private Filter<Tuple> tupleFilter;
     private Tuple nextTuple = null;
 
@@ -38,8 +39,7 @@ public class FilterTableScan extends TableScan{
 
     @Override
     public boolean hasNext() {
-        if(findNextTuple()!=null)return true;
-        return false;
+        return findNextTuple()!=null;
     }
 
     private Tuple findNextTuple(){

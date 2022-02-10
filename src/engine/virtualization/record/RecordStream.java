@@ -52,6 +52,6 @@ public interface RecordStream {
 	 * Define a posição para a leitura, caso seja passado uma posição inválida, a leitura pode ocorrer de forma errada.
 	 */
 	public void setPointer(BigInteger pk);
-	public long getPointer();
+	public BigInteger getPointer();
 	
 }

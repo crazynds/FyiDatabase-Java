@@ -495,14 +495,23 @@ public class FixedRecordStorage implements RecordStorageController {
 
 			@Override
 			public void setPointer(BigInteger pk) {
-				long position = findRecordBinarySearch(pk,0,qtdOfRecords-1,new GenericRecord(new byte[sizeOfEachRecord]));
+				long position = findRecordBinarySearch(pk,0,qtdOfRecords-1,buffer2);
 				checkKey(position);
 				pos = (position-sizeOfBytesQtdRecords)/sizeOfEachRecord;
 			}
 
 			@Override
-			public long getPointer() {
-				return (pos-1)*sizeOfEachRecord+sizeOfBytesQtdRecords;
+			public BigInteger getPointer() {
+				if(pos>=qtdOfRecords)return null;
+				boolean find = false;
+				long actualPos = pos;
+				do {
+					read(getPositionOfRecord(actualPos), buffer2.getData());
+					actualPos++;
+				}while(recordInterface.isActiveRecord(buffer2)==false && actualPos<qtdOfRecords);
+				if(recordInterface.isActiveRecord(buffer2))
+					return recordInterface.getPrimaryKey(buffer2);
+				return null;
 			}
 		};
 	}
