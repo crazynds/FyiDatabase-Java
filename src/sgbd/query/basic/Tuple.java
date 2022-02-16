@@ -1,33 +1,34 @@
 package sgbd.query.basic;
 
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Tuple implements Iterable<Map.Entry<String,RowData>>{
+public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>{
 
-    private static RowData emptyRowData = new RowData();
+    private static ComplexRowData emptyRowData = new ComplexRowData();
 
     // users -> dados da linha
     // cidades -> dados da linha
     // users.id
     // cidades.id
     // users2.id
-    private HashMap<String, RowData> sources;
+    private HashMap<String, ComplexRowData> sources;
 
     public Tuple(){
         sources = new HashMap<>();
         //<Table, Dados>
     }
 
-    public void setContent(String asName,RowData data){
-        RowData row = sources.get(asName);
+    public void setContent(String asName,ComplexRowData data){
+        ComplexRowData row = sources.get(asName);
         if(row!=null){
             for (Map.Entry<String,byte[]> column:
                  data) {
-                row.setData(column.getKey(), column.getValue());
+                row.setData(column.getKey(), column.getValue(),row.getMeta(column.getKey()));
             }
         }else{
             sources.put(asName,data);
@@ -45,13 +46,13 @@ public class Tuple implements Iterable<Map.Entry<String,RowData>>{
     }
 
     @Override
-    public Iterator<Map.Entry<String, RowData>> iterator() {
+    public Iterator<Map.Entry<String, ComplexRowData>> iterator() {
         return sources.entrySet().iterator();
     }
 
     public int byteSize(){
         int size = 0;
-        for (Map.Entry<String,RowData> row:
+        for (Map.Entry<String,ComplexRowData> row:
             sources.entrySet()) {
             for (Map.Entry<String,byte[]> data:
                  row.getValue()) {

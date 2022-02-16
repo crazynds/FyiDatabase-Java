@@ -2,6 +2,7 @@ package sgbd.query.basic.binaryop;
 
 import engine.util.Util;
 import sgbd.info.Query;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Operator;
 import sgbd.query.basic.Tuple;
@@ -120,7 +121,7 @@ public class MergeJoin extends BinaryOperator{
                     break;
                 case 0:
                     Tuple tuple = leftCurrent.getKey();
-                    for (Map.Entry<String, RowData> entry :
+                    for (Map.Entry<String, ComplexRowData> entry :
                             rightCurrent.getKey()) {
                         tuple.setContent(entry.getKey(), entry.getValue());
                     }

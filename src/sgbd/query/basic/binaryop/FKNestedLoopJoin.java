@@ -2,6 +2,7 @@ package sgbd.query.basic.binaryop;
 
 import engine.exceptions.DataBaseException;
 import engine.util.Util;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Operator;
 import sgbd.query.basic.Tuple;
@@ -69,7 +70,7 @@ public class FKNestedLoopJoin extends  BinaryOperator{
             tableScan.open();
             if(tableScan.hasNext()){
                 Tuple rightTuple = tableScan.next();
-                for (Map.Entry<String, RowData> entry:
+                for (Map.Entry<String, ComplexRowData> entry:
                      rightTuple) {
                     leftTuple.setContent(entry.getKey(), entry.getValue());
                 }

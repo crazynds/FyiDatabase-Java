@@ -4,12 +4,13 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.TranslatorApi;
 import sgbd.prototype.RowData;
 import sgbd.table.components.RowIterator;
 
-public abstract class Table implements Iterable<RowData>{
+public abstract class Table implements Iterable<ComplexRowData>{
 
 	protected TranslatorApi translatorApi;
 	protected String tableName;
@@ -44,8 +45,8 @@ public abstract class Table implements Iterable<RowData>{
 	 */
 	public abstract BigInteger insert(RowData r);
 	public abstract void insert(List<RowData> r);
-	public abstract RowData find(BigInteger pk);
-	public abstract RowData find(BigInteger pk, List<String> colunas);
+	public abstract ComplexRowData find(BigInteger pk);
+	public abstract ComplexRowData find(BigInteger pk, List<String> colunas);
 	//public abstract List<RowData> find(Query);
 	/*
 		Aceita apenas update para dados já existentes, se não encontrar gera um erro

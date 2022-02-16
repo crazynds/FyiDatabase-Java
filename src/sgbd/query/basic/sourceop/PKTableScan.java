@@ -1,6 +1,7 @@
 package sgbd.query.basic.sourceop;
 
 import sgbd.info.Query;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Tuple;
 import sgbd.table.Table;
@@ -12,7 +13,7 @@ public class PKTableScan extends SourceOperator{
 
     private List<String> columns;
     private BigInteger pk;
-    private RowData row;
+    private ComplexRowData row;
 
     public PKTableScan(Table table, BigInteger pk) {
         super(table);

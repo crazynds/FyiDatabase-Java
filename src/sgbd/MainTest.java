@@ -1,19 +1,10 @@
 package sgbd;
 
-import engine.file.FileManager;
-import engine.file.buffers.OptimizedFIFOBlockBuffer;
-import engine.virtualization.interfaces.HeapStorage;
-import engine.virtualization.record.Record;
-import sgbd.prototype.Column;
-import sgbd.prototype.Prototype;
-import sgbd.prototype.RowData;
-import sgbd.prototype.TranslatorApi;
+import sgbd.prototype.*;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
-import sgbd.util.Conversor;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -59,7 +50,7 @@ public class MainTest {
             for (Column c : p2) {
                 System.out.println("Nome: " + c.getName() + " Type: " + (c.isDinamicSize() ? "Dinamic" : "Static") + " Size: " + c.getSize());
             }
-            Iterator<RowData> i = tableCidades.iterator();
+            Iterator<ComplexRowData> i = tableCidades.iterator();
             int x = 1;
             while (i.hasNext()) {
                 RowData r = i.next();
@@ -105,7 +96,7 @@ public class MainTest {
                 System.out.println("Nome: " + c.getName() + " Type: " + (c.isDinamicSize() ? "Dinamic" : "Static") + " Size: " + c.getSize());
             }
 
-            Iterator<RowData> i = tableUsers.iterator();
+            Iterator<ComplexRowData> i = tableUsers.iterator();
             int x = 1;
             while (i.hasNext()) {
                 RowData r = i.next();

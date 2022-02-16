@@ -11,12 +11,9 @@ import sgbd.util.Conversor;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-public class TranslatorApi implements RecordInfoExtraction {
+public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
 
     private final int headerSize;
     private byte[] headerBuffer;
@@ -150,8 +147,8 @@ public class TranslatorApi implements RecordInfoExtraction {
     }
 
 
-    public synchronized RowData convertToRowData(Record r){
-        RowData row = new RowData();
+    public synchronized ComplexRowData convertToRowData(Record r){
+        ComplexRowData row = new ComplexRowData();
         byte[] data = r.getData();
         byte[] header = headerBuffer;
         System.arraycopy(data,0,header,0,this.headerSize);
@@ -174,19 +171,19 @@ public class TranslatorApi implements RecordInfoExtraction {
                 offset+=4;
                 byte[] arr = Arrays.copyOfRange(data,offset,offset+size);
                 offset+=size;
-                row.setData(c.getName(),arr);
+                row.setData(c.getName(),arr,c);
             }else{
                 byte[] arr = Arrays.copyOfRange(data,offset,offset+c.getSize());
                 offset+=c.getSize();
-                row.setData(c.getName(),arr);
+                row.setData(c.getName(),arr,c);
             }
         }
         return row;
     }
 
 
-    public synchronized RowData convertToRowData(Record r, List<String> select){
-        RowData row = new RowData();
+    public synchronized ComplexRowData convertToRowData(Record r, List<String> select){
+        ComplexRowData row = new ComplexRowData();
         byte[] data = r.getData();
         byte[] header = headerBuffer;
         System.arraycopy(data,0,header,0,this.headerSize);
@@ -213,13 +210,13 @@ public class TranslatorApi implements RecordInfoExtraction {
                 offset += 4;
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
-                    row.setData(c.getName(), arr);
+                    row.setData(c.getName(), arr,c);
                 }
                 offset += size;
             } else {
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
-                    row.setData(c.getName(), arr);
+                    row.setData(c.getName(), arr,c);
                 }
                 offset += c.getSize();
             }
@@ -267,5 +264,10 @@ public class TranslatorApi implements RecordInfoExtraction {
             offset+=data.length;
         }
         return new GenericRecord(bufferRecord);
+    }
+
+    @Override
+    public Iterator<Column> iterator() {
+        return columns.iterator();
     }
 }

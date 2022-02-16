@@ -3,6 +3,7 @@ package sgbd.query.basic;
 import engine.info.Parameters;
 import sgbd.info.Query;
 import sgbd.prototype.Column;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.binaryop.NestedLoopJoin;
@@ -57,7 +58,7 @@ public class Main {
             Tuple t = executor.next();
             String str = "";
 
-            for (Map.Entry<String,RowData> row: t){
+            for (Map.Entry<String, ComplexRowData> row: t){
                 for(Map.Entry<String,byte[]> data:row.getValue()) {
                     switch(data.getKey()){
                         case "idade":

@@ -1,5 +1,6 @@
 package sgbd.query.basic.sourceop;
 
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Tuple;
 import sgbd.table.Table;
@@ -34,7 +35,7 @@ public class TableScan extends SourceOperator {
 
     @Override
     public Tuple next() {
-        RowData row = iterator.next();
+        ComplexRowData row = iterator.next();
         if(row==null)return null;
         Tuple tuple = new Tuple();
         tuple.setContent(sourceName(),row);

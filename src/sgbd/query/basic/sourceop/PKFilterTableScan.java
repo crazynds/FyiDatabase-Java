@@ -1,6 +1,7 @@
 package sgbd.query.basic.sourceop;
 
 import sgbd.info.Query;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Tuple;
 import sgbd.table.Table;
@@ -51,7 +52,7 @@ public class PKFilterTableScan extends TableScan{
     private Tuple findNextTuple(){
         if(nextTuple!=null)return nextTuple;
         while (iterator.hasNext()){
-            Map.Entry<BigInteger,RowData> temp = iterator.nextWithPk();
+            Map.Entry<BigInteger, ComplexRowData> temp = iterator.nextWithPk();
             if(lastPk!=null) {
                 Query.COMPARE_FILTER++;
                 if(temp.getKey().compareTo(lastPk)<=0) {

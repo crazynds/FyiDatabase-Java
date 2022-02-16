@@ -1,6 +1,7 @@
 package sgbd.query.basic.binaryop;
 
 import sgbd.info.Query;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Operator;
 import sgbd.query.basic.Tuple;
@@ -57,11 +58,11 @@ public class NestedLoopJoin extends BinaryOperator{
                 Query.COMPARE_JOIN++;
                 if(comparator.match(currentLeftTuple,rightTuple)){
                     nextTuple = new Tuple();
-                    for (Map.Entry<String, RowData> entry:
+                    for (Map.Entry<String, ComplexRowData> entry:
                             currentLeftTuple) {
                         nextTuple.setContent(entry.getKey(),entry.getValue());
                     }
-                    for (Map.Entry<String, RowData> entry:
+                    for (Map.Entry<String, ComplexRowData> entry:
                             rightTuple) {
                         nextTuple.setContent(entry.getKey(),entry.getValue());
                     }

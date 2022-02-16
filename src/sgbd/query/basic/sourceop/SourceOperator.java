@@ -3,6 +3,8 @@ package sgbd.query.basic.sourceop;
 import sgbd.query.basic.Operator;
 import sgbd.table.Table;
 
+import java.util.List;
+
 public abstract class SourceOperator implements Operator {
 
     protected Table table;
@@ -18,6 +20,10 @@ public abstract class SourceOperator implements Operator {
     }
     public String sourceName(){
         return asName;
+    }
+
+    public List<Table> getSources(){
+        return List.of(table);
     }
 
 }

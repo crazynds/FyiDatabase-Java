@@ -7,6 +7,7 @@ import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.RecordManager;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.table.components.RowIterator;
@@ -70,12 +71,12 @@ public class SimpleTable extends Table {
     }
 
     @Override
-    public RowData find(BigInteger pk, List<String> colunas) {
+    public ComplexRowData find(BigInteger pk, List<String> colunas) {
         Record r =this.manager.read(pk);
         return translatorApi.convertToRowData(r,colunas);
     }
     @Override
-    public RowData find(BigInteger pk) {
+    public ComplexRowData find(BigInteger pk) {
         Record r =this.manager.read(pk);
         return translatorApi.convertToRowData(r);
     }
@@ -118,9 +119,9 @@ public class SimpleTable extends Table {
             }
 
             @Override
-            public Map.Entry<BigInteger,RowData> nextWithPk() {
+            public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
                 if(recordStream==null)return null;
-                return new Map.Entry<BigInteger,RowData>() {
+                return new Map.Entry<BigInteger,ComplexRowData>() {
                     Record record = recordStream.next();
                     @Override
                     public BigInteger getKey() {
@@ -128,12 +129,12 @@ public class SimpleTable extends Table {
                     }
 
                     @Override
-                    public RowData getValue() {
+                    public ComplexRowData getValue() {
                         return translatorApi.convertToRowData(record,columns);
                     }
 
                     @Override
-                    public RowData setValue(RowData value) {
+                    public ComplexRowData setValue(ComplexRowData value) {
                         return null;
                     }
                 };
@@ -152,7 +153,7 @@ public class SimpleTable extends Table {
             }
 
             @Override
-            public RowData next() {
+            public ComplexRowData next() {
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
@@ -193,9 +194,9 @@ public class SimpleTable extends Table {
             }
 
             @Override
-            public Map.Entry<BigInteger,RowData> nextWithPk() {
+            public Map.Entry<BigInteger,ComplexRowData> nextWithPk() {
                 if(recordStream==null)return null;
-                return new Map.Entry<BigInteger,RowData>() {
+                return new Map.Entry<BigInteger,ComplexRowData>() {
                     Record record = recordStream.next();
                     @Override
                     public BigInteger getKey() {
@@ -203,12 +204,12 @@ public class SimpleTable extends Table {
                     }
 
                     @Override
-                    public RowData getValue() {
+                    public ComplexRowData getValue() {
                         return translatorApi.convertToRowData(record);
                     }
 
                     @Override
-                    public RowData setValue(RowData value) {
+                    public ComplexRowData setValue(ComplexRowData value) {
                         return null;
                     }
                 };
@@ -227,7 +228,7 @@ public class SimpleTable extends Table {
             }
 
             @Override
-            public RowData next() {
+            public ComplexRowData next() {
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
