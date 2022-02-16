@@ -46,7 +46,7 @@ public class FilterTableScan extends TableScan{
         if(nextTuple!=null)return nextTuple;
         while (super.hasNext()){
             Tuple temp = super.next();
-            Query.FILTER++;
+            Query.COMPARE_FILTER++;
             if(tupleFilter.match(temp)) {
                 nextTuple = temp;
                 return nextTuple;

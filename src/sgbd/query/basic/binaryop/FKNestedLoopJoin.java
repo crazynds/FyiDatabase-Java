@@ -1,11 +1,11 @@
 package sgbd.query.basic.binaryop;
 
+import engine.exceptions.DataBaseException;
 import engine.util.Util;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Operator;
 import sgbd.query.basic.Tuple;
 import sgbd.query.basic.sourceop.PKTableScan;
-import sgbd.query.basic.sourceop.TableScan;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -15,22 +15,25 @@ public class FKNestedLoopJoin extends  BinaryOperator{
     protected Tuple nextTuple=null;
 
     protected String source,foreignKey;
-    private PKTableScan tableScan;
     private boolean showIfNullRightOperator;
 
     public FKNestedLoopJoin(Operator left, PKTableScan tableScan, String source, String foreignKey) {
         super(left, tableScan);
-        this.tableScan=tableScan;
         this.source=source;
         this.showIfNullRightOperator=false;
         this.foreignKey=foreignKey;
     }
     public FKNestedLoopJoin(Operator left, PKTableScan tableScan, String source, String foreignKey, boolean showIfNullRightOperator) {
         super(left, tableScan);
-        this.tableScan=tableScan;
         this.source=source;
         this.showIfNullRightOperator=showIfNullRightOperator;
         this.foreignKey=foreignKey;
+    }
+
+    @Override
+    public void setRightOperator(Operator op) {
+        if(!(op instanceof PKTableScan))throw new DataBaseException("FKNestedLoopJoin->setRightOperator","Aceita apenas operadores do tipo PKTableScan");
+        super.setRightOperator(op);
     }
 
     @Override
@@ -56,6 +59,7 @@ public class FKNestedLoopJoin extends  BinaryOperator{
     }
     protected Tuple findNextTuple(){
         if(nextTuple!=null)return nextTuple;
+        PKTableScan tableScan = getTableScan();
 
         while(left.hasNext()){
             Tuple leftTuple = left.next();
@@ -84,5 +88,9 @@ public class FKNestedLoopJoin extends  BinaryOperator{
     public void close() {
         nextTuple = null;
         left.close();
+    }
+
+    protected PKTableScan getTableScan(){
+        return (PKTableScan) right;
     }
 }

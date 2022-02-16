@@ -10,6 +10,11 @@ public class Tuple implements Iterable<Map.Entry<String,RowData>>{
 
     private static RowData emptyRowData = new RowData();
 
+    // users -> dados da linha
+    // cidades -> dados da linha
+    // users.id
+    // cidades.id
+    // users2.id
     private HashMap<String, RowData> sources;
 
     public Tuple(){

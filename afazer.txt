@@ -1,0 +1,18 @@
+Tabela de indexes -> {
+ - Arvore B+ para armazenamento de tabelas
+ - Operadores que usam indexes
+}
+
+Locks e permissões de acesso -> {
+ -!?
+ -!?
+ -!?
+ -!?
+}
+
+
+-> External sort {
+ - Simple table (contém a coluna do sort e a posição dos dados e a quantidade de dados salvos)
+ - Arquivo continuo (contem todos os dados)
+
+}

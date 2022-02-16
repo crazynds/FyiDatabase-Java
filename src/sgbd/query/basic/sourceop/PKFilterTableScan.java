@@ -4,10 +4,8 @@ import sgbd.info.Query;
 import sgbd.prototype.RowData;
 import sgbd.query.basic.Tuple;
 import sgbd.table.Table;
-import sgbd.util.Filter;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +53,7 @@ public class PKFilterTableScan extends TableScan{
         while (iterator.hasNext()){
             Map.Entry<BigInteger,RowData> temp = iterator.nextWithPk();
             if(lastPk!=null) {
-                Query.FILTER++;
+                Query.COMPARE_FILTER++;
                 if(temp.getKey().compareTo(lastPk)<=0) {
                     nextTuple =new Tuple();
                     nextTuple.setContent(sourceName(),temp.getValue());

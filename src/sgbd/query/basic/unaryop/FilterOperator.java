@@ -42,7 +42,7 @@ public class FilterOperator extends UnaryOperation {
 
         while (operator.hasNext()){
             Tuple temp = operator.next();
-            Query.FILTER++;
+            Query.COMPARE_FILTER++;
             if(tupleFilter.match(temp)) {
                 nextTuple = temp;
                 return nextTuple;

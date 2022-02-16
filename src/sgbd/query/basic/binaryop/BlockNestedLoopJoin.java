@@ -15,9 +15,9 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
     private ArrayList<Tuple> bufferedLeftTuples=new ArrayList<>();
     private int indexLeftTuple;
     private int currentBufferedLeft = 0;
-    private ArrayList<Tuple> bufferedRightTuples=new ArrayList<>();
-    private int indexRightTuple;
-    private int currentBufferedRight = 0;
+
+    private Tuple rightTuple=null;
+
     private int bufferSize = 4096;
 
 
@@ -31,77 +31,58 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
         bufferedLeftTuples.clear();
         indexLeftTuple = 0;
 
-        bufferedRightTuples.clear();
-        indexRightTuple = 0;
+        rightTuple= null;
 
         super.open();
         right.open();
     }
 
-    protected void prepareBuffers(){
+    @Override
+    protected Tuple findNextTuple() {
+        if(nextTuple!=null)return nextTuple;
+        Tuple leftTuple;
+
         //Bufferiza o left
         while(bufferSize > currentBufferedLeft && left.hasNext()
             //    && bufferedLeftTuples.size()<3
         ){
-            Tuple leftTuple = left.next();
+            leftTuple = left.next();
             bufferedLeftTuples.add(leftTuple);
             currentBufferedLeft+=leftTuple.byteSize();
         }
-        //bufferiza o right
-        while(bufferSize > currentBufferedRight && right.hasNext()
-            //    && bufferedRightTuples.size()<3
-        ){
-            Tuple rightTuple = right.next();
-            bufferedRightTuples.add(rightTuple);
-            currentBufferedRight+=rightTuple.byteSize();
-        }
 
-        if(bufferedRightTuples.size()==0){
-            bufferedLeftTuples.clear();
-            currentBufferedLeft = 0;
-            right.close();
-            right.open();
-            if(!right.hasNext())return;
-            else{
-                prepareBuffers();
-            }
-        }
-    }
-
-
-    @Override
-    protected Tuple findNextTuple() {
-        if(nextTuple!=null)return nextTuple;
-
-        //Chama o carregamento dos buffers
-        prepareBuffers();
-
-        while(indexLeftTuple<bufferedLeftTuples.size() && nextTuple==null){
-            Tuple leftTuple = bufferedLeftTuples.get(indexLeftTuple);
-            Tuple rightTuple = bufferedRightTuples.get(indexRightTuple++);
-            Query.COMPARE_JOIN++;
-            if (comparator.match(leftTuple,rightTuple)){
-                nextTuple = new Tuple();
-                for (Map.Entry<String, RowData> entry:
-                        leftTuple) {
-                    nextTuple.setContent(entry.getKey(),entry.getValue());
-                }
-                for (Map.Entry<String, RowData> entry:
-                        rightTuple) {
-                    nextTuple.setContent(entry.getKey(),entry.getValue());
-                }
-            }
-            if(indexRightTuple>=bufferedRightTuples.size()){
-                indexLeftTuple++;
-                indexRightTuple=0;
-                if(indexLeftTuple>=bufferedLeftTuples.size()){
-                    bufferedRightTuples.clear();
-                    currentBufferedRight = 0;
+        while(nextTuple==null){
+            if(rightTuple==null){
+                if(right.hasNext()){
+                    rightTuple=right.next();
+                }else{
+                    right.close();
+                    right.open();
+                    if(right.hasNext()==false){
+                        rightTuple = null;
+                        return null;
+                    }
+                    bufferedLeftTuples.clear();
+                    currentBufferedLeft = 0;
                     indexLeftTuple = 0;
-                    if(nextTuple==null) {
-                        nextTuple = findNextTuple();
+                    return findNextTuple();
+                }
+            }
+            if(bufferedLeftTuples.size()<indexLeftTuple) {
+                leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
+                if(comparator.match(leftTuple,rightTuple)) {
+                    nextTuple = new Tuple();
+                    for (Map.Entry<String, RowData> entry:
+                            leftTuple) {
+                        nextTuple.setContent(entry.getKey(),entry.getValue());
+                    }
+                    for (Map.Entry<String, RowData> entry:
+                            rightTuple) {
+                        nextTuple.setContent(entry.getKey(),entry.getValue());
                     }
                 }
+            }else{
+                rightTuple= null;
             }
         }
         return nextTuple;

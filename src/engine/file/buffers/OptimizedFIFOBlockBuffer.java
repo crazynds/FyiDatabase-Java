@@ -49,13 +49,13 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
     }
 
     @Override
-    public synchronized void flush()  {
+    public synchronized void flush() {
         if(stream==null)throw new DataBaseException("FIFOBlockBuffer->flush","BlockStream não definido!");
         TreeMap<Integer, EntryBlock> tree = new TreeMap<Integer, EntryBlock>();
 
         for (Map.Entry<Integer,Integer> x:
                 blockMaping.entrySet()) {
-            if(x.getKey()>=0)
+            if(x.getKey()>=0 && !entries[x.getKey()].isSaved())
                 tree.put(x.getKey(),entries[x.getValue()]);
         }
 
