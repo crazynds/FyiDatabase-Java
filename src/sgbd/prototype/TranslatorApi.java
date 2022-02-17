@@ -6,7 +6,7 @@ import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtraction;
 import engine.virtualization.record.instances.GenericRecord;
-import sgbd.util.Conversor;
+import sgbd.util.UtilConversor;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -167,7 +167,7 @@ public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
                 }
             }
             if(c.isDinamicSize()){
-                int size = Conversor.byteArrayToInt(Arrays.copyOfRange(data,offset,offset+4));
+                int size = UtilConversor.byteArrayToInt(Arrays.copyOfRange(data,offset,offset+4));
                 offset+=4;
                 byte[] arr = Arrays.copyOfRange(data,offset,offset+size);
                 offset+=size;
@@ -206,7 +206,7 @@ public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
                 }
             }
             if (c.isDinamicSize()) {
-                int size = Conversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
+                int size = UtilConversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
                 offset += 4;
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);

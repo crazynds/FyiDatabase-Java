@@ -1,3 +1,9 @@
+
+-testar novo block nested loop join
+-testar external sort e a table dinamica gerada
+-testar as operator
+
+
 Tabela de indexes -> {
  - Arvore B+ para armazenamento de tabelas
  - Operadores que usam indexes

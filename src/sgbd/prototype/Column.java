@@ -55,6 +55,10 @@ public class Column {
 		else
 			return size;
 	}
+
+	public byte getFlags(){
+		return flags;
+	}
 	
 	public boolean isDinamicSize(){
 		return (flags&DINAMIC_COLUMN_SIZE)!=0;

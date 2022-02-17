@@ -24,6 +24,8 @@ public class Prototype implements Iterable<Column>{
 	}
 
 	public void addColumn(Column c) {
+		if(c == null)
+			throw new DataBaseException("Prototype->addColumn","Column passada é nula");
 		columns.add(c);
 		if(c.isDinamicSize())stat=false;
 	}

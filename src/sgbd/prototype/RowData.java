@@ -1,6 +1,6 @@
 package sgbd.prototype;
 
-import sgbd.util.Conversor;
+import sgbd.util.UtilConversor;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,13 +19,13 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 		this.data.put(column, data);
 	}
 	public void setInt(String column,int data) {
-		this.setData(column, Conversor.intToByteArray(data));
+		this.setData(column, UtilConversor.intToByteArray(data));
 	}
 	public void setString(String column,String data) {
-		this.setData(column, Conversor.stringToByteArray(data));
+		this.setData(column, UtilConversor.stringToByteArray(data));
 	}
 	public void setFloat(String column,float data) {
-		this.setData(column, Conversor.floatToByteArray(data));
+		this.setData(column, UtilConversor.floatToByteArray(data));
 	}
 	public byte[] unset(String column){
 		valid=false;
@@ -38,17 +38,17 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 	public Integer getInt(String column) {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
-		return Conversor.byteArrayToInt(data);
+		return UtilConversor.byteArrayToInt(data);
 	}
 	public Float getFloat(String column) {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
-		return Conversor.byteArrayToFloat(data);
+		return UtilConversor.byteArrayToFloat(data);
 	}
 	public String getString(String column) {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
-		return Conversor.byteArrayToString(data);
+		return UtilConversor.byteArrayToString(data);
 	}
 	
 	public int size() {

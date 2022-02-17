@@ -45,16 +45,17 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
 
         //Bufferiza o left
         while(bufferSize > currentBufferedLeft && left.hasNext()
-            //    && bufferedLeftTuples.size()<3
+                && bufferedLeftTuples.size()<3
         ){
             leftTuple = left.next();
             bufferedLeftTuples.add(leftTuple);
             currentBufferedLeft+=leftTuple.byteSize();
         }
 
-        while(nextTuple==null){
+        while(nextTuple==null && !bufferedLeftTuples.isEmpty()){
             if(rightTuple==null){
                 if(right.hasNext()){
+                    indexLeftTuple = 0;
                     rightTuple=right.next();
                 }else{
                     right.close();
@@ -69,8 +70,9 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
                     return findNextTuple();
                 }
             }
-            if(bufferedLeftTuples.size()<indexLeftTuple) {
+            if(bufferedLeftTuples.size()>indexLeftTuple) {
                 leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
+                Query.COMPARE_JOIN++;
                 if(comparator.match(leftTuple,rightTuple)) {
                     nextTuple = new Tuple();
                     for (Map.Entry<String, ComplexRowData> entry:

@@ -16,7 +16,7 @@ import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.RecordManager;
-import sgbd.util.Conversor;
+import sgbd.util.UtilConversor;
 
 public class Main {
 
@@ -37,7 +37,7 @@ public class Main {
 		@Override
 		public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
 			rbs.read(1,4,buff,0);
-			return BigInteger.valueOf(Conversor.byteArrayToInt(buff));
+			return BigInteger.valueOf(UtilConversor.byteArrayToInt(buff));
 		}
 
 		@Override

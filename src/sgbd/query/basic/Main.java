@@ -5,13 +5,16 @@ import sgbd.info.Query;
 import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
-import sgbd.prototype.RowData;
-import sgbd.query.basic.binaryop.NestedLoopJoin;
+import sgbd.query.basic.binaryop.BlockNestedLoopJoin;
 import sgbd.query.basic.sourceop.TableScan;
+import sgbd.query.basic.unaryop.AsOperator;
+import sgbd.query.basic.unaryop.ExternalSortOperator;
 import sgbd.query.basic.unaryop.FilterOperator;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
+import sgbd.util.Conversor;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -46,12 +49,27 @@ public class Main {
 
         Operator selectAllCidades = new TableScan(cidades);
 
-        Operator join = new NestedLoopJoin(where,selectAllCidades,(t1, t2) -> {
+        Operator join = new BlockNestedLoopJoin(where,selectAllCidades,(t1, t2) -> {
             return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
         });
 
+        Operator as = new AsOperator(join, new Conversor() {
+            @Override
+            public Column metaInfo(Tuple t) {
+                return t.getContent("users").getMeta("nome");
+            }
 
-        Operator executor=join;
+            @Override
+            public byte[] process(Tuple t) {
+                String formated = t.getContent("users").getString("nome")+" ("+t.getContent("users").getInt("idade")+")";
+                return formated.getBytes(StandardCharsets.UTF_8);
+            }
+        }, "formated");
+
+        Operator sorted = new ExternalSortOperator(as,"asOperation","formated",true);
+
+
+        Operator executor=sorted;
 
         executor.open();
         while(executor.hasNext()){
@@ -65,6 +83,8 @@ public class Main {
                         case "anoNascimento":
                         case "id":
                         case "idCidade":
+                        case "__aux":
+                        case "size":
                             str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getInt(data.getKey());
                             break;
                         case "salario":
@@ -90,8 +110,9 @@ public class Main {
         users.close();
         cidades.close();
 
-        for(int x=0;x<2;x++)
-            System.out.println("");
+
+        System.out.println("");
+        System.out.println("");
 
         System.out.println("Query performance: ");
         System.out.println("Buscas por chave primaria: "+ Query.PK_SEARCH);

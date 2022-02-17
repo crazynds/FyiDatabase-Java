@@ -35,9 +35,12 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>{
         }
     }
 
-    public RowData getContent(String name){
-        RowData rd=sources.get(name);
-        if(rd == null)rd=emptyRowData;
+    public ComplexRowData getContent(String name){
+        ComplexRowData rd=sources.get(name);
+        if(rd == null){
+            rd=new ComplexRowData();
+            sources.put(name,rd);
+        }
         return rd;
     }
 

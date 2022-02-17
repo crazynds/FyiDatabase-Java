@@ -1,6 +1,6 @@
 package sgbd.prototype;
 
-import sgbd.util.Conversor;
+import sgbd.util.UtilConversor;
 
 import java.util.HashMap;
 
@@ -23,13 +23,13 @@ public class ComplexRowData extends RowData{
         this.metaData.put(column,meta);
     }
     public void setInt(String column,int data,Column meta) {
-        this.setData(column, Conversor.intToByteArray(data),meta);
+        this.setData(column, UtilConversor.intToByteArray(data),meta);
     }
     public void setString(String column,String data,Column meta) {
-        this.setData(column, Conversor.stringToByteArray(data),meta);
+        this.setData(column, UtilConversor.stringToByteArray(data),meta);
     }
     public void setFloat(String column,float data,Column meta) {
-        this.setData(column, Conversor.floatToByteArray(data),meta);
+        this.setData(column, UtilConversor.floatToByteArray(data),meta);
     }
 
 

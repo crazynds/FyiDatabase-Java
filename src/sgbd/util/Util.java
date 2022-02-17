@@ -11,6 +11,9 @@ public class Util {
         if(columnName.contains("id"))return "int";
         if(columnName.contains("idade"))return "int";
         if(columnName.contains("age"))return "int";
+        if(columnName.contains("size"))return "int";
+        if(columnName.contains("__aux"))return "int";
+        if(columnName.contains("reference"))return "int";
 
 
         if(columnName.contains("salario"))return "float";
