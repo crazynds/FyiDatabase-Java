@@ -1,13 +1,11 @@
-package sgbd.query.basic.binaryop;
+package sgbd.query.binaryop;
 
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
-import sgbd.prototype.RowData;
-import sgbd.query.basic.Operator;
-import sgbd.query.basic.Tuple;
+import sgbd.query.Operator;
+import sgbd.query.Tuple;
 import sgbd.util.ComparableFilter;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
 
