@@ -1,23 +1,24 @@
-package sgbd.query.basic.unaryop;
+package sgbd.query.unaryop;
 
 import com.google.gson.Gson;
 import engine.exceptions.DataBaseException;
 import engine.file.FileManager;
 import engine.util.Util;
 import sgbd.prototype.Column;
+import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
-import sgbd.query.basic.Operator;
-import sgbd.query.basic.Tuple;
-import sgbd.query.basic.sourceop.TableScan;
+import sgbd.query.Operator;
+import sgbd.query.Tuple;
+import sgbd.query.sourceop.TableScan;
 import sgbd.table.SimpleTable;
-import sgbd.table.Table;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.List;
 
 public class ExternalSortOperator extends UnaryOperation{
 
@@ -29,6 +30,9 @@ public class ExternalSortOperator extends UnaryOperation{
 
     protected boolean revertBinarySortColumn;
 
+    protected RandomAccessFile fileWriter;
+    private Gson gson;
+
     public ExternalSortOperator(Operator op, String source,String column, boolean revertBinarySortColumn){
         super(op);
         this.source = source;
@@ -36,6 +40,7 @@ public class ExternalSortOperator extends UnaryOperation{
         this.scan = null;
         this.externalSortedTable = null;
         this.revertBinarySortColumn=revertBinarySortColumn;
+        gson = new Gson();
     }
 
     @Override
@@ -47,6 +52,7 @@ public class ExternalSortOperator extends UnaryOperation{
             operator.close();
             return;
         }
+
         Prototype pt = new Prototype();
         Tuple t = operator.next();
         Column c = t.getContent(source).getMeta(column);
@@ -54,38 +60,59 @@ public class ExternalSortOperator extends UnaryOperation{
         pt.addColumn("sort",c.getSize(),
                 (c.isShift8Size()?Column.SHIFT_8_SIZE_COLUMN:Column.NONE)|
                         Column.PRIMARY_KEY);
-        pt.addColumn("reference",4, Column.NONE);
+        pt.addColumn("reference",8, Column.NONE);
         pt.addColumn("size",4, Column.NONE);
         try {
+
             externalSortedTable = new SimpleTable("externalSorted", new FileManager(File.createTempFile("table", "sortOperation")), pt);
+            scan = new TableScan(externalSortedTable, List.of("reference","size"));
+
             dataFile = File.createTempFile("data","sortOperation");
-            scan = new TableScan(externalSortedTable);
+            fileWriter = new RandomAccessFile(this.dataFile,"rw");
+
         }catch (IOException exception){
             throw new DataBaseException("ExternalSortOperator->newTempFile",exception.getMessage());
         }
 
+
         externalSortedTable.open();
-        Gson gson = new Gson();
         ArrayList<RowData> inserts = new ArrayList<>();
-        int val = 0;
+
+        long unique_val = 0;
+        long startPos = 0;
         do{
             if(t==null)
                 t = operator.next();
             String json = gson.toJson(t);
             RowData row = new RowData();
-            row.setInt("__aux",val++);
+            row.setLong("__aux",unique_val++);
             if(revertBinarySortColumn) {
-                byte[] data = t.getContent(source).getData(column);
+                byte[] data = t.getContent(source).getData(column).clone();
                 row.setData("sort", Util.invertByteArray(data,data.length));
             }else
                 row.setData("sort",t.getContent(source).getData(column));
-            row.setInt("reference",0);
-            row.setInt("size",0);
+            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+            try {
+                fileWriter.seek(startPos);
+                fileWriter.write(data,0,data.length);
+            }catch (Exception e){
+                scan.close();
+                externalSortedTable.close();
+                throw new DataBaseException("ExternalSortOperator->open",e.getMessage());
+            }
+            row.setLong("reference",startPos);
+            row.setInt("size",data.length);
+            startPos+=data.length;
             inserts.add(row);
             t = null;
             if(inserts.size()>32)
                 externalSortedTable.insert(inserts);
         }while (operator.hasNext());
+        try {
+            fileWriter.getFD().sync();
+        }catch (Exception e){
+            throw new DataBaseException("ExternalSortOperator->open",e.getMessage());
+        }
         externalSortedTable.insert(inserts);
 
         operator.close();
@@ -95,15 +122,25 @@ public class ExternalSortOperator extends UnaryOperation{
 
     @Override
     public Tuple next() {
-        if(scan!=null) {
-            Tuple t = scan.next();
-            if(revertBinarySortColumn) {
-                byte[] data = t.getContent("externalSorted").getData("sort");
-                t.getContent("externalSorted").setData("sort", Util.invertByteArray(data,data.length));
-            }
-            return t;
+        if(scan==null)
+            return null;
+
+        Tuple t = scan.next();
+        ComplexRowData row = t.getContent("externalSorted");
+        long pos = row.getLong("reference");
+        int size = row.getInt("size");
+
+        byte[] data = new byte[size];
+        try {
+            fileWriter.seek(pos);
+            fileWriter.read(data,0,data.length);
+        } catch (IOException e) {
+            throw new DataBaseException("ExternalSortOperator->next",e.getMessage());
         }
-        return null;
+        String json = new String(data,StandardCharsets.UTF_8);
+
+        Tuple tuple = (Tuple)gson.fromJson(json,Tuple.class);
+        return tuple;
     }
 
     @Override
@@ -115,6 +152,10 @@ public class ExternalSortOperator extends UnaryOperation{
     @Override
     public void close() {
         if(scan!=null) {
+            try {
+                fileWriter.close();
+            } catch (IOException e) {
+            }
             scan.close();
             externalSortedTable.close();
             dataFile.delete();

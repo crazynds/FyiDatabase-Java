@@ -1,6 +1,6 @@
-package sgbd.query.basic.sourceop;
+package sgbd.query.sourceop;
 
-import sgbd.query.basic.Operator;
+import sgbd.query.Operator;
 import sgbd.table.Table;
 
 import java.util.List;

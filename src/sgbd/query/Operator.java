@@ -1,4 +1,4 @@
-package sgbd.query.basic;
+package sgbd.query;
 
 import sgbd.table.Table;
 

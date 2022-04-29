@@ -1,6 +1,6 @@
-package sgbd.query.basic.binaryop;
+package sgbd.query.binaryop;
 
-import sgbd.query.basic.Operator;
+import sgbd.query.Operator;
 import sgbd.table.Table;
 
 import java.util.List;

@@ -1,12 +1,12 @@
-package sgbd.query.basic.binaryop;
+package sgbd.query.binaryop;
 
 import engine.util.Util;
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
-import sgbd.prototype.RowData;
-import sgbd.query.basic.Operator;
-import sgbd.query.basic.Tuple;
-import sgbd.query.basic.unaryop.SortOperator;
+import sgbd.query.Operator;
+import sgbd.query.Tuple;
+import sgbd.query.unaryop.SortOperator;
+import sgbd.query.unaryop.UnaryOperation;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -35,6 +35,26 @@ public class MergeJoin extends BinaryOperator{
         this.leftData=leftData;
         this.rightSource=rightSource;
         this.rightData=rightData;
+    }
+
+    @Override
+    public void setLeftOperator(Operator op) {
+        ((UnaryOperation)left).setOperator(op);
+    }
+
+    @Override
+    public void setRightOperator(Operator op){
+        ((UnaryOperation)right).setOperator(op);
+    }
+
+    @Override
+    public Operator getLeftOperator() {
+        return ((UnaryOperation)left).getOperator();
+    }
+
+    @Override
+    public Operator getRightOperator() {
+        return ((UnaryOperation)right).getOperator();
     }
 
     @Override

@@ -1,8 +1,8 @@
-package sgbd.query.basic.unaryop;
+package sgbd.query.unaryop;
 
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.basic.Operator;
-import sgbd.query.basic.Tuple;
+import sgbd.query.Operator;
+import sgbd.query.Tuple;
 import sgbd.util.Conversor;
 
 public class AsOperator extends UnaryOperation{

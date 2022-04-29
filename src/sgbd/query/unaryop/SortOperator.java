@@ -1,9 +1,8 @@
-package sgbd.query.basic.unaryop;
+package sgbd.query.unaryop;
 
 import sgbd.info.Query;
-import sgbd.prototype.RowData;
-import sgbd.query.basic.Operator;
-import sgbd.query.basic.Tuple;
+import sgbd.query.Operator;
+import sgbd.query.Tuple;
 
 import java.util.*;
 

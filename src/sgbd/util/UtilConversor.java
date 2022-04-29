@@ -49,7 +49,7 @@ public class UtilConversor {
     }
 
     public static String byteArrayToString(byte[] arr){
-        return new String(arr).trim();
+        return new String(arr,StandardCharsets.UTF_8).trim();
     }
 
 }

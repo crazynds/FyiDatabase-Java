@@ -1,4 +1,4 @@
-package sgbd.query.basic;
+package sgbd.query;
 
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
@@ -27,7 +27,7 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>{
         ComplexRowData row = sources.get(asName);
         if(row!=null){
             for (Map.Entry<String,byte[]> column:
-                 data) {
+                    data) {
                 row.setData(column.getKey(), column.getValue(),row.getMeta(column.getKey()));
             }
         }else{

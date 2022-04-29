@@ -1,24 +1,30 @@
-package sgbd.query.basic.unaryop;
+package sgbd.query.sourceop;
 
 import sgbd.info.Query;
-import sgbd.query.basic.Operator;
-import sgbd.query.basic.Tuple;
+import sgbd.query.Tuple;
+import sgbd.table.Table;
 import sgbd.util.Filter;
 
-public class FilterOperator extends UnaryOperation {
+import java.util.List;
+
+public class FilterTableScan extends TableScan{
 
     private Filter<Tuple> tupleFilter;
+    private Tuple nextTuple = null;
 
-    private Tuple nextTuple;
+    public FilterTableScan(Table t, Filter<Tuple> tupleFilter) {
+        super(t);
+        this.tupleFilter = tupleFilter;
+    }
 
-    public FilterOperator(Operator op, Filter<Tuple> tupleFilter) {
-        super(op);
-        this.tupleFilter=tupleFilter;
+    public FilterTableScan(Table t, List<String> columns, Filter<Tuple> tupleFilter) {
+        super(t, columns);
+        this.tupleFilter = tupleFilter;
     }
 
     @Override
     public void open() {
-        operator.open();
+        super.open();
         nextTuple=null;
     }
 
@@ -33,15 +39,13 @@ public class FilterOperator extends UnaryOperation {
 
     @Override
     public boolean hasNext() {
-        if(findNextTuple()!=null)return true;
-        return false;
+        return findNextTuple()!=null;
     }
 
     private Tuple findNextTuple(){
         if(nextTuple!=null)return nextTuple;
-
-        while (operator.hasNext()){
-            Tuple temp = operator.next();
+        while (super.hasNext()){
+            Tuple temp = super.next();
             Query.COMPARE_FILTER++;
             if(tupleFilter.match(temp)) {
                 nextTuple = temp;
@@ -53,7 +57,7 @@ public class FilterOperator extends UnaryOperation {
 
     @Override
     public void close() {
-        operator.close();
+        super.close();
         nextTuple=null;
     }
 }

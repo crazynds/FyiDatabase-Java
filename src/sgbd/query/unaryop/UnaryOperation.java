@@ -1,6 +1,6 @@
-package sgbd.query.basic.unaryop;
+package sgbd.query.unaryop;
 
-import sgbd.query.basic.Operator;
+import sgbd.query.Operator;
 import sgbd.table.Table;
 
 import java.util.List;
