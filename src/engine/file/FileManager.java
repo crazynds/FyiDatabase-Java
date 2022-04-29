@@ -17,15 +17,18 @@ import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.info.Parameters;
 
-public class FileManager implements BlockFace,BlockStream {
+public final class FileManager implements BlockFace,BlockStream {
 	private RandomAccessFile file;
 	private String nameFile;
+
+	private File fileOriginal;
 		
 	private BlockBuffer buffer;
 	private int blockSize;
 
 	public FileManager(File file){
 		try {
+			this.fileOriginal = file;
 			this.file = new RandomAccessFile(file, "rw");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -38,7 +41,8 @@ public class FileManager implements BlockFace,BlockStream {
 
 	public FileManager(String file)  {
 		try {
-			this.file = new RandomAccessFile(file, "rw");
+			this.fileOriginal = new File(file);
+			this.file = new RandomAccessFile(this.fileOriginal, "rw");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -47,9 +51,22 @@ public class FileManager implements BlockFace,BlockStream {
 		buffer = new FIFOBlockBuffer(4);
 		buffer.startBuffering(directAcessFile);
 	}
+	public FileManager(File file,BlockBuffer b)  {
+		try {
+			this.fileOriginal = file;
+			this.file = new RandomAccessFile(file, "rw");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		nameFile=file.getName();
+		blockSize=4096;
+		buffer = b;
+		buffer.startBuffering(directAcessFile);
+	}
 	public FileManager(String file,BlockBuffer b)  {
 		try {
-			this.file = new RandomAccessFile(file, "rw");
+			this.fileOriginal = new File(file);
+			this.file = new RandomAccessFile(this.fileOriginal, "rw");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -290,6 +307,10 @@ public class FileManager implements BlockFace,BlockStream {
 		return nameFile;
 	}
 
+	public File getFile(){
+		return fileOriginal;
+	}
+
 	@Override
 	public int getBlockSize() {
 		return blockSize;
@@ -308,8 +329,7 @@ public class FileManager implements BlockFace,BlockStream {
 			buffer.clearBuffer();
 			close();
 			file= null;
-			File f = new File(nameFile);
-			f.delete();
+			this.fileOriginal.delete();
 			file = new RandomAccessFile(nameFile, "rw");
 		} catch (IOException e) {
 		}

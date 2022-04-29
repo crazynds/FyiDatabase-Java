@@ -1,12 +1,10 @@
-package sgbd.query.basic.sourceop;
+package sgbd.query.sourceop;
 
 import sgbd.prototype.ComplexRowData;
-import sgbd.prototype.RowData;
-import sgbd.query.basic.Tuple;
+import sgbd.query.Tuple;
 import sgbd.table.Table;
 import sgbd.table.components.RowIterator;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class TableScan extends SourceOperator {

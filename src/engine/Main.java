@@ -14,7 +14,7 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
-import engine.virtualization.record.manager.FixedRecordManager;
+import engine.virtualization.record.manager.MemoryBTreeRecordManager;
 import engine.virtualization.record.manager.RecordManager;
 import sgbd.util.UtilConversor;
 
@@ -125,115 +125,19 @@ public class Main {
 	
 	public static void main(String[] args) {
 		Long time = System.nanoTime();
-		Record r;
 
 		int sizeOfRecord = 400;
-		int qtdOfRecords = 50000;
-		int qtdPerList = 10000;
-		int maxPK = 1000000000;
+		int qtdOfRecords = 500;
+		int qtdPerList = 10;
+		int maxPK = 10000;
 
-		FileManager f = new FileManager("W:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
 		RecordInterface ri = new AuxRecordInterface();
-		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
-		rm.restart();
+		RecordManager rm = new MemoryBTreeRecordManager(ri);
+
+		//FileManager f = new FileManager("W:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
+		//RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
 		createBase(ri,rm,sizeOfRecord,qtdOfRecords,qtdPerList,maxPK);
-		rm.flush();
 		printRecords(rm,sizeOfRecord);
-
-		/*
-		boolean exec = true;
-		Scanner in = new Scanner(System.in);
-		int qtd = 0;
-		do{
-			System.out.println("Escolha uma opção abaixo:");
-			System.out.println("");
-			System.out.println("1-Inserir");
-			System.out.println("2-Remover");
-			System.out.println("3-Visualizar itens");
-			System.out.println("4-Resetar arquivo");
-			System.out.println("5-Flush nos dados");
-			System.out.println("0-Sair");
-
-			int option = in.nextInt();
-
-			switch(option){
-				case 0:
-					exec = false;
-					break;
-				case 1:
-					int pk = 0;
-					do{
-						System.out.println("Digite um valor para primary key(0 para sair): ");
-						System.out.println("--os dados serao preenchidos aleatoriamente-- ");
-						pk = in.nextInt();
-
-						if(pk!=0) {
-							ByteBuffer b = ByteBuffer.allocate(4);
-							b.order(ByteOrder.LITTLE_ENDIAN);
-							b.putInt(pk);
-							byte[] pkArray = b.array();
-							byte[] data = new byte[sizeOfRecord];
-							for (int x = 0; x < data.length; x++) data[x] = (byte) qtd;
-							qtd++;
-							System.arraycopy(pkArray, 0, data, 1, 4);
-							r = new GenericRecord(data);
-
-							ri.setActiveRecord(r, true);
-							rm.write(r);
-						}
-					}while(pk!=0);
-					break;
-				case 2:
-					do{
-						System.out.println("Digite um valor para primary key(0 para sair): ");
-						System.out.println("--O record sera apagado--");
-						pk = in.nextInt();
-						if(pk!=0) {
-							try {
-								r = rm.read(Util.convertIntegerToByteArray(pk));
-								ri.setActiveRecord(r, false);
-								rm.write(r);
-							} catch (NotFoundRowException e) {
-								System.out.println("Não encontrado um item com essa primary key");
-							}
-						}
-					}while(pk!=0);
-					break;
-				case 3:
-					RecordStream rs = rm.sequencialRead();
-					long x=0;
-					long lastPos = 0;
-					int lastPk = -1;
-					rs.open(false);
-					while(rs.hasNext()){
-						r = rs.next();
-
-						ByteBuffer wrapped = ByteBuffer.wrap(r.getData(),1,4);
-						wrapped.order(ByteOrder.LITTLE_ENDIAN);
-						int num = wrapped.getInt();
-						if(lastPk>=num){
-							System.out.println("(WARNING) Ordem PK invalida -> "+num+" <= "+lastPk);
-						}
-						if(lastPos<rs.getPointer()-sizeOfRecord){
-							System.out.println("(WARNING) GAP AQ DE "+((rs.getPointer()-lastPos)/sizeOfRecord-1));
-						}
-						System.out.println("("+(x++)+") -> "+rs.getPointer()+" - [ PK="+num+", DATA=["+r.getData()[5]+", "+r.getData()[6]+"] ]");
-						lastPk = num;
-						lastPos = rs.getPointer();
-					}
-					rs.close();
-					break;
-				case 4:
-					rm.restart();
-					break;
-				case 5:
-					rm.flush();
-					break;
-			}
-			System.out.print("\033[H\033[2J");
-			System.out.flush();
-		}while(exec);
-		 */
 
 		rm.close();
 

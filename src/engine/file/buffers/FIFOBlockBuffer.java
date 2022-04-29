@@ -24,7 +24,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 	}
 
 	@Override
-	public int lastBlock()  {
+	public int lastBlock() {
 		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->lastBlock","BlockStream não definido!");
 		int last = stream.lastBlock();
 		for (EntryBlock e:

@@ -21,6 +21,9 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 	public void setInt(String column,int data) {
 		this.setData(column, UtilConversor.intToByteArray(data));
 	}
+	public void setLong(String column,long data) {
+		this.setData(column, UtilConversor.longToByteArray(data));
+	}
 	public void setString(String column,String data) {
 		this.setData(column, UtilConversor.stringToByteArray(data));
 	}
@@ -39,6 +42,11 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
 		return UtilConversor.byteArrayToInt(data);
+	}
+	public Long getLong(String column) {
+		byte[] data = this.data.get(column);
+		if(data==null)return null;
+		return UtilConversor.byteArrayToLong(data);
 	}
 	public Float getFloat(String column) {
 		byte[] data = this.data.get(column);

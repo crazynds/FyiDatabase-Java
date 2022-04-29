@@ -40,11 +40,6 @@ public interface RecordStream {
 	public void remove();
 	
 	/*
-	 * Informa se os records estão ordenados 
-	 */
-	public boolean isOrdened();
-	
-	/*
 	 * Reinicia a leitura da stream, voltando para a primieira posição
 	 */
 	public void reset();

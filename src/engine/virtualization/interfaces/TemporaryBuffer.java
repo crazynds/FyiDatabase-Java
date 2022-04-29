@@ -1,5 +1,7 @@
 package engine.virtualization.interfaces;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -41,7 +43,11 @@ public class TemporaryBuffer{
 	}
 	public TemporaryBuffer(FileManager origin, int blockBufferSize) {
 		this.origin=origin;
-		buffer = new FileManager(origin.getNameFile()+".temp",new OptimizedFIFOBlockBuffer(blockBufferSize));
+		try {
+			File tempFile = File.createTempFile(origin.getNameFile(),".dat");
+			buffer = new FileManager(tempFile,new OptimizedFIFOBlockBuffer(blockBufferSize));
+		} catch (IOException e) {
+		}
 		buffer.clearFile();
 		buffer.changeBlockSize(origin.getBlockSize());
 		bufferedBlocks = new TreeMap<Integer, Integer>();
@@ -91,7 +97,7 @@ public class TemporaryBuffer{
 	public synchronized void commit() {
 //		Block b = new Block(buffer.getBlockSize());
 		/*
-		Fazer leitura de conjuntos de blocos e ordenar esse conjuntos e escrever de forma sequencial esse conjunto
+			Fazer leitura de conjuntos de blocos e ordenar esse conjuntos e escrever de forma sequencial esse conjunto
 		 */
 
 		final int blockSizeHint = 32;

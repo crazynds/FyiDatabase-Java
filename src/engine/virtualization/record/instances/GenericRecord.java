@@ -11,13 +11,11 @@ public class GenericRecord extends Record {
 
 	public GenericRecord(byte[] data){
 		this.data=data;
-		Parameters.MEMORY_ALLOCATED_BY_RECORDS+=data.length;
 		size=-1;
 	}
 
 	public GenericRecord(byte[] data,int size){
 		this.data=data;
-		Parameters.MEMORY_ALLOCATED_BY_RECORDS+=data.length;
 		this.size= size;
 	}
 

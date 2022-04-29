@@ -1,9 +1,9 @@
 package sgbd.table;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.List;
 
+import sgbd.index.Index;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.TranslatorApi;
@@ -13,12 +13,22 @@ import sgbd.table.components.RowIterator;
 public abstract class Table implements Iterable<ComplexRowData>{
 
 	protected TranslatorApi translatorApi;
+
 	protected String tableName;
-	
+
+
 	public Table(String tableName, Prototype pt)  {
 		translatorApi =pt.validateColumns();
 		this.tableName=tableName;
 	}
+
+
+	public Index createIndex(List<String> columns){
+		return null;
+	}
+
+
+
 	/*
 		Abre e fecha as propriedades da tabela
 		Abre e fecha o acesso ao arquivo
@@ -58,12 +68,14 @@ public abstract class Table implements Iterable<ComplexRowData>{
 	 */
 	public abstract RowData delete(BigInteger pk);
 
-
 	/*
 		Itera sobre os dados na tabela. Recebe como um dos parametros as colunas a serem lidas
 	 */
 	public abstract RowIterator iterator(List<String> columns);
 	public abstract RowIterator iterator();
+
+
+
 
 
 }

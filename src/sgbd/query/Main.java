@@ -1,20 +1,17 @@
-package sgbd.query.basic;
+package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
 import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
-import sgbd.query.basic.binaryop.BlockNestedLoopJoin;
-import sgbd.query.basic.sourceop.TableScan;
-import sgbd.query.basic.unaryop.AsOperator;
-import sgbd.query.basic.unaryop.ExternalSortOperator;
-import sgbd.query.basic.unaryop.FilterOperator;
+import sgbd.query.binaryop.BlockNestedLoopJoin;
+import sgbd.query.sourceop.TableScan;
+import sgbd.query.unaryop.ExternalSortOperator;
+import sgbd.query.unaryop.FilterOperator;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
-import sgbd.util.Conversor;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -35,6 +32,7 @@ public class Main {
         p2.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
 
         Table users = SimpleTable.openTable("users",p1);
+
         Table cidades = SimpleTable.openTable("cidades",p2);
 
         users.open();
@@ -46,27 +44,28 @@ public class Main {
             return t.getContent("users").getInt("idade") >=18;
         });
 
-
         Operator selectAllCidades = new TableScan(cidades);
 
         Operator join = new BlockNestedLoopJoin(where,selectAllCidades,(t1, t2) -> {
             return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
         });
 
-        Operator as = new AsOperator(join, new Conversor() {
-            @Override
-            public Column metaInfo(Tuple t) {
-                return t.getContent("users").getMeta("nome");
-            }
+//        Operator as = new AsOperator(join, new Conversor() {
+//            @Override
+//            public Column metaInfo(Tuple t) {
+//                return t.getContent("users").getMeta("nome");
+//            }
+//
+//            @Override
+//            public byte[] process(Tuple t) {
+//                String formated = t.getContent("users").getString("nome")+" ("+t.getContent("users").getInt("idade")+")";
+//                return formated.getBytes(StandardCharsets.UTF_8);
+//            }
+//        }, "formated");
 
-            @Override
-            public byte[] process(Tuple t) {
-                String formated = t.getContent("users").getString("nome")+" ("+t.getContent("users").getInt("idade")+")";
-                return formated.getBytes(StandardCharsets.UTF_8);
-            }
-        }, "formated");
 
-        Operator sorted = new ExternalSortOperator(as,"asOperation","formated",true);
+
+        Operator sorted = new ExternalSortOperator(join,"cidades","nome",true);
 
 
         Operator executor=sorted;
@@ -83,7 +82,6 @@ public class Main {
                         case "anoNascimento":
                         case "id":
                         case "idCidade":
-                        case "__aux":
                         case "size":
                             str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getInt(data.getKey());
                             break;
@@ -133,6 +131,5 @@ public class Main {
                 +Parameters.IO_WRITE_TIME)/1000000f+"ms");
         System.out.println("Blocos carregados: "+Parameters.BLOCK_LOADED);
         System.out.println("Blocos salvos: "+Parameters.BLOCK_SAVED);
-
     }
 }

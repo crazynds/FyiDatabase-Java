@@ -23,8 +23,7 @@ public class FixedRecordStorage implements RecordStorageController {
 
 	protected RecordInterface recordInterface;
 	protected HeapStorage heap;
-	
-	
+
 	/*
 	 * Tamanho de cada record fixo
 	 */
@@ -34,8 +33,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	 * Tamanho do inteiro que ira representar quantos records estão armazenados
 	 */
 	protected byte sizeOfBytesQtdRecords = 4;
-	
-	
+
 	/*
 	 * Quantidade de records armazenados
 	 */
@@ -481,11 +479,6 @@ public class FixedRecordStorage implements RecordStorageController {
 				}finally {
 					lock.writeLock().unlock();
 				}
-			}
-
-			@Override
-			public boolean isOrdened() {
-				return true;
 			}
 
 			@Override

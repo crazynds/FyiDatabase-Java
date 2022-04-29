@@ -1,8 +1,4 @@
 
--testar novo block nested loop join
--testar external sort e a table dinamica gerada
--testar as operator
-
 
 Tabela de indexes -> {
  - Arvore B+ para armazenamento de tabelas
@@ -10,15 +6,22 @@ Tabela de indexes -> {
 }
 
 Locks e permissões de acesso -> {
- -!?
- -!?
- -!?
- -!?
+ - MVCC
 }
 
 
--> External sort {
- - Simple table (contém a coluna do sort e a posição dos dados e a quantidade de dados salvos)
- - Arquivo continuo (contem todos os dados)
+Testes de query -> {
+ - TPC-H https://www.tpc.org/tpch/
+
 
 }
+
+
+Parquet estrutura:
+https://parquet.apache.org/documentation/latest/
+
+
+PrestoDB:
+https://prestodb.io/docs/current/#
+
+

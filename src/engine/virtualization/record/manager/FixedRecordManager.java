@@ -13,22 +13,17 @@ import engine.virtualization.record.manager.storage.OptimizedFixedRecordStorage;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.TreeMap;
 
 public class FixedRecordManager extends RecordManager{
 
 
     private FixedRecordStorage recordStorage;
-
-    private RecordInterface customInterface;
-
-
     private int sizeOfEachRecord;
 
 
     public FixedRecordManager(FileManager fm, RecordInfoExtraction ri, int sizeOfEachRecord) {
         super(fm, ri);
-        recordStorage = new FixedRecordStorage(fm, new RecordInterface() {
+        recordStorage = new OptimizedFixedRecordStorage(fm,new RecordInterface() {
             @Override
             public void updeteReference(BigInteger pk, long key) {
             }
@@ -57,7 +52,6 @@ public class FixedRecordManager extends RecordManager{
                 ri.setActiveRecord(r,active);
             }
         }, sizeOfEachRecord);
-        //recordStorage = new OptimizedFixedRecordStorage(fm,customInterface,sizeOfEachRecord);
         this.sizeOfEachRecord = sizeOfEachRecord;
     }
 

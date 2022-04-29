@@ -7,7 +7,6 @@ import engine.file.FileManager;
 import engine.file.buffers.BlockBuffer;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtraction;
-import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 
 public abstract class RecordManager{
@@ -40,14 +39,16 @@ public abstract class RecordManager{
 	 * Força os buffers a liberarem as modificações escritas
 	 */
 	public void flush(){
-		fileManager.flush();
+		if(fileManager!=null)
+			fileManager.flush();
 	}
 	
 	/*
 	 * Fecha a manipulação do arquivo e faz o salvametno dos dados
 	 */
 	public void close(){
-		fileManager.close();
+		if(fileManager!=null)
+			fileManager.close();
 	}
 
 	/*
@@ -65,7 +66,7 @@ public abstract class RecordManager{
 	public abstract void write(List<Record> list) ;
 	
 	/*
-	 * Retorna true se o record manager garante os dados ordenados
+	 * Retorna true se o record manager garante os dados ordenados pela primary key
 	 */
 	public abstract boolean isOrdened();
 	
