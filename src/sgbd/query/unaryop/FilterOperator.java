@@ -5,7 +5,7 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.util.Filter;
 
-public class FilterOperator extends UnaryOperation {
+public class FilterOperator extends UnaryOperator {
 
     private Filter<Tuple> tupleFilter;
 

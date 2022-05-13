@@ -4,7 +4,7 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.util.Sanitization;
 
-public class SanitizationOperator extends UnaryOperation{
+public class SanitizationOperator extends UnaryOperator {
 
     private Sanitization sanitization;
 

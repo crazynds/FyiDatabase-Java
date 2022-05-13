@@ -6,7 +6,7 @@ import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.unaryop.SortOperator;
-import sgbd.query.unaryop.UnaryOperation;
+import sgbd.query.unaryop.UnaryOperator;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -39,22 +39,22 @@ public class MergeJoin extends BinaryOperator{
 
     @Override
     public void setLeftOperator(Operator op) {
-        ((UnaryOperation)left).setOperator(op);
+        ((UnaryOperator)left).setOperator(op);
     }
 
     @Override
     public void setRightOperator(Operator op){
-        ((UnaryOperation)right).setOperator(op);
+        ((UnaryOperator)right).setOperator(op);
     }
 
     @Override
     public Operator getLeftOperator() {
-        return ((UnaryOperation)left).getOperator();
+        return ((UnaryOperator)left).getOperator();
     }
 
     @Override
     public Operator getRightOperator() {
-        return ((UnaryOperation)right).getOperator();
+        return ((UnaryOperator)right).getOperator();
     }
 
     @Override

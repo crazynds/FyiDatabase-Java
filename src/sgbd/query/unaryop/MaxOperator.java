@@ -8,7 +8,7 @@ import sgbd.query.Tuple;
 
 import java.math.BigInteger;
 
-public class MaxOperator extends UnaryOperation{
+public class MaxOperator extends UnaryOperator {
     protected BigInteger maxValue = null;
     protected byte[] data;
     protected Column meta;

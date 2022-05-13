@@ -91,6 +91,9 @@ public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
         return Util.convertByteArrayToNumber(buffer.array());
     }
 
+    public int getPrimaryKeySize(){
+        return primaryKeySize;
+    }
 
     @Override
     public synchronized BigInteger getPrimaryKey(Record r){

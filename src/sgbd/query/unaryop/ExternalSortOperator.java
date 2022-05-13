@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExternalSortOperator extends UnaryOperation{
+public class ExternalSortOperator extends UnaryOperator {
 
     protected SimpleTable externalSortedTable;
     protected File temp,dataFile;

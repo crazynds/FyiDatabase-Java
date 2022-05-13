@@ -6,7 +6,7 @@ import sgbd.query.Tuple;
 
 import java.util.*;
 
-public class SortOperator extends UnaryOperation{
+public class SortOperator extends UnaryOperator {
 
     private Iterator<Tuple> iterator;
     private String source, column;

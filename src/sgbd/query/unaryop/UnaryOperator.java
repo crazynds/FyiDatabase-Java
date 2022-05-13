@@ -5,11 +5,11 @@ import sgbd.table.Table;
 
 import java.util.List;
 
-public abstract class UnaryOperation implements Operator {
+public abstract class UnaryOperator implements Operator {
 
     protected Operator operator;
 
-    public UnaryOperation(Operator op){
+    public UnaryOperator(Operator op){
         setOperator(op);
     }
 

@@ -5,7 +5,7 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.util.Conversor;
 
-public class AsOperator extends UnaryOperation{
+public class AsOperator extends UnaryOperator {
 
     private Conversor conversor;
     private String name;
