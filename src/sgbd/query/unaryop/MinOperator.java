@@ -1,6 +1,7 @@
 package sgbd.query.unaryop;
 
 import engine.util.Util;
+import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 
@@ -23,5 +24,17 @@ public class MinOperator extends MaxOperator{
             maxValue = bg;
             data = aux;
         }
+    }
+
+    @Override
+    public Tuple next() {
+        if(data==null)return null;
+        Tuple t = new Tuple();
+        ComplexRowData complexRowData = new ComplexRowData();
+        complexRowData.setData("min("+column+")",data,meta);
+        t.setContent(source,complexRowData);
+        data = null;
+        maxValue = null;
+        return t;
     }
 }

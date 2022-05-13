@@ -121,8 +121,6 @@ public class DoubleTable extends Table{
                 rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
             }
         }
-
-
         return null;
     }
 
