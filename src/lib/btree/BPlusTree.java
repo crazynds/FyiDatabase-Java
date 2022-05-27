@@ -5,6 +5,7 @@ import sgbd.util.Faker;
 import java.security.InvalidParameterException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry<T,M>>{
 
@@ -16,7 +17,7 @@ public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry
     public static void main(String[] args){
         BPlusTree<Integer,String> bee = new BPlusTree<>();
 
-        Faker.replaceRandom(100);
+        Faker.replaceRandom(new Random(100));
         for (int x=0;x<1000;x++){
             String name = Faker.firstName();
             int id = Faker.integer(1,1000);

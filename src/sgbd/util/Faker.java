@@ -9,8 +9,8 @@ public class Faker {
     private static Random random = new Random();
 
 
-    public static void replaceRandom(int seed){
-        random = new Random(seed);
+    public static void replaceRandom(Random r){
+        random = r;
     }
 
     public static String firstName(){
@@ -24,6 +24,10 @@ public class Faker {
 
     public static int integer(int min, int max){
         return random.nextInt(max-min)+min;
+    }
+
+    public static float floatPoint(int min, int max){
+        return random.nextFloat()*max+min;
     }
 
 }

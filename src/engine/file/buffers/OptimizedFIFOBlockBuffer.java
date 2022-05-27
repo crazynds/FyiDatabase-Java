@@ -55,7 +55,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
         for (Map.Entry<Integer,Integer> x:
                 blockMaping.entrySet()) {
-            if(x.getKey()>=0 && !entries[x.getKey()].isSaved())
+            if(x.getKey()>=0 && !entries[x.getValue()].isSaved())
                 tree.put(x.getKey(),entries[x.getValue()]);
         }
 

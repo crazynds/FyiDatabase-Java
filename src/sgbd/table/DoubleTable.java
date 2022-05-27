@@ -57,6 +57,11 @@ public class DoubleTable extends Table{
     }
 
     @Override
+    public void clear() {
+
+    }
+
+    @Override
     public void open() {
         if(index==null){
             index = new FixedRecordManager(new FileManager(tableName+"-index.dat"),indexTranslator,maxSizeIndexRowData);

@@ -28,6 +28,13 @@ public abstract class GenericTable extends Table{
     }
 
     @Override
+    public void clear() {
+        if(this.manager==null)this.open();
+        this.manager.restart();
+        this.manager.flush();
+    }
+
+    @Override
     public BigInteger insert(RowData r) {
         translatorApi.validateRowData(r);
         BigInteger pk = translatorApi.getPrimaryKey(r);
@@ -44,6 +51,7 @@ public abstract class GenericTable extends Table{
             list.add(record);
         }
         this.manager.write(list);
+        this.manager.flush();
     }
 
     @Override
@@ -67,6 +75,7 @@ public abstract class GenericTable extends Table{
         Record r = this.manager.read(pk);
         translatorApi.setActiveRecord(r,false);
         this.manager.write(r);
+        this.manager.flush();
         return translatorApi.convertToRowData(r);
     }
 

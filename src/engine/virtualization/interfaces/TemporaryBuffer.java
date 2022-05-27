@@ -46,6 +46,7 @@ public class TemporaryBuffer{
 		try {
 			File tempFile = File.createTempFile(origin.getNameFile(),".dat");
 			buffer = new FileManager(tempFile,new OptimizedFIFOBlockBuffer(blockBufferSize));
+			tempFile.deleteOnExit();
 		} catch (IOException e) {
 		}
 		buffer.clearFile();

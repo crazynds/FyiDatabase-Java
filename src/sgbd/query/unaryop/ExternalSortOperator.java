@@ -62,8 +62,8 @@ public class ExternalSortOperator extends UnaryOperator {
                         Column.PRIMARY_KEY);
         pt.addColumn("reference",8, Column.NONE);
         pt.addColumn("size",4, Column.NONE);
-        try {
 
+        try {
             externalSortedTable = new SimpleTable("externalSorted", new FileManager(File.createTempFile("table", "sortOperation")), pt);
             scan = new TableScan(externalSortedTable, List.of("reference","size"));
 

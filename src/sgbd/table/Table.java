@@ -33,6 +33,7 @@ public abstract class Table implements Iterable<ComplexRowData>{
 		Abre e fecha as propriedades da tabela
 		Abre e fecha o acesso ao arquivo
 	 */
+	public abstract void clear();
 	public abstract void open();
 	public abstract void close();
 
