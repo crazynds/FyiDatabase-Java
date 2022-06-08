@@ -1,0 +1,7 @@
+Procurar como acessar o arquivo no FileManager direto sem passar pelo sistema operacional
+e sem usar o buffer do sistema de memória virtual.
+
+DirectByteBuffer
+
+https://examples.javacodegeeks.com/core-java/nio/bytebuffer/java-direct-bytebuffer-example/
+https://www.tabnine.com/code/java/classes/java.nio.DirectByteBuffer

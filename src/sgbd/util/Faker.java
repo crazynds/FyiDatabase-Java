@@ -27,7 +27,8 @@ public class Faker {
     }
 
     public static float floatPoint(int min, int max){
-        return random.nextFloat()*max+min;
+        float value = random.nextFloat();
+        return value*max+(max-min);
     }
 
 }

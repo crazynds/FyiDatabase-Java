@@ -24,4 +24,34 @@ https://parquet.apache.org/documentation/latest/
 PrestoDB:
 https://prestodb.io/docs/current/#
 
+Testar:{
+
+
+ - Simple Table {
+  - Testar desempenho atual máximo -> Testado sem valores reais
+  - Consistencia de dados -> OK
+  - Query Builder
+ }
+
+
+ - Memory Table -> RecordManager ArvoreBTree memoria{
+  - Testar desempenho atual comparado com simple table -> Testado sem valores reais
+  - Consistencia de dados -> OK
+  - Query Builder
+ }
+
+ - Double Table -Implementar{
+  - Testar desempenho atual comparado com simple table e memory table
+  - Consistencia de dados
+ }
+
+
+ - Group Operator {
+  - Testar se está funcionando com o min e max, etc...
+ }
+
+
+
+}
+
 
