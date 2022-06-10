@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import com.sun.source.tree.Tree;
-import engine.file.Block;
+import engine.file.blocks.Block;
 import engine.file.FileManager;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
@@ -122,7 +121,7 @@ public class TemporaryBuffer{
 			 * Carrega N blocos e depois salva esses N blocos em ordem;
 			 */
 			while (treeMap.size()<blockSize && (entry = auxTreeMap.pollFirstEntry()) != null) {
-				buffer.readBlock(entry.getKey(),arrBuffer[treeMap.size()].getData());
+				buffer.readBlock(entry.getKey(),arrBuffer[treeMap.size()].getBuffer());
 				treeMap.put(entry.getValue(),arrBuffer[treeMap.size()]);
 				if (entry.getKey() < minimalAvaliable)
 					minimalAvaliable = entry.getKey();

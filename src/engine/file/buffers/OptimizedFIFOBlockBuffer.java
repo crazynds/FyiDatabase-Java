@@ -1,7 +1,7 @@
 package engine.file.buffers;
 
 import engine.exceptions.DataBaseException;
-import engine.file.Block;
+import engine.file.blocks.Block;
 import engine.file.blocks.BlockID;
 import engine.file.blocks.commitable.CommitableBlockStream;
 import engine.file.blocks.commitable.WriteBack;

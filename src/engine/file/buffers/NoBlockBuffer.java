@@ -1,8 +1,7 @@
 package engine.file.buffers;
 
 import engine.exceptions.DataBaseException;
-import engine.file.Block;
-import engine.file.streams.BlockStream;
+import engine.file.blocks.Block;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 

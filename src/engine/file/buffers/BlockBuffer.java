@@ -1,6 +1,6 @@
 package engine.file.buffers;
 
-import engine.file.Block;
+import engine.file.blocks.Block;
 import engine.file.streams.BlockStream;
 
 public abstract class BlockBuffer implements BlockStream{

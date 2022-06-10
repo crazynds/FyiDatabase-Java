@@ -5,12 +5,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
 import engine.exceptions.DataBaseException;
-import engine.file.Block;
+import engine.file.blocks.Block;
 import engine.file.blocks.BlockID;
 import engine.file.blocks.commitable.CommitableBlockStream;
 import engine.file.blocks.commitable.WriteBack;
 import engine.file.blocks.commitable.WriteCache;
-import engine.file.streams.BlockStream;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 

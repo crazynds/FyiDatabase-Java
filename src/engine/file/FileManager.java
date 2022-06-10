@@ -6,12 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.SyncFailedException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import engine.exceptions.DataBaseException;
+import engine.file.blocks.Block;
 import engine.file.buffers.BlockBuffer;
 import engine.file.blocks.BlockFace;
 import engine.file.buffers.FIFOBlockBuffer;
-import engine.file.buffers.NoBlockBuffer;
 import engine.file.streams.BlockStream;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
@@ -19,6 +21,7 @@ import engine.info.Parameters;
 
 public final class FileManager implements BlockFace,BlockStream {
 	private RandomAccessFile file;
+	private FileChannel inChannel;
 	private String nameFile;
 
 	private File fileOriginal;
@@ -27,46 +30,20 @@ public final class FileManager implements BlockFace,BlockStream {
 	private int blockSize;
 
 	public FileManager(File file){
-		try {
-			this.fileOriginal = file;
-			this.file = new RandomAccessFile(file, "rw");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		nameFile=file.getName();
-		blockSize=4096;
-		buffer = new FIFOBlockBuffer(4);
-		buffer.startBuffering(directAcessFile);
+		this(file,new FIFOBlockBuffer(4));
 	}
 
 	public FileManager(String file)  {
-		try {
-			this.fileOriginal = new File(file);
-			this.file = new RandomAccessFile(this.fileOriginal, "rw");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		nameFile=file;
-		blockSize=4096;
-		buffer = new FIFOBlockBuffer(4);
-		buffer.startBuffering(directAcessFile);
+		this(file,new FIFOBlockBuffer(4));
 	}
 	public FileManager(File file,BlockBuffer b)  {
-		try {
-			this.fileOriginal = file;
-			this.file = new RandomAccessFile(file, "rw");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		nameFile=file.getName();
-		blockSize=4096;
-		buffer = b;
-		buffer.startBuffering(directAcessFile);
+		this(file.getPath(),b);
 	}
 	public FileManager(String file,BlockBuffer b)  {
 		try {
 			this.fileOriginal = new File(file);
 			this.file = new RandomAccessFile(this.fileOriginal, "rw");
+			this.inChannel = this.file.getChannel();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -86,7 +63,7 @@ public final class FileManager implements BlockFace,BlockStream {
 	}
 
 	@Override
-	public void readBlock(int num, byte[] buffer)  {
+	public void readBlock(int num, ByteBuffer buffer)  {
 		this.buffer.readBlock(num, buffer);
 	}
 	
@@ -129,10 +106,6 @@ public final class FileManager implements BlockFace,BlockStream {
 		return block;
 	}
 	
-	public Block createBlockSized() {
-		return new Block(blockSize);
-	}
-	
 	private BlockStream directAcessFile = new BlockStream() {
 		
 		@Override
@@ -142,9 +115,9 @@ public final class FileManager implements BlockFace,BlockStream {
 				long local = pos;
 				local*=blockSize;
 				long time = System.nanoTime();
-				file.seek(local);
+				inChannel.position(local);
 				Parameters.IO_SEEK_WRITE_TIME+=System.nanoTime()-time;
-				file.write(b.getData());
+				inChannel.write(b.getBuffer());
 				Parameters.IO_WRITE_TIME+=System.nanoTime()-time;
 			} catch (IOException e) {
 				throw new DataBaseException("FileManager->directAcessFile->writeBlock",e.getMessage());
@@ -154,14 +127,14 @@ public final class FileManager implements BlockFace,BlockStream {
 		
 		@Override
 		public Block readBlock(int pos)  {
-			byte[] data= new byte[blockSize];
+			Block b = new Block(blockSize);
 			try {
 				long time = System.nanoTime();
 				long local = pos;
 				local*=blockSize;
-				file.seek(local);
+				inChannel.position(local);
 				Parameters.IO_SEEK_READ_TIME+=System.nanoTime()-time;
-				file.readFully(data);
+				inChannel.read(b.getBuffer());
 				Parameters.IO_READ_TIME+=System.nanoTime()-time;
 				
 			}catch(EOFException e) {
@@ -170,19 +143,19 @@ public final class FileManager implements BlockFace,BlockStream {
 				throw new DataBaseException("FileManager->directAcessFile->readBlock",e.getMessage());
 			}
 			Parameters.BLOCK_LOADED++;
-			return new Block(data);
+			return b;
 		}
 
 		@Override
-		public void readBlock(int pos, byte[] buffer)  {
-			if(buffer.length!=getBlockSize())throw new DataBaseException("FileManager->directAcessFile->readBlock","Tamanho de buffer passado inválido");
+		public void readBlock(int pos, ByteBuffer buffer)  {
+			if(buffer.capacity()!=getBlockSize())throw new DataBaseException("FileManager->directAcessFile->readBlock","Tamanho de buffer passado inválido");
 			try {
 				long time = System.nanoTime();
 				long local = pos;
 				local*=blockSize;
-				file.seek(local);
+				inChannel.position(local);
 				Parameters.IO_SEEK_READ_TIME+=System.nanoTime()-time;
-				file.readFully(buffer);
+				inChannel.read(buffer);
 				Parameters.IO_READ_TIME+=System.nanoTime()-time;
 			}catch(EOFException e) {
 				throw new DataBaseException("FileManager->readBlock","Fim do arquivo encontado, não possivel concluir a leitura!");
@@ -197,7 +170,7 @@ public final class FileManager implements BlockFace,BlockStream {
 		public void flush()  {
 			try {
 				long time = System.nanoTime();
-				file.getFD().sync();
+				inChannel.force(false);
 				Parameters.IO_SYNC_TIME+=System.nanoTime()-time;
 			}catch (IOException e) {
 				throw new DataBaseException("FileManager->directAcessFile->readBlock",e.getMessage());
@@ -208,8 +181,8 @@ public final class FileManager implements BlockFace,BlockStream {
 		public void close() {
 			try {
 				long time = System.nanoTime();
-				file.getFD().sync();
-				file.close();
+				inChannel.force(true);
+				inChannel.close();
 				Parameters.IO_SYNC_TIME+=System.nanoTime()-time;
 			} catch (SyncFailedException e) {
 			} catch (IOException e) {
@@ -249,8 +222,8 @@ public final class FileManager implements BlockFace,BlockStream {
 				}
 
 				@Override
-				public int read(long pos, int len, byte[] buffer,int offset)  {
-					return block.read(pos, len, buffer,offset);
+				public int read(long pos, byte[] buffer, int offset, int len)  {
+					return block.read(pos, buffer,offset,len);
 				}
 
 				@Override
@@ -263,32 +236,6 @@ public final class FileManager implements BlockFace,BlockStream {
 		@Override
 		public WriteByteStream getBlockWriteByteStream(int pos)  {
 			throw new DataBaseException("FileManager->directAcessFile->getBlockWriteByteStream","Função desabilitada para acesso direto ao arquivo");
-			/*byte[] data= new byte[blockSize];
-			try {
-				file.seek(pos*blockSize);
-				file.readFully(data);
-			}catch(EOFException e) {
-				throw new DataBaseException("FileManager->directAcessFile->readBlock","Fim do arquivo encontado, não possivel concluir a leitura!");
-			}catch (IOException e) {
-				throw new DataBaseException("FileManager->directAcessFile->readBlock",e.getMessage());
-			}
-			Parameters.BLOCK_LOADED++;
-			CommitableBlockStream b = new CommitableBlockStream(data);
-			BlockStream bs = this;
-			b.setCommitCallable(new Callable<Void>() {
-				private CommitableBlockStream blockCommitable= b;
-				private int id = pos;
-				private BlockStream blockStream = bs;
-
-
-				@Override
-				public Void call() throws Exception {
-					blockStream.writeBlock(id, blockCommitable);
-					blockStream.flush();
-					return null;
-				}
-			});
-			return (WriteByteStream) b;*/
 		}
 
 		@Override

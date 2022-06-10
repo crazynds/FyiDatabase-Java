@@ -1,6 +1,6 @@
 package engine.file.streams;
 
-import engine.file.Block;
+import engine.file.blocks.Block;
 import engine.file.FileConector;
 import engine.file.blocks.BlockFace;
 

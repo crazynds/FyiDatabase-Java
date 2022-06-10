@@ -52,14 +52,14 @@ public class HeapStorage implements ByteStream{
 		arr = "123 45678".getBytes();
 		for(int x=0;x<5;x++) {
 			h.write(x * arr.length, arr, arr.length);
-			h.read(x*arr.length,9,buff,0);
+			h.read(x*arr.length,buff,0,9);
 			String str = new String(buff);
 			System.out.println(str);
 		}
 		h.commitWrites();
 
 		for(int x=0;x<7;x++) {
-			h.read(x*arr.length,9,buff,0);
+			h.read(x*arr.length,buff,0,9);
 			String str = new String(buff);
 			System.out.println(str);
 		}
@@ -133,19 +133,19 @@ public class HeapStorage implements ByteStream{
 	@Override
 	public byte[] read(long pos, int len) {		
 		byte[] buffer = new byte[len];
-		read(pos,len, buffer,0);
+		read(pos, buffer,0,len);
 		return buffer;
 	}
 
 	@Override
 	public byte[] readSeq(int len) {
 		byte[] buffer = new byte[len];
-		pointer+=read(pointer,len, buffer,0);
+		pointer+=read(pointer, buffer,0,len);
 		return buffer;
 	}
 
 	@Override
-	public int read(long pos, int len, byte[] buffer, int offset) {
+	public int read(long pos, byte[] buffer, int offset, int len) {
 		int block = (int) (pos/origin.getBlockSize());
 		int position = (int) (pos%origin.getBlockSize());
 		
@@ -153,7 +153,7 @@ public class HeapStorage implements ByteStream{
 		do {
 			ReadByteStream rbs = temp.getBlockReadByteStream(block);
 			
-			offset2+=rbs.read(position, len-offset2, buffer, offset2+offset);
+			offset2+=rbs.read(position, buffer, offset2+offset, len-offset2);
 			block++;
 			position=0;
 		}while(offset2<len);
@@ -164,7 +164,7 @@ public class HeapStorage implements ByteStream{
 
 	@Override
 	public int readSeq(int len, byte[] buffer, int offset) {
-		int increase =read(pointer,len, buffer,offset);
+		int increase =read(pointer, buffer,offset,len);
 		pointer+=increase;
 		return increase;
 	}
