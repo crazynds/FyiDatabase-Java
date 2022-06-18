@@ -11,11 +11,11 @@ import java.nio.channels.FileChannel;
 
 import engine.exceptions.DataBaseException;
 import engine.file.blocks.Block;
+import engine.file.blocks.ReadableBlock;
 import engine.file.buffers.BlockBuffer;
 import engine.file.blocks.BlockFace;
 import engine.file.buffers.FIFOBlockBuffer;
 import engine.file.streams.BlockStream;
-import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.info.Parameters;
 
@@ -78,7 +78,7 @@ public final class FileManager implements BlockFace,BlockStream {
 	}
 	
 	@Override
-	public ReadByteStream getBlockReadByteStream(int block)  {
+	public ReadableBlock getBlockReadByteStream(int block)  {
 		return buffer.getBlockReadByteStream(block);
 	}
 
@@ -115,28 +115,32 @@ public final class FileManager implements BlockFace,BlockStream {
 				long local = pos;
 				local*=blockSize;
 				long time = System.nanoTime();
+				ByteBuffer buff = b.getBuffer();
 				inChannel.position(local);
 				Parameters.IO_SEEK_WRITE_TIME+=System.nanoTime()-time;
-				inChannel.write(b.getBuffer());
+				buff.position(0);
+				inChannel.write(buff);
 				Parameters.IO_WRITE_TIME+=System.nanoTime()-time;
 			} catch (IOException e) {
 				throw new DataBaseException("FileManager->directAcessFile->writeBlock",e.getMessage());
 			}
 			Parameters.BLOCK_SAVED++;
 		}
-		
+
 		@Override
 		public Block readBlock(int pos)  {
-			Block b = new Block(blockSize);
+			Block b = new Block(blockSize,true);
 			try {
 				long time = System.nanoTime();
 				long local = pos;
+				ByteBuffer buff = b.getBuffer();
 				local*=blockSize;
 				inChannel.position(local);
 				Parameters.IO_SEEK_READ_TIME+=System.nanoTime()-time;
-				inChannel.read(b.getBuffer());
+				buff.position(0);
+				inChannel.read(buff);
 				Parameters.IO_READ_TIME+=System.nanoTime()-time;
-				
+
 			}catch(EOFException e) {
 				throw new DataBaseException("FileManager->readBlock","Fim do arquivo encontado, não possivel concluir a leitura!");
 			}catch (IOException e) {
@@ -155,6 +159,7 @@ public final class FileManager implements BlockFace,BlockStream {
 				local*=blockSize;
 				inChannel.position(local);
 				Parameters.IO_SEEK_READ_TIME+=System.nanoTime()-time;
+				buffer.position(0);
 				inChannel.read(buffer);
 				Parameters.IO_READ_TIME+=System.nanoTime()-time;
 			}catch(EOFException e) {
@@ -173,6 +178,7 @@ public final class FileManager implements BlockFace,BlockStream {
 				inChannel.force(false);
 				Parameters.IO_SYNC_TIME+=System.nanoTime()-time;
 			}catch (IOException e) {
+				System.out.println(e);
 				throw new DataBaseException("FileManager->directAcessFile->readBlock",e.getMessage());
 			}     
 		}
@@ -195,42 +201,9 @@ public final class FileManager implements BlockFace,BlockStream {
 		}
 
 		@Override
-		public ReadByteStream getBlockReadByteStream(int block)  {
+		public ReadableBlock getBlockReadByteStream(int block)  {
 			Block b = readBlock(block);
-			return new ReadByteStream() {
-				
-				private Block block = b;
-
-				@Override
-				public byte[] read(long pos, int len)  {
-					return block.read(pos, len);
-				}
-
-				@Override
-				public byte[] readSeq(int len)  {
-					return block.readSeq(len);
-				}
-
-				@Override
-				public void setPointer(long pos) {
-					block.setPointer(pos);
-				}
-
-				@Override
-				public long getPointer() {
-					return block.getPointer();
-				}
-
-				@Override
-				public int read(long pos, byte[] buffer, int offset, int len)  {
-					return block.read(pos, buffer,offset,len);
-				}
-
-				@Override
-				public int readSeq(int len, byte[] buffer,int offset)  {
-					return block.readSeq(len, buffer,offset);
-				}
-			};
+			return b;
 		}
 
 		@Override
@@ -278,6 +251,7 @@ public final class FileManager implements BlockFace,BlockStream {
 			file= null;
 			this.fileOriginal.delete();
 			file = new RandomAccessFile(nameFile, "rw");
+			this.inChannel = this.file.getChannel();
 		} catch (IOException e) {
 		}
 	}	

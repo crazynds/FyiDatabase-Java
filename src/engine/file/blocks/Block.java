@@ -2,11 +2,12 @@ package engine.file.blocks;
 
 import engine.exceptions.DataBaseException;
 import engine.file.streams.ByteStream;
+import engine.file.streams.WriteByteStream;
 import engine.info.Parameters;
 
 import java.nio.ByteBuffer;
 
-public class Block implements BlockFace,ByteStream{
+public class Block extends ReadableBlock implements WriteByteStream {
 
 	protected ByteBuffer buffer;
 	protected int size;
@@ -14,12 +15,11 @@ public class Block implements BlockFace,ByteStream{
 
 	public Block(Block b,boolean clone) {
 		if(clone) {
-			this.buffer = ByteBuffer.allocateDirect(b.buffer.capacity());
-			final ByteBuffer readOnly = b.buffer.asReadOnlyBuffer();
-			readOnly.flip();
-			this.buffer.put(readOnly);
-			this.size=size;
+			this.size = b.size;
+			this.buffer = ByteBuffer.allocate(size);
 			Parameters.MEMORY_ALLOCATED_BY_BLOCKS+=size;
+			Parameters.MEMORY_ALLOCATED_BY_INDIRECT_BLOCKS+=size;
+			write(b);
 		}else {
 			this.buffer = b.buffer;
 			this.size=buffer.capacity();
@@ -30,7 +30,16 @@ public class Block implements BlockFace,ByteStream{
 		this.size=buffer.capacity();
 	}
 	public Block(int size) {
-		this.buffer = ByteBuffer.allocateDirect(size);
+		this(size,false);
+	}
+	public Block(int size,boolean direct) {
+		if(direct){
+			this.buffer = ByteBuffer.allocateDirect(size);
+			Parameters.MEMORY_ALLOCATED_BY_DIRECT_BLOCKS+=size;
+		}else{
+			this.buffer = ByteBuffer.allocate(size);
+			Parameters.MEMORY_ALLOCATED_BY_INDIRECT_BLOCKS+=size;
+		}
 		this.size=size;
 		Parameters.MEMORY_ALLOCATED_BY_BLOCKS+=size;
 	}
@@ -46,20 +55,20 @@ public class Block implements BlockFace,ByteStream{
 	
 	public void write(Block b){
 		if(!this.compareBlockFaces(b))throw new DataBaseException("Block->write(block)","Tamanhos de blocos divergem ("+this.getBlockSize()+" != "+b.getBlockSize()+")");
-		this.buffer.position(0);
-		this.buffer.put(b.buffer.position(0).asReadOnlyBuffer().flip());
+		final ByteBuffer readOnly = b.buffer.asReadOnlyBuffer();
+		this.buffer.put(0,readOnly,0,size);
 	}
 
 	@Override
-	public byte[] read(long pos, int len) throws  DataBaseException {
+	public ByteBuffer read(long pos, int len) throws  DataBaseException {
 		if(pos>=this.size)throw new DataBaseException("GenericRecord->read","Posição inicial maior que o máximo");
 		if(pos+len>this.size) {
 			len =(int) (this.size -pos);
 		}
-		byte[] arr = new byte[len];
-		this.buffer.get((int)pos,arr,0,len);
-		Parameters.MEMORY_ALLOCATED_BY_BYTE_ARRAY+=arr.length;
-		return arr;
+		ByteBuffer buff = ByteBuffer.allocate(len);
+		buff.put(0,this.buffer,(int)pos,len);
+		Parameters.MEMORY_ALLOCATED_BY_BYTE_ARRAY+=buff.capacity();
+		return buff;
 	}
 
 	@Override
@@ -73,16 +82,34 @@ public class Block implements BlockFace,ByteStream{
 		return len;
 	}
 	@Override
-	public int readSeq(int len, byte[] buffer,int offset)  {
+	public int readSeq(byte[] buffer,int offset,int len)  {
 		int increase = read(pointer,buffer,offset,len);
 		pointer+=increase;
 		return increase;
 	}
 
 	@Override
-	public byte[] readSeq(int len) throws  DataBaseException {
-		byte[] arr = read(pointer, len);
-		pointer+=arr.length;
+	public int read(long pos, ByteBuffer buffer, int offset, int len) {
+		if(pos>=this.size)throw new DataBaseException("Block->read","Posição inicial maior que o máximo");
+		if(buffer.capacity()-offset<len)throw new DataBaseException("Block->read", "Buffer passado é menor do que o que vai ser lido");
+		if(pos+len>this.size) {
+			len =(int) (this.size -pos);
+		}
+		buffer.put(offset,this.buffer,(int)pos,len);
+		return len;
+	}
+
+	@Override
+	public int readSeq(ByteBuffer buffer, int offset, int len) {
+		int increase = read(pointer,buffer,offset,len);
+		pointer+=increase;
+		return increase;
+	}
+
+	@Override
+	public ByteBuffer readSeq(int len) throws  DataBaseException {
+		ByteBuffer arr = read(pointer, len);
+		pointer+=arr.capacity();
 		return arr;
 	}
 	

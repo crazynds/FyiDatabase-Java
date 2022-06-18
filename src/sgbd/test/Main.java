@@ -24,7 +24,7 @@ public class Main {
         p1.addColumn("salario",4,Column.NONE);
         mapa.put("salario","float");
 
-        Table users = SimpleTable.openTable("users",p1);
+        Table users = new DoubleTable("users",p1);
 
         ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa);
         int qtdData=1000000;
@@ -71,6 +71,34 @@ public class Main {
          * Dados consistentes
          * Tempo de geração: 237.3638839
          * Tempo de checagem: 67.5330893
+         */
+
+        /**
+         * Testes usando o novo método de escrita e leitura direta:
+         */
+
+        /**
+         * Double data table results:
+         * [1000000/1000000] 100.0% de records válidos verificados!
+         * Dados consistentes
+         * Tempo de geração: 20.3080704
+         * Tempo de checagem: 97.7573857
+         */
+
+        /**
+         * Memory data table results:
+         * [1000000/1000000] 100.0% de records válidos verificados!
+         * Dados consistentes
+         * Tempo de geração: 4.0426391
+         * Tempo de checagem: 2.49235
+         */
+
+        /**
+         * Simple data table results:
+         * [1000000/1000000] 100.0% de records válidos verificados!
+         * Dados consistentes
+         * Tempo de geração: 188.8646945
+         * Tempo de checagem: 66.3966542
          */
     }
 }

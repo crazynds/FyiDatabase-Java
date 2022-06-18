@@ -4,6 +4,8 @@ import engine.exceptions.DataBaseException;
 import engine.info.Parameters;
 import engine.virtualization.record.Record;
 
+import java.nio.ByteBuffer;
+
 public class GenericRecord extends Record {
 
 	private byte[] data;
@@ -38,22 +40,22 @@ public class GenericRecord extends Record {
 	private long pointer=0;
 
 	@Override
-	public byte[] read(long pos, int len) {
+	public ByteBuffer read(long pos, int len) {
 		if(pos+len>size()){
 			len -= (pos+len)-size();
 		}
-		byte[] buff = new byte[len];
-		System.arraycopy(this.data, (int) pos,buff,0,len);
+		ByteBuffer buff = ByteBuffer.allocate(len);
+		buff.put(0,this.data,(int)pos,len);
 		return buff;
 	}
 
 	@Override
-	public byte[] readSeq(int len) {
+	public ByteBuffer readSeq(int len) {
 		return read(pointer,len);
 	}
 
 	@Override
-	public int read(long pos, int len, byte[] buffer, int offset) {
+	public int read(long pos, byte[] buffer, int offset, int len) {
 		if(pos+len>size()){
 			len -= (pos+len)-size();
 		}
@@ -62,9 +64,19 @@ public class GenericRecord extends Record {
 	}
 
 	@Override
-	public int readSeq(int len, byte[] buffer, int offset) {
-		int readed = read(pointer,len,buffer,offset);
+	public int readSeq(byte[] buffer, int offset,int len) {
+		int readed = read(pointer,buffer,offset,len);
 		pointer+=readed;
 		return readed;
+	}
+
+	@Override
+	public int read(long pos, ByteBuffer buffer, int offset, int len) {
+		return 0;
+	}
+
+	@Override
+	public int readSeq(ByteBuffer buffer, int offset, int len) {
+		return 0;
 	}
 }

@@ -2,17 +2,20 @@ package engine.file.blocks;
 
 import engine.exceptions.DataBaseException;
 
+import java.nio.ByteBuffer;
+
 public class BlockID extends Block {
 
 	private int blockId;
 
-	public BlockID(byte[] data,int id) {
-		super(data);
+	public BlockID(ByteBuffer buffer,int id) {
+		super(buffer);
 		this.blockId=id;
 	}
 
 	public BlockID(Block b,int id) {
-		super(b,false);
+		super(b.getBlockSize(),true);
+		write(b);
 		this.blockId=id;
 	}
 	
@@ -21,14 +24,14 @@ public class BlockID extends Block {
 		return blockId;
 	}
 
-	public void changeBlockID(byte[] data,int id) {
-		if(getBlockSize()!=data.length)throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necessário para reutilizar o bloco.");
-		write(0, data, 0, data.length);
+	public void changeBlockID(ByteBuffer data, int id) {
+		if(getBlockSize()!=data.capacity())throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necessário para reutilizar o bloco.");
+		write(0, data.array(), 0, data.capacity());
 		this.blockId=id;
 	}
 	public void changeBlockID(Block b,int id) {
 		if(!this.compareBlockFaces(b))throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necessário para reutilizar o bloco.");
-		this.data=b.getData();
+		this.buffer=b.getBuffer();
 		this.blockId=id;
 	}
 	public void changeBlockID(int id){

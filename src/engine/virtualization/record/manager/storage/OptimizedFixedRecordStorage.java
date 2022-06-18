@@ -60,10 +60,10 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
         startPos = findRecordBinarySearch(records.firstKey(), 0, qtdOfRecords - 1, buffer);
 
         if(startPos > sizeOfBytesQtdRecords) {
-            heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
+            heap.read(startPos, buffer.getData(), 0, sizeOfEachRecord);
             while(recordInterface.isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
                 startPos-=sizeOfEachRecord;
-                heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
+                heap.read(startPos, buffer.getData(), 0, sizeOfEachRecord);
             }
         }
 
@@ -123,12 +123,12 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                         }else{
                             if(writeOffset>readOffset) {
                                 //Necessário para leitura tardia do dado em buffer
-                                reference.read(0,sizeOfEachRecord,buffer.getData(),0);
+                                reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                                 records.putIfAbsent(buffPk, buffer.getData());
                                 buffer.setData(data);
                             }else if(writeOffset<readOffset) {
                                 //Necessário para leitura tardia do dado em buffer
-                                reference.read(0,sizeOfEachRecord,buffer.getData(),0);
+                                reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                                 writePosition = getPositionOfRecord(writeOffset);
                                 while (readOffset - writeOffset > records.size()) {
                                     wbs.write(writePosition, invalidRecord.getData(), invalidRecord.size());
@@ -154,7 +154,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                     case 1:
                         if(writeOffset<readOffset) {
                             //Necessário para leitura tardia do dado em buffer
-                            reference.read(0,sizeOfEachRecord,buffer.getData(),0);
+                            reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                             writePosition = getPositionOfRecord(writeOffset);
                             while (readOffset - writeOffset > records.size()) {
                                 wbs.write(writePosition, invalidRecord.getData(), invalidRecord.size());
@@ -169,7 +169,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                             writeOffset=readOffset+1;
                         }else{
                             //Necessário para leitura tardia do dado em buffer
-                            reference.read(0,sizeOfEachRecord,buffer.getData(),0);
+                            reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                             wbs.write(writePosition,buffer.getData(),sizeOfEachRecord);
                             recordInterface.updeteReference(buffPk, writePosition);
                             writeOffset++;
@@ -182,7 +182,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
         while(readOffset<qtdOfRecords){
             long readPosition = getPositionOfRecord(readOffset);
             long writePosition = getPositionOfRecord(writeOffset);
-            heap.read(readPosition,sizeOfEachRecord,buffer.getData(),0);
+            heap.read(readPosition,buffer.getData(),0,sizeOfEachRecord);
             wbs.write(writePosition,buffer.getData(),sizeOfEachRecord);
             writeOffset++;
             readOffset++;

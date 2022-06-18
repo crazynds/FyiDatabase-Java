@@ -2,8 +2,11 @@ package engine.file.buffers;
 
 import engine.exceptions.DataBaseException;
 import engine.file.blocks.Block;
+import engine.file.blocks.ReadableBlock;
 import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
+
+import java.nio.ByteBuffer;
 
 public class NoBlockBuffer extends BlockBuffer {
 
@@ -67,7 +70,7 @@ public class NoBlockBuffer extends BlockBuffer {
 	}
 
 	@Override
-	public ReadByteStream getBlockReadByteStream(int block)  {
+	public ReadableBlock getBlockReadByteStream(int block)  {
 		return stream.getBlockReadByteStream(block);
 	}
 
@@ -82,7 +85,7 @@ public class NoBlockBuffer extends BlockBuffer {
 	}
 
 	@Override
-	public void readBlock(int pos, byte[] buffer)  {
+	public void readBlock(int pos, ByteBuffer buffer)  {
 		stream.readBlock(pos, buffer);
 	}
 

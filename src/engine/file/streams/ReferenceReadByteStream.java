@@ -1,5 +1,7 @@
 package engine.file.streams;
 
+import java.nio.ByteBuffer;
+
 public class ReferenceReadByteStream implements ReadByteStream{
     private long pointer = 0;
 
@@ -34,22 +36,36 @@ public class ReferenceReadByteStream implements ReadByteStream{
     }
 
     @Override
-    public byte[] read(long pos, int len) {
+    public ByteBuffer read(long pos, int len) {
         return rbs.read(pos+offset,len);
     }
 
     @Override
-    public byte[] readSeq(int len) {
+    public ByteBuffer readSeq(int len) {
         return rbs.read(pointer+offset,len);
     }
 
     @Override
-    public int read(long pos, int len, byte[] buffer, int offset) {
-        return rbs.read(pos+this.offset,len,buffer,offset);
+    public int read(long pos, byte[] buffer, int offset,int len) {
+        return rbs.read(pos+this.offset,buffer,offset,len);
     }
 
     @Override
-    public int readSeq(int len, byte[] buffer, int offset) {
-        return rbs.read(pointer+this.offset,len,buffer,offset);
+    public int readSeq(byte[] buffer, int offset,int len) {
+        int inc = rbs.read(pointer+this.offset,buffer,len,offset);
+        pointer+=inc;
+        return inc;
+    }
+
+    @Override
+    public int read(long pos, ByteBuffer buffer, int offset, int len) {
+        return rbs.read(pos+this.offset,buffer,offset,len);
+    }
+
+    @Override
+    public int readSeq(ByteBuffer buffer, int offset, int len) {
+        int inc = rbs.read(pointer+this.offset,buffer,len,offset);
+        pointer+=inc;
+        return inc;
     }
 }

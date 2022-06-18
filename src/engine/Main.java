@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 import java.util.*;
 
 import engine.file.FileManager;
+import engine.file.buffers.FIFOBlockBuffer;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
 import engine.info.Parameters;
@@ -14,6 +15,7 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
+import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.MemoryBTreeRecordManager;
 import engine.virtualization.record.manager.RecordManager;
 import sgbd.util.UtilConversor;
@@ -36,7 +38,7 @@ public class Main {
 
 		@Override
 		public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
-			rbs.read(1,4,buff,0);
+			rbs.read(1,buff,0,4);
 			return BigInteger.valueOf(UtilConversor.byteArrayToInt(buff));
 		}
 
@@ -47,7 +49,7 @@ public class Main {
 
 		@Override
 		public synchronized boolean isActiveRecord(ReadByteStream rbs) {
-			rbs.read(0,1,buff,0);
+			rbs.read(0,buff,0,1);
 			return (buff[0]&0x1)!=0;
 		}
 
@@ -97,7 +99,8 @@ public class Main {
 		rm.restart();
 
 		for(int x=0;x<qtdOfRecords;x+=sizePerList) {
-			list.clear();
+			if(sizePerList!=1)
+				list.clear();
 			for (int y = x; y < x+sizePerList && y<qtdOfRecords; y++) {
 				byte[] data = new byte[sizeOfRecord];
 				Arrays.fill(data,(byte)y);
@@ -113,10 +116,17 @@ public class Main {
 				System.arraycopy(pk,0,data,1,4);
 
 				ri.setActiveRecord(r1, true);
-				list.add(r1);
+				if(sizePerList!=1)
+					list.add(r1);
+				else{
+					rm.write(r1);
+					System.out.println("x("+x+") = "+val);
+				}
 			}
-			rm.write(list);
-			System.out.println("x->"+x);
+			if(sizePerList!=1) {
+				rm.write(list);
+				System.out.println("x->" + x);
+			}
 		}
 		rm.flush();
 
@@ -126,16 +136,17 @@ public class Main {
 	public static void main(String[] args) {
 		Long time = System.nanoTime();
 
-		int sizeOfRecord = 400;
-		int qtdOfRecords = 500;
+		int sizeOfRecord = 600;
+		int qtdOfRecords = 10000;
 		int qtdPerList = 10;
-		int maxPK = 10000;
+		int maxPK = 5000000;
 
 		RecordInterface ri = new AuxRecordInterface();
-		RecordManager rm = new MemoryBTreeRecordManager(ri);
+		//RecordManager rm = new MemoryBTreeRecordManager(ri);
 
-		//FileManager f = new FileManager("W:\\teste.dat", new OptimizedFIFOBlockBuffer(16));
-		//RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
+		FileManager f = new FileManager("W:\\teste.dat", new FIFOBlockBuffer(2));
+		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
+
 		createBase(ri,rm,sizeOfRecord,qtdOfRecords,qtdPerList,maxPK);
 		printRecords(rm,sizeOfRecord);
 

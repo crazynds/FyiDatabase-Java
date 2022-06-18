@@ -1,5 +1,6 @@
 package engine.file.buffers;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
@@ -7,10 +8,10 @@ import java.util.concurrent.Callable;
 import engine.exceptions.DataBaseException;
 import engine.file.blocks.Block;
 import engine.file.blocks.BlockID;
+import engine.file.blocks.ReadableBlock;
 import engine.file.blocks.commitable.CommitableBlockStream;
 import engine.file.blocks.commitable.WriteBack;
 import engine.file.blocks.commitable.WriteCache;
-import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 
 public class FIFOBlockBuffer extends BlockBuffer {
@@ -42,8 +43,10 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		
 		try {
 			for(EntryBlock eb:blocks){
-				if(eb.isSaved()==false)
+				if(eb.isSaved()==false) {
+					eb.setSaved(true);
 					tree.put(eb.getBlock().getBlockId(), eb);
+				}
 			}
 		}catch(Exception e) {}
 		
@@ -78,12 +81,13 @@ public class FIFOBlockBuffer extends BlockBuffer {
 	}
 
 	@Override
-	public void readBlock(int pos, byte[] buffer)  {
+	public void readBlock(int pos, ByteBuffer buffer)  {
 		EntryBlock buffered = getBlockInBuffer(pos);
 		if(buffered==null) {
 			buffered = loadBlock(pos);
 		}
-		System.arraycopy(buffered.getBlock().getData(), 0, buffer, 0, (buffer.length>getBlockSize())?getBlockSize():buffer.length);
+		buffer.put(0,buffered.getBlock().getBuffer(),0,
+				(buffer.capacity()>getBlockSize())?getBlockSize(): buffer.capacity());
 	}
 	
 	@Override
@@ -92,7 +96,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		if(buffered==null) {
 			if(blocks.size()>=maxSize) {
 				buffered = removeItem();
-				buffered.getBlock().changeBlockID(b.getData(), pos);
+				buffered.getBlock().changeBlockID(b.getBuffer(), pos);
 				buffered.setSaved(false);
 			}else {
 				buffered=new EntryBlock(new BlockID(b, pos),false);
@@ -130,12 +134,12 @@ public class FIFOBlockBuffer extends BlockBuffer {
 	}
 
 	@Override
-	public ReadByteStream getBlockReadByteStream(int block)  {
+	public ReadableBlock getBlockReadByteStream(int block)  {
 		EntryBlock buffered = getBlockInBuffer(block);
 		if(buffered==null) {
 			buffered = loadBlock(block);
 		}
-		return (ReadByteStream)buffered.getBlock();
+		return buffered.getBlock();
 	}
 
 	@Override
@@ -173,13 +177,13 @@ public class FIFOBlockBuffer extends BlockBuffer {
 		if(blocks.size()>=maxSize) {
 			usable = removeItem();
 			if(stream.lastBlock()>=block)
-				stream.readBlock(block,usable.getBlock().getData());
+				stream.readBlock(block,usable.getBlock().getBuffer());
 			usable.getBlock().changeBlockID(block);
 			usable.setSaved(true);
 		}else {
-			BlockID b = new BlockID(new byte[getBlockSize()],block);
+			BlockID b = new BlockID(ByteBuffer.allocateDirect(getBlockSize()),block);
 			if(stream.lastBlock()>=block)
-				stream.readBlock(block, b.getData());
+				stream.readBlock(block, b.getBuffer());
 			usable = new EntryBlock(b, true);
 		}
 		blocks.addLast(usable);

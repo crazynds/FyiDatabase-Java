@@ -1,8 +1,10 @@
 package engine.virtualization.interfaces;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import engine.file.FileManager;
+import engine.file.blocks.ReadableBlock;
 import engine.file.buffers.FIFOBlockBuffer;
 import engine.file.streams.ByteStream;
 import engine.file.streams.ReadByteStream;
@@ -43,7 +45,7 @@ public class HeapStorage implements ByteStream{
 		HeapStorage h = new HeapStorage(fm);
 		
 		byte[] arr = "ola mundo".getBytes();
-		for(int x=0;x<1000;x++) {
+		for(int x=0;x<10000000;x++) {
 			h.write(x * arr.length, arr, arr.length);
 		}
 		h.commitWrites();
@@ -131,15 +133,15 @@ public class HeapStorage implements ByteStream{
 	}
 
 	@Override
-	public byte[] read(long pos, int len) {		
-		byte[] buffer = new byte[len];
+	public ByteBuffer read(long pos, int len) {
+		ByteBuffer buffer = ByteBuffer.allocate(len);
 		read(pos, buffer,0,len);
 		return buffer;
 	}
 
 	@Override
-	public byte[] readSeq(int len) {
-		byte[] buffer = new byte[len];
+	public ByteBuffer readSeq(int len) {
+		ByteBuffer buffer = ByteBuffer.allocate(len);
 		pointer+=read(pointer, buffer,0,len);
 		return buffer;
 	}
@@ -150,10 +152,14 @@ public class HeapStorage implements ByteStream{
 		int position = (int) (pos%origin.getBlockSize());
 		
 		int offset2=0;
+		int leitura;
 		do {
-			ReadByteStream rbs = temp.getBlockReadByteStream(block);
-			
-			offset2+=rbs.read(position, buffer, offset2+offset, len-offset2);
+			ReadableBlock rbs = temp.getBlockReadByteStream(block);
+			leitura = len-offset2;
+			if(leitura+position>rbs.getBlockSize())leitura = rbs.getBlockSize()-position;
+			rbs.read(position, buffer, offset2+offset, leitura);
+
+			offset2+=leitura;
 			block++;
 			position=0;
 		}while(offset2<len);
@@ -163,7 +169,34 @@ public class HeapStorage implements ByteStream{
 	
 
 	@Override
-	public int readSeq(int len, byte[] buffer, int offset) {
+	public int readSeq(byte[] buffer, int offset,int len) {
+		int increase =read(pointer, buffer,offset,len);
+		pointer+=increase;
+		return increase;
+	}
+
+	@Override
+	public int read(long pos, ByteBuffer buffer, int offset, int len) {
+		int block = (int) (pos/origin.getBlockSize());
+		int position = (int) (pos%origin.getBlockSize());
+
+		int offset2=0;
+		int leitura;
+		do {
+			ReadableBlock rbs = temp.getBlockReadByteStream(block);
+			leitura = len-offset2;
+			if(leitura+position>rbs.getBlockSize())leitura = rbs.getBlockSize()-position;
+			rbs.read(position, buffer, offset2+offset, leitura);
+
+			offset2+=leitura;
+			block++;
+			position=0;
+		}while(offset2<len);
+		return offset2;
+	}
+
+	@Override
+	public int readSeq(ByteBuffer buffer, int offset, int len) {
 		int increase =read(pointer, buffer,offset,len);
 		pointer+=increase;
 		return increase;

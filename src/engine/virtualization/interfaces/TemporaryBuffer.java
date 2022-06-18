@@ -7,8 +7,8 @@ import java.util.Map.Entry;
 
 import engine.file.blocks.Block;
 import engine.file.FileManager;
+import engine.file.blocks.ReadableBlock;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
-import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 
 public class TemporaryBuffer{
@@ -90,7 +90,7 @@ public class TemporaryBuffer{
 		return buffer.getBlockWriteByteStream(virtualBlock);
 	}
 
-	public ReadByteStream getBlockReadByteStream(int block) {
+	public ReadableBlock getBlockReadByteStream(int block) {
 		return origin.getBlockReadByteStream(block);
 	}
 

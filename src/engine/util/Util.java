@@ -1,6 +1,7 @@
 package engine.util;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class Util {
@@ -18,7 +19,10 @@ public class Util {
 			System.arraycopy(arr,0,buffered,0,arr.length);
 		}
 		buffered = invertByteArray(buffered,arr.length);
-    	return new BigInteger(Arrays.copyOfRange(buffered,0,arr.length));
+		return new BigInteger(Arrays.copyOfRange(buffered,0,arr.length));
+	}
+	public static synchronized BigInteger convertByteBufferToNumber(ByteBuffer arr) {
+		return new BigInteger(arr.flip().array());
 	}
 
 	public static byte[] convertNumberToByteArray(BigInteger number,int size) {

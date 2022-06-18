@@ -3,13 +3,14 @@ package engine.file.buffers;
 import engine.exceptions.DataBaseException;
 import engine.file.blocks.Block;
 import engine.file.blocks.BlockID;
+import engine.file.blocks.ReadableBlock;
 import engine.file.blocks.commitable.CommitableBlockStream;
 import engine.file.blocks.commitable.WriteBack;
 import engine.file.blocks.commitable.WriteCache;
 import engine.file.streams.BlockStream;
-import engine.file.streams.ReadByteStream;
 import engine.file.streams.WriteByteStream;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -55,8 +56,10 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
         for (Map.Entry<Integer,Integer> x:
                 blockMaping.entrySet()) {
-            if(x.getKey()>=0 && !entries[x.getValue()].isSaved())
-                tree.put(x.getKey(),entries[x.getValue()]);
+            if(x.getKey()>=0 && !entries[x.getValue()].isSaved()) {
+                entries[x.getValue()].setSaved(true);
+                tree.put(x.getKey(), entries[x.getValue()]);
+            }
         }
 
         Map.Entry<Integer, EntryBlock> entry;
@@ -92,13 +95,13 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
         return new Block(buffered.getBlock(),true);
     }
 
-
     @Override
-    public void readBlock(int pos, byte[] buffer)  {
+    public void readBlock(int pos, ByteBuffer buffer)  {
         EntryBlock buffered = getBlockInBuffer(pos);
         if(buffered==null)
             buffered = loadBlock(pos,true);
-        System.arraycopy(buffered.getBlock().getData(), 0, buffer, 0, (buffer.length>getBlockSize())?getBlockSize():buffer.length);
+        buffer.put(0,buffered.getBlock().getBuffer(),0,
+                (buffer.capacity()>getBlockSize())?getBlockSize(): buffer.capacity());
     }
 
     @Override
@@ -138,12 +141,12 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
 
     @Override
-    public ReadByteStream getBlockReadByteStream(int block)  {
+    public ReadableBlock getBlockReadByteStream(int block)  {
         EntryBlock buffered = getBlockInBuffer(block);
         if(buffered==null) {
             buffered = loadBlock(block,true);
         }
-        return (ReadByteStream)buffered.getBlock();
+        return buffered.getBlock();
     }
 
 
@@ -174,6 +177,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
     @Override
     public synchronized void clearBuffer() {
+        flush();
         for(EntryBlock e:entries){
             e.setSaved(true);
             if(e.getBlock().getBlockId()>=0)
@@ -194,7 +198,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
             }
         }
         if(read && stream.lastBlock()>=block) {
-            stream.readBlock(block, usable.getBlock().getData());
+            stream.readBlock(block, usable.getBlock().getBuffer());
         }
         usable.getBlock().changeBlockID(block);
         usable.setTime(System.nanoTime());

@@ -2,6 +2,7 @@ package engine.virtualization.record.manager.storage;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -59,8 +60,8 @@ public class FixedRecordStorage implements RecordStorageController {
 		if(fm.lastBlock()==-1)restartFileSet();
 		else {
 			ReadByteStream rbs = getReadByteStream();
-			byte[] arr = rbs.read(0, sizeOfBytesQtdRecords);
-			qtdOfRecords = Util.convertByteArrayToNumber(arr).intValue();
+			ByteBuffer arr = rbs.read(0, sizeOfBytesQtdRecords);
+			qtdOfRecords = Util.convertByteBufferToNumber(arr).intValue();
 		}
 		changed=false;
 		invalidRecord = new GenericRecord(new byte[sizeOfEachRecord]);
@@ -105,7 +106,7 @@ public class FixedRecordStorage implements RecordStorageController {
 			startPos = findRecordBinarySearch(pk, 0, qtdOfRecords - 1, r);
 
 			checkKey(startPos);
-			heap.read(startPos,sizeOfEachRecord,buffer,0);
+			heap.read(startPos,buffer,0,sizeOfEachRecord);
 
 
 			return recordInterface.getPrimaryKey(r).compareTo(pk)==0;
@@ -118,7 +119,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	public Record read(long key) {
 		checkKey(key);
 		GenericRecord record = new GenericRecord(new byte[sizeOfEachRecord]);
-		heap.read(key,sizeOfEachRecord,record.getData(),0);
+		heap.read(key,record.getData(),0,sizeOfEachRecord);
 		return record;
 	}
 
@@ -126,7 +127,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	@Override
 	public void read(long key, byte[] buffer) {
 		checkKey(key);
-		heap.read(key,sizeOfEachRecord,buffer,0);
+		heap.read(key,buffer,0,sizeOfEachRecord);
 	}
 
 
@@ -138,8 +139,8 @@ public class FixedRecordStorage implements RecordStorageController {
 		lock.writeLock().lock();
 		try {
 			if(recordInterface.isActiveRecord(r)){
-				byte[] buffer = heap.read(key,sizeOfEachRecord);
-				GenericRecord buff = new GenericRecord(buffer);
+				ByteBuffer buffer = heap.read(key,sizeOfEachRecord);
+				GenericRecord buff = new GenericRecord(buffer.array());
 				if(recordInterface.isActiveRecord(buff)){
 					BigInteger pkBuff = recordInterface.getPrimaryKey(buff);
 
@@ -226,10 +227,10 @@ public class FixedRecordStorage implements RecordStorageController {
 		startPos = findRecordBinarySearch(records.firstKey(), 0, qtdOfRecords - 1, buffer);
 
 		if(startPos > sizeOfBytesQtdRecords) {
-			heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
+			heap.read(startPos, buffer.getData(), 0,sizeOfEachRecord);
 			while(recordInterface.isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
 				startPos-=sizeOfEachRecord;
-				heap.read(startPos, sizeOfEachRecord, buffer.getData(), 0);
+				heap.read(startPos, buffer.getData(), 0, sizeOfEachRecord);
 			}
 		}
 
@@ -246,7 +247,7 @@ public class FixedRecordStorage implements RecordStorageController {
 
 		while(readOffset<qtdOfRecords && !records.isEmpty()){
 			long readPosition = getPositionOfRecord(readOffset);
-			heap.read(readPosition,sizeOfEachRecord,buffer.getData(),0);
+			heap.read(readPosition,buffer.getData(),0,sizeOfEachRecord);
 
 			if(recordInterface.isActiveRecord(buffer)) {
 				long writePosition = getPositionOfRecord(writeOffset);
@@ -368,7 +369,7 @@ public class FixedRecordStorage implements RecordStorageController {
 			long offset = 0;
 
 			do {
-				heap.read(getPositionOfRecord(mid+offset), sizeOfEachRecord, buffer.getData(), 0);
+				heap.read(getPositionOfRecord(mid+offset), buffer.getData(), 0, sizeOfEachRecord);
 				offset++;
 			}while(recordInterface.isActiveRecord(buffer)==false && max>=mid+offset);
 			if(max<mid+offset && recordInterface.isActiveRecord(buffer)==false){
@@ -495,15 +496,9 @@ public class FixedRecordStorage implements RecordStorageController {
 
 			@Override
 			public BigInteger getPointer() {
-				if(pos>=qtdOfRecords)return null;
-				boolean find = false;
-				long actualPos = pos;
-				do {
-					read(getPositionOfRecord(actualPos), buffer2.getData());
-					actualPos++;
-				}while(recordInterface.isActiveRecord(buffer2)==false && actualPos<qtdOfRecords);
-				if(recordInterface.isActiveRecord(buffer2))
-					return recordInterface.getPrimaryKey(buffer2);
+				if(buffer==null)return null;
+				if(recordInterface.isActiveRecord(buffer))
+					return recordInterface.getPrimaryKey(buffer);
 				return null;
 			}
 		};
