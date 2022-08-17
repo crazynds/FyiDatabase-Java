@@ -74,7 +74,6 @@ public class Main {
         while(executor.hasNext()){
             Tuple t = executor.next();
             String str = "";
-
             for (Map.Entry<String, ComplexRowData> row: t){
                 for(Map.Entry<String,byte[]> data:row.getValue()) {
                     switch(data.getKey()){
@@ -97,7 +96,6 @@ public class Main {
                     str+=" | ";
                 }
             }
-
             System.out.println(str);
         }
         //Fecha operador
@@ -125,10 +123,10 @@ public class Main {
         System.out.println("Tempo leitura: "+(Parameters.IO_READ_TIME)/1000000f+"ms");
         System.out.println("Tempo de sync: "+(Parameters.IO_SYNC_TIME)/1000000f+"ms");
         System.out.println("Tempo total IO: "+(Parameters.IO_SYNC_TIME
-                +Parameters.IO_SEEK_WRITE_TIME
-                +Parameters.IO_READ_TIME
-                +Parameters.IO_SEEK_READ_TIME
-                +Parameters.IO_WRITE_TIME)/1000000f+"ms");
+            +Parameters.IO_SEEK_WRITE_TIME
+            +Parameters.IO_READ_TIME
+            +Parameters.IO_SEEK_READ_TIME
+            +Parameters.IO_WRITE_TIME)/1000000f+"ms");
         System.out.println("Blocos carregados: "+Parameters.BLOCK_LOADED);
         System.out.println("Blocos salvos: "+Parameters.BLOCK_SAVED);
     }

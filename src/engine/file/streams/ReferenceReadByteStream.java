@@ -21,6 +21,9 @@ public class ReferenceReadByteStream implements ReadByteStream{
         this.rbs = rbs;
         this.offset = offset;
     }
+    public long getReference() {
+        return offset;
+    }
     public void setOffset(long offset) {
         this.offset = offset;
     }

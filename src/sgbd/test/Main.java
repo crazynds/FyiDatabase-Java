@@ -74,7 +74,7 @@ public class Main {
          */
 
         /**
-         * Testes usando o novo método de escrita e leitura direta:
+         * Testes usando o novo método de escrita e leitura direta (Não mudo nada):
          */
 
         /**
@@ -83,6 +83,13 @@ public class Main {
          * Dados consistentes
          * Tempo de geração: 20.3080704
          * Tempo de checagem: 97.7573857
+         */
+        /**
+         * Simple data table results:
+         * [1000000/1000000] 100.0% de records válidos verificados!
+         * Dados consistentes
+         * Tempo de geração: 188.8646945
+         * Tempo de checagem: 66.3966542
          */
 
         /**
@@ -93,12 +100,5 @@ public class Main {
          * Tempo de checagem: 2.49235
          */
 
-        /**
-         * Simple data table results:
-         * [1000000/1000000] 100.0% de records válidos verificados!
-         * Dados consistentes
-         * Tempo de geração: 188.8646945
-         * Tempo de checagem: 66.3966542
-         */
     }
 }

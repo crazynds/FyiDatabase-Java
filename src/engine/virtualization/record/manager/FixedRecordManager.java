@@ -12,6 +12,7 @@ import engine.virtualization.record.manager.storage.FixedRecordStorage;
 import engine.virtualization.record.manager.storage.OptimizedFixedRecordStorage;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public class FixedRecordManager extends RecordManager{
@@ -38,6 +39,11 @@ public class FixedRecordManager extends RecordManager{
             }
 
             @Override
+            public BigInteger getPrimaryKey(ByteBuffer rb) {
+                return ri.getPrimaryKey(rb);
+            }
+
+            @Override
             public boolean isActiveRecord(Record r) {
                 return ri.isActiveRecord(r);
             }
@@ -45,6 +51,11 @@ public class FixedRecordManager extends RecordManager{
             @Override
             public boolean isActiveRecord(ReadByteStream rbs) {
                 return ri.isActiveRecord(rbs);
+            }
+
+            @Override
+            public boolean isActiveRecord(ByteBuffer rb) {
+                return ri.isActiveRecord(rb);
             }
 
             @Override

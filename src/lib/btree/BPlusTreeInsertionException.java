@@ -6,7 +6,7 @@ public class BPlusTreeInsertionException extends RuntimeException {
 
     private Map.Entry entry;
 
-    BPlusTreeInsertionException(Map.Entry<?,?> entry){
+    public BPlusTreeInsertionException(Map.Entry<?, ?> entry){
         this.entry = entry;
     }
 
