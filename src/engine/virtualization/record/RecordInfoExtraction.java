@@ -7,12 +7,9 @@ import java.nio.ByteBuffer;
 
 public interface RecordInfoExtraction {
 
-    public BigInteger getPrimaryKey(Record r);
     public BigInteger getPrimaryKey(ByteBuffer rbs);
-
     public BigInteger getPrimaryKey(ReadByteStream rbs);
 
-    public boolean isActiveRecord(Record r);
     public boolean isActiveRecord(ByteBuffer rbs);
     public boolean isActiveRecord(ReadByteStream rbs);
 

@@ -12,6 +12,7 @@ import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
 import engine.info.Parameters;
 import engine.virtualization.record.Record;
+import engine.virtualization.record.RecordInfoExtraction;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
@@ -22,46 +23,45 @@ import sgbd.util.UtilConversor;
 
 public class Main {
 
-	public static class AuxRecordInterface implements RecordInterface{
+	public static class AuxRecordInterface extends RecordInterface {
 
-		private byte[] buff = new byte[4];
+		public AuxRecordInterface() {
+			super(new RecordInfoExtraction() {
 
-		@Override
-		public synchronized BigInteger getPrimaryKey(Record r)  {
-			byte[] inteiro = buff;
-			byte[] data = r.getData();
-			for(int x=0;x<4;x++) {
-				inteiro[3-x] = data[x+1];
-			}
-			return new BigInteger(inteiro);
-		}
+				private byte[] buff = new byte[4];
 
-		@Override
-		public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
-			rbs.read(1,buff,0,4);
-			return BigInteger.valueOf(UtilConversor.byteArrayToInt(buff));
-		}
+				@Override
+				public BigInteger getPrimaryKey(ByteBuffer rbs) {
+					return null;
+				}
 
-		@Override
-		public boolean isActiveRecord(Record r) {
-			return (r.getData()[0]&0x1)!=0;
-		}
+				@Override
+				public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
+					rbs.read(1,buff,0,4);
+					return BigInteger.valueOf(UtilConversor.byteArrayToInt(buff));
+				}
 
-		@Override
-		public synchronized boolean isActiveRecord(ReadByteStream rbs) {
-			rbs.read(0,buff,0,1);
-			return (buff[0]&0x1)!=0;
+				@Override
+				public boolean isActiveRecord(ByteBuffer rbs) {
+					return false;
+				}
+
+				@Override
+				public synchronized boolean isActiveRecord(ReadByteStream rbs) {
+					rbs.read(0,buff,0,1);
+					return (buff[0]&0x1)!=0;
+				}
+
+				@Override
+				public void setActiveRecord(Record r, boolean active) {
+					byte[] arr = r.getData();
+					arr[0] = (byte)( (arr[0]&(~0x1)) | ((active)?0x1:0x0));
+				}
+			});
 		}
 
 		@Override
 		public void updeteReference(BigInteger pk, long key) {}
-
-		@Override
-		public void setActiveRecord(Record r, boolean active) {
-			byte[] arr = r.getData();
-			arr[0] = (byte)( (arr[0]&(~0x1)) | ((active)?0x1:0x0));
-		}
-		
 	}
 
 	public static void printRecords(RecordManager rm,int sizeOfRecord){
@@ -115,7 +115,7 @@ public class Main {
 				byte[] pk = b.array();
 				System.arraycopy(pk,0,data,1,4);
 
-				ri.setActiveRecord(r1, true);
+				ri.getExtractor().setActiveRecord(r1, true);
 				if(sizePerList!=1)
 					list.add(r1);
 				else{

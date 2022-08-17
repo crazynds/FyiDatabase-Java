@@ -5,6 +5,7 @@ import engine.file.FileManager;
 import engine.file.streams.ReferenceReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.virtualization.record.Record;
+import engine.virtualization.record.RecordInfoExtraction;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.instances.GenericRecord;
 
@@ -40,7 +41,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                 data = new byte[sizeOfEachRecord];
                 System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
             }
-            records.put(recordInterface.getPrimaryKey(r),data);
+            records.put(recordInterface.getExtractor().getPrimaryKey(r),data);
         }
 
         lock.writeLock().lock();
@@ -61,7 +62,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
 
         if(startPos > sizeOfBytesQtdRecords) {
             heap.read(startPos, buffer.getData(), 0, sizeOfEachRecord);
-            while(recordInterface.isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
+            while(recordInterface.getExtractor().isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
                 startPos-=sizeOfEachRecord;
                 heap.read(startPos, buffer.getData(), 0, sizeOfEachRecord);
             }
@@ -74,6 +75,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
         LinkedList<byte[]> list = new LinkedList<>();
         LinkedList<BigInteger> listKey = new LinkedList<>();
         ReferenceReadByteStream reference = new ReferenceReadByteStream(heap,0);
+        RecordInfoExtraction extractor = recordInterface.getExtractor();
         byte[] data = null;
         long readOffset= pos;
         long writeOffset = pos;
@@ -86,10 +88,10 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
 
             //heap.read(readPosition,sizeOfEachRecord,buffer.getData(),0);
 
-            if(recordInterface.isActiveRecord(reference)) {
+            if(extractor.isActiveRecord(reference)) {
                 long writePosition = getPositionOfRecord(writeOffset);
                 BigInteger firstKey = records.firstKey();
-                BigInteger buffPk = recordInterface.getPrimaryKey(reference);
+                BigInteger buffPk = extractor.getPrimaryKey(reference);
                 switch (firstKey.compareTo(buffPk)) {
                     case -1:
                         do{

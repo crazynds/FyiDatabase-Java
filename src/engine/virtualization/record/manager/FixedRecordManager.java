@@ -22,47 +22,15 @@ public class FixedRecordManager extends RecordManager{
     private int sizeOfEachRecord;
 
 
+    public FixedRecordManager(FileManager fm, RecordInterface ri, int sizeOfEachRecord) {
+        super(fm, ri.getExtractor());
+        recordStorage = new OptimizedFixedRecordStorage(fm,ri, sizeOfEachRecord);
+        this.sizeOfEachRecord = sizeOfEachRecord;
+    }
+
     public FixedRecordManager(FileManager fm, RecordInfoExtraction ri, int sizeOfEachRecord) {
         super(fm, ri);
-        recordStorage = new OptimizedFixedRecordStorage(fm,new RecordInterface() {
-            @Override
-            public void updeteReference(BigInteger pk, long key) {
-            }
-            @Override
-            public BigInteger getPrimaryKey(Record r) {
-                return ri.getPrimaryKey(r);
-            }
-
-            @Override
-            public BigInteger getPrimaryKey(ReadByteStream rbs) {
-                return ri.getPrimaryKey(rbs);
-            }
-
-            @Override
-            public BigInteger getPrimaryKey(ByteBuffer rb) {
-                return ri.getPrimaryKey(rb);
-            }
-
-            @Override
-            public boolean isActiveRecord(Record r) {
-                return ri.isActiveRecord(r);
-            }
-
-            @Override
-            public boolean isActiveRecord(ReadByteStream rbs) {
-                return ri.isActiveRecord(rbs);
-            }
-
-            @Override
-            public boolean isActiveRecord(ByteBuffer rb) {
-                return ri.isActiveRecord(rb);
-            }
-
-            @Override
-            public void setActiveRecord(Record r, boolean active) {
-                ri.setActiveRecord(r,active);
-            }
-        }, sizeOfEachRecord);
+        recordStorage = new OptimizedFixedRecordStorage(fm,new RecordInterface(ri), sizeOfEachRecord);
         this.sizeOfEachRecord = sizeOfEachRecord;
     }
 

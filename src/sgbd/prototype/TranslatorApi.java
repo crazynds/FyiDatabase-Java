@@ -96,8 +96,8 @@ public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
     }
 
     @Override
-    public synchronized BigInteger getPrimaryKey(Record r){
-        r.read(this.headerSize,bufferArrayPk,0,primaryKeySize);
+    public synchronized BigInteger getPrimaryKey(ByteBuffer rbs) {
+        rbs.get(this.headerSize,bufferArrayPk,0,primaryKeySize);
         return Util.convertByteArrayToNumber(bufferArrayPk);
     }
 
@@ -108,8 +108,8 @@ public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
     }
 
     @Override
-    public boolean isActiveRecord(Record r) {
-        return (r.getData()[0]&0x1) !=0;
+    public boolean isActiveRecord(ByteBuffer rbs) {
+        return false;
     }
 
     @Override
