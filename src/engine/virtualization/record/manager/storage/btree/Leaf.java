@@ -21,16 +21,16 @@ public class Leaf extends Node{
     private int nextLeaf;
     private TreeMap<BigInteger, Map.Entry<Long,ByteBuffer>> mapPosition;
 
-    public Leaf(BlockBuffer stream, RecordInterface ri, int block, int sizeOfPK, int sizeOfEntry) {
-        super(stream,ri,block);
-        this.sizeOfPk = sizeOfPK;
-        this.sizeOfEntry = sizeOfEntry;
+    public Leaf(BlockBuffer stream, RecordInterface ri,BTreeHandler handler, int block) {
+        super(stream,ri,handler,block);
+        this.sizeOfPk = handler.getSizeOfPk();
+        this.sizeOfEntry = handler.getSizeOfEntry();
         this.itens = 0;
         this.nextLeaf = -1;
         this.mapPosition = new TreeMap<>();
 
-        // (tamanho do bloco - 8 bytes de headers) /sizeOfEntry
-        maxItens = (stream.getBlockSize() - 8)/sizeOfEntry;
+        // (tamanho do bloco - 9 bytes de headers) /sizeOfEntry
+        maxItens = (stream.getBlockSize() - 9)/sizeOfEntry;
     }
 
     @Override
@@ -38,6 +38,7 @@ public class Leaf extends Node{
         ReadableBlock readable = stream.getBlockReadByteStream(block);
         WriteByteStream wbs = stream.getBlockWriteByteStream(block);
         wbs.setPointer(0);
+        wbs.writeSeq(new byte[]{1},0,1);
         wbs.writeSeq(Util.convertLongToByteArray(itens,4),0,4);
         wbs.writeSeq(Util.convertLongToByteArray(nextLeaf,4),0,4);
 
@@ -64,7 +65,7 @@ public class Leaf extends Node{
     public void load() {
         ReadableBlock readable = stream.getBlockReadByteStream(block);
 
-        readable.setPointer(0);
+        readable.setPointer(1);
         itens = Util.convertByteBufferToNumber(readable.readSeq(4)).intValue();
         nextLeaf = Util.convertByteBufferToNumber(readable.readSeq(4)).intValue();
         ReferenceReadByteStream ref = new ReferenceReadByteStream(readable,readable.getPointer());
