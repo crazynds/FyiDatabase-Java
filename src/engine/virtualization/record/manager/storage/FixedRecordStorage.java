@@ -14,6 +14,7 @@ import engine.file.streams.WriteByteStream;
 import engine.util.Util;
 import engine.virtualization.interfaces.HeapStorage;
 import engine.virtualization.record.Record;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
@@ -65,7 +66,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		}
 		changed=false;
 		invalidRecord = new GenericRecord(new byte[sizeOfEachRecord]);
-		recordInterface.setActiveRecord(invalidRecord,false);
+		recordInterface.getExtractor().setActiveRecord(invalidRecord,false);
 	}
 
 
@@ -109,7 +110,7 @@ public class FixedRecordStorage implements RecordStorageController {
 			heap.read(startPos,buffer,0,sizeOfEachRecord);
 
 
-			return recordInterface.getPrimaryKey(r).compareTo(pk)==0;
+			return recordInterface.getExtractor().getPrimaryKey(r).compareTo(pk)==0;
 		} finally {
 			lock.readLock().unlock();
 		}
@@ -134,22 +135,23 @@ public class FixedRecordStorage implements RecordStorageController {
 	@Override
 	public long write(Record r, long key) {
 		checkKey(key);
-		BigInteger pk = recordInterface.getPrimaryKey(r);
+		RecordInfoExtractor extractor = recordInterface.getExtractor();
+		BigInteger pk = extractor.getPrimaryKey(r);
 
 		lock.writeLock().lock();
 		try {
-			if(recordInterface.isActiveRecord(r)){
+			if(extractor.isActiveRecord(r)){
 				ByteBuffer buffer = heap.read(key,sizeOfEachRecord);
 				GenericRecord buff = new GenericRecord(buffer.array());
-				if(recordInterface.isActiveRecord(buff)){
-					BigInteger pkBuff = recordInterface.getPrimaryKey(buff);
+				if(extractor.isActiveRecord(buff)){
+					BigInteger pkBuff = extractor.getPrimaryKey(buff);
 
 					WriteByteStream wbs = getWriteByteStream();
 					if(pk.compareTo(pkBuff)==0){
 						wbs.write(key,r.getData(),(r.size()>sizeOfEachRecord)?sizeOfEachRecord:r.size());
 						recordInterface.updeteReference(pk,key);
 					}else{
-						recordInterface.setActiveRecord(buff,false);
+						extractor.setActiveRecord(buff,false);
 						wbs.write(key,buff.getData(),buff.size());
 						return writeNew(r);
 					}
@@ -174,7 +176,7 @@ public class FixedRecordStorage implements RecordStorageController {
 
 	@Override
 	public long writeNew(Record r) {
-		BigInteger pk = recordInterface.getPrimaryKey(r);
+		BigInteger pk = recordInterface.getExtractor().getPrimaryKey(r);
 		long position = 0;
 		int size = r.size();
 		if(size>sizeOfEachRecord)size=sizeOfEachRecord;
@@ -228,7 +230,7 @@ public class FixedRecordStorage implements RecordStorageController {
 
 		if(startPos > sizeOfBytesQtdRecords) {
 			heap.read(startPos, buffer.getData(), 0,sizeOfEachRecord);
-			while(recordInterface.isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
+			while(recordInterface.getExtractor().isActiveRecord(buffer)==false && startPos>sizeOfBytesQtdRecords){
 				startPos-=sizeOfEachRecord;
 				heap.read(startPos, buffer.getData(), 0, sizeOfEachRecord);
 			}
@@ -249,10 +251,10 @@ public class FixedRecordStorage implements RecordStorageController {
 			long readPosition = getPositionOfRecord(readOffset);
 			heap.read(readPosition,buffer.getData(),0,sizeOfEachRecord);
 
-			if(recordInterface.isActiveRecord(buffer)) {
+			if(recordInterface.getExtractor().isActiveRecord(buffer)) {
 				long writePosition = getPositionOfRecord(writeOffset);
 				BigInteger firstKey = records.firstKey();
-				BigInteger buffPk = recordInterface.getPrimaryKey(buffer);
+				BigInteger buffPk = recordInterface.getExtractor().getPrimaryKey(buffer);
 				switch (firstKey.compareTo(buffPk)) {
 					case -1:
 						do{
@@ -347,7 +349,7 @@ public class FixedRecordStorage implements RecordStorageController {
 				data = new byte[sizeOfEachRecord];
 				System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
 			}
-			records.put(recordInterface.getPrimaryKey(r),data);
+			records.put(recordInterface.getExtractor().getPrimaryKey(r),data);
 		}
 
 		lock.writeLock().lock();
@@ -371,12 +373,12 @@ public class FixedRecordStorage implements RecordStorageController {
 			do {
 				heap.read(getPositionOfRecord(mid+offset), buffer.getData(), 0, sizeOfEachRecord);
 				offset++;
-			}while(recordInterface.isActiveRecord(buffer)==false && max>=mid+offset);
-			if(max<mid+offset && recordInterface.isActiveRecord(buffer)==false){
+			}while(recordInterface.getExtractor().isActiveRecord(buffer)==false && max>=mid+offset);
+			if(max<mid+offset && recordInterface.getExtractor().isActiveRecord(buffer)==false){
 				return findRecordBinarySearch(pk,min,mid-1,buffer);
 			}
 
-			BigInteger pk2 = recordInterface.getPrimaryKey(buffer);
+			BigInteger pk2 = recordInterface.getExtractor().getPrimaryKey(buffer);
 
 			switch (pk.compareTo(pk2)){
 				case -1:
@@ -432,8 +434,8 @@ public class FixedRecordStorage implements RecordStorageController {
 				do {
 					read(getPositionOfRecord(actualPos), buffer2.getData());
 					actualPos++;
-				}while(recordInterface.isActiveRecord(buffer2)==false && actualPos<qtdOfRecords);
-				if(recordInterface.isActiveRecord(buffer2)){
+				}while(recordInterface.getExtractor().isActiveRecord(buffer2)==false && actualPos<qtdOfRecords);
+				if(recordInterface.getExtractor().isActiveRecord(buffer2)){
 					find =true;
 				}else pos = actualPos;
 				return find;
@@ -445,8 +447,8 @@ public class FixedRecordStorage implements RecordStorageController {
 				do {
 					read(getPositionOfRecord(pos), buffer.getData());
 					pos++;
-				}while(recordInterface.isActiveRecord(buffer)==false && pos<qtdOfRecords);
-				if(recordInterface.isActiveRecord(buffer)){
+				}while(recordInterface.getExtractor().isActiveRecord(buffer)==false && pos<qtdOfRecords);
+				if(recordInterface.getExtractor().isActiveRecord(buffer)){
 					return buffer;
 				}
 				return null;
@@ -475,7 +477,7 @@ public class FixedRecordStorage implements RecordStorageController {
 				if(!b)throw new DataBaseException("RecordStream->write","Não foi possivel adiquirir write lock");
 				try {
 					if(pos<=0)return;
-					recordInterface.setActiveRecord(buffer,false);
+					recordInterface.getExtractor().setActiveRecord(buffer,false);
 					fixedRecordStorage.write(buffer, getPositionOfRecord(pos-1));
 				}finally {
 					lock.writeLock().unlock();
@@ -497,8 +499,8 @@ public class FixedRecordStorage implements RecordStorageController {
 			@Override
 			public BigInteger getPointer() {
 				if(buffer==null)return null;
-				if(recordInterface.isActiveRecord(buffer))
-					return recordInterface.getPrimaryKey(buffer);
+				if(recordInterface.getExtractor().isActiveRecord(buffer))
+					return recordInterface.getExtractor().getPrimaryKey(buffer);
 				return null;
 			}
 		};

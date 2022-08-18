@@ -2,9 +2,8 @@ package engine.virtualization.record.manager;
 
 import engine.exceptions.NotFoundRowException;
 import engine.file.FileManager;
-import engine.file.streams.ReadByteStream;
 import engine.virtualization.record.Record;
-import engine.virtualization.record.RecordInfoExtraction;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
@@ -12,7 +11,6 @@ import engine.virtualization.record.manager.storage.FixedRecordStorage;
 import engine.virtualization.record.manager.storage.OptimizedFixedRecordStorage;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 public class FixedRecordManager extends RecordManager{
@@ -28,7 +26,7 @@ public class FixedRecordManager extends RecordManager{
         this.sizeOfEachRecord = sizeOfEachRecord;
     }
 
-    public FixedRecordManager(FileManager fm, RecordInfoExtraction ri, int sizeOfEachRecord) {
+    public FixedRecordManager(FileManager fm, RecordInfoExtractor ri, int sizeOfEachRecord) {
         super(fm, ri);
         recordStorage = new OptimizedFixedRecordStorage(fm,new RecordInterface(ri), sizeOfEachRecord);
         this.sizeOfEachRecord = sizeOfEachRecord;

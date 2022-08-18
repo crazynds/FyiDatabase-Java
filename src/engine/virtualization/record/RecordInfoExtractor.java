@@ -5,7 +5,7 @@ import engine.file.streams.ReadByteStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-public interface RecordInfoExtraction {
+public interface RecordInfoExtractor {
 
     public BigInteger getPrimaryKey(ByteBuffer rbs);
     public BigInteger getPrimaryKey(ReadByteStream rbs);

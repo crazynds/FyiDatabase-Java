@@ -1,7 +1,7 @@
 package engine.virtualization.record.manager;
 
 import engine.virtualization.record.Record;
-import engine.virtualization.record.RecordInfoExtraction;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import lib.btree.BPlusTree;
@@ -15,7 +15,7 @@ public class MemoryBTreeRecordManager extends RecordManager{
 
     private BPlusTree<BigInteger,byte[]> arvoreB;
 
-    public MemoryBTreeRecordManager(RecordInfoExtraction ri) {
+    public MemoryBTreeRecordManager(RecordInfoExtractor ri) {
         super(null, ri);
         arvoreB = new BPlusTree<>();
     }

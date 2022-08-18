@@ -105,24 +105,11 @@ public abstract class GenericTable extends Table{
 
             @Override
             public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
+                if(!started)start();
                 if(recordStream==null)return null;
-                return new Map.Entry<BigInteger,ComplexRowData>() {
-                    Record record = recordStream.next();
-                    @Override
-                    public BigInteger getKey() {
-                        return translatorApi.getPrimaryKey(record);
-                    }
-
-                    @Override
-                    public ComplexRowData getValue() {
-                        return translatorApi.convertToRowData(record,columns);
-                    }
-
-                    @Override
-                    public ComplexRowData setValue(ComplexRowData value) {
-                        return null;
-                    }
-                };
+                Record record = recordStream.next();
+                if(record==null)return null;
+                return Map.entry(translatorApi.getPrimaryKey(record),translatorApi.convertToRowData(record,columns));
             }
 
             @Override

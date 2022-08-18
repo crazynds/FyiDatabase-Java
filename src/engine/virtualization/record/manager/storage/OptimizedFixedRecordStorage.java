@@ -5,7 +5,7 @@ import engine.file.FileManager;
 import engine.file.streams.ReferenceReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.virtualization.record.Record;
-import engine.virtualization.record.RecordInfoExtraction;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.instances.GenericRecord;
 
@@ -75,7 +75,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
         LinkedList<byte[]> list = new LinkedList<>();
         LinkedList<BigInteger> listKey = new LinkedList<>();
         ReferenceReadByteStream reference = new ReferenceReadByteStream(heap,0);
-        RecordInfoExtraction extractor = recordInterface.getExtractor();
+        RecordInfoExtractor extractor = recordInterface.getExtractor();
         byte[] data = null;
         long readOffset= pos;
         long writeOffset = pos;

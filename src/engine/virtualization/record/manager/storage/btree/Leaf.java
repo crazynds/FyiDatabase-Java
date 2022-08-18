@@ -70,7 +70,7 @@ public class Leaf extends Node{
         ReferenceReadByteStream ref = new ReferenceReadByteStream(readable,readable.getPointer());
         for(int x=0;x<itens;x++){
             mapPosition.put(
-                    ri.getPrimaryKey(ref),
+                    ri.getExtractor().getPrimaryKey(ref),
                     Map.entry(ref.getReference(),(ByteBuffer) null)
             );
             ref.setOffset(ref.getReference()+sizeOfEntry);

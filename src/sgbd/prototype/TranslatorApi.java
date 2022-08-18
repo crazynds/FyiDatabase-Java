@@ -4,7 +4,7 @@ import engine.exceptions.DataBaseException;
 import engine.file.streams.ReadByteStream;
 import engine.util.Util;
 import engine.virtualization.record.Record;
-import engine.virtualization.record.RecordInfoExtraction;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.instances.GenericRecord;
 import sgbd.util.UtilConversor;
 
@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 
-public class TranslatorApi implements RecordInfoExtraction, Iterable<Column>{
+public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
 
     private final int headerSize;
     private byte[] headerBuffer;

@@ -1,14 +1,11 @@
 package engine.virtualization.record;
 
-import engine.file.streams.ReadByteStream;
-
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 
 public class RecordInterface{
 
-	private RecordInfoExtraction infoExtraction;
-	public RecordInterface(RecordInfoExtraction extraction){
+	private RecordInfoExtractor infoExtraction;
+	public RecordInterface(RecordInfoExtractor extraction){
 		this.infoExtraction=extraction;
 	}
 
@@ -21,7 +18,7 @@ public class RecordInterface{
 
 	}
 
-	public RecordInfoExtraction getExtractor(){
+	public RecordInfoExtractor getExtractor(){
 		return infoExtraction;
 	}
 

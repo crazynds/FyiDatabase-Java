@@ -8,11 +8,10 @@ import java.util.*;
 
 import engine.file.FileManager;
 import engine.file.buffers.FIFOBlockBuffer;
-import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
 import engine.info.Parameters;
 import engine.virtualization.record.Record;
-import engine.virtualization.record.RecordInfoExtraction;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
@@ -26,7 +25,7 @@ public class Main {
 	public static class AuxRecordInterface extends RecordInterface {
 
 		public AuxRecordInterface() {
-			super(new RecordInfoExtraction() {
+			super(new RecordInfoExtractor() {
 
 				private byte[] buff = new byte[4];
 
@@ -142,10 +141,10 @@ public class Main {
 		int maxPK = 5000000;
 
 		RecordInterface ri = new AuxRecordInterface();
-		//RecordManager rm = new MemoryBTreeRecordManager(ri);
+		RecordManager rm = new MemoryBTreeRecordManager(ri.getExtractor());
 
-		FileManager f = new FileManager("W:\\teste.dat", new FIFOBlockBuffer(2));
-		RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
+		//FileManager f = new FileManager("bin/teste.dat", new FIFOBlockBuffer(2));
+		//RecordManager rm = new FixedRecordManager(f,ri,sizeOfRecord);
 
 		createBase(ri,rm,sizeOfRecord,qtdOfRecords,qtdPerList,maxPK);
 		printRecords(rm,sizeOfRecord);

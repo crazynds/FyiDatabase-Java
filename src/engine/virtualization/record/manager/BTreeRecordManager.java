@@ -3,7 +3,7 @@ package engine.virtualization.record.manager;
 import engine.file.FileManager;
 import engine.file.streams.WriteByteStream;
 import engine.virtualization.record.Record;
-import engine.virtualization.record.RecordInfoExtraction;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
 
 import java.math.BigInteger;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BTreeRecordManager extends RecordManager {
 
-    public BTreeRecordManager(FileManager fm, RecordInfoExtraction ri) {
+    public BTreeRecordManager(FileManager fm, RecordInfoExtractor ri) {
         super(fm, ri);
 
         //Get data from header
