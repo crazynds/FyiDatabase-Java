@@ -41,6 +41,7 @@ public class Page extends Node{
         ReadableBlock readable = stream.getBlockReadByteStream(block);
         WriteByteStream wbs = stream.getBlockWriteByteStream(block);
         wbs.setPointer(0);
+        wbs.writeSeq(new byte[]{1},0,1);
         wbs.writeSeq(Util.convertLongToByteArray(nodes,4),0,4);
 
         wbs.writeSeq(Util.convertLongToByteArray(smaller.getKey(),4),0,4);
