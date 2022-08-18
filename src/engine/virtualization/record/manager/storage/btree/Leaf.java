@@ -56,6 +56,7 @@ public class Leaf extends Node{
                     buff = bufferAux;
                 }else{
                     buff = value.getValue();
+                    value.setValue(null);
                 }
                 wbs.write(position,buff.array(),buff.capacity());
             }
