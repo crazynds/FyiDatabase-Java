@@ -18,12 +18,15 @@ import java.util.TreeMap;
 
 public class Page extends Node{
 
-    private int sizeOfPk;
-    private int nodes,maxNodes,sizeOfEntry;
+    private static final int HEADERS_SIZE = 4 + 4;
+
+    private int sizeOfPk,sizeOfEntry;
+
+    private int nodes,maxNodes;
     private TreeMap<BigInteger, Map.Entry<Integer,Node>> nodesMap;
     private Map.Entry<Integer,Node> smaller;
 
-    private static final int HEADERS_SIZE = 4 + 4;
+    private boolean changed = false;
 
     public Page(BlockBuffer stream, RecordInterface ri,BTreeHandler handler, int block) {
         super(stream, ri, handler, block);
@@ -38,6 +41,7 @@ public class Page extends Node{
 
     @Override
     public void save() {
+        if(!changed)return;
         ReadableBlock readable = stream.getBlockReadByteStream(block);
         WriteByteStream wbs = stream.getBlockWriteByteStream(block);
         wbs.setPointer(0);
@@ -49,12 +53,17 @@ public class Page extends Node{
              nodesMap.entrySet()) {
             int nodeNumber = map.getValue().getKey();
             BigInteger pk = map.getKey();
+            Node no =map.getValue().getValue();
+            if(no!=null){
+                no.save();
+            }
 
             wbs.writeSeq(Util.convertLongToByteArray(nodeNumber,4),0,4);
             wbs.writeSeq(Util.convertNumberToByteArray(pk,sizeOfPk),0,sizeOfPk);
         }
 
         wbs.commitWrites();
+        changed = false;
     }
 
     @Override
@@ -77,6 +86,7 @@ public class Page extends Node{
             }
             ref.setOffset(ref.getReference()+sizeOfEntry);
         }
+        changed=false;
     }
 
 
@@ -88,7 +98,16 @@ public class Page extends Node{
         }catch(BPlusTreeInsertionException exception){
             if(isFull())
                 throw exception;
+
         }
+        changed=true;
+    }
+
+    @Override
+    public ByteBuffer remove(BigInteger t) {
+        Node node = findNode(t);
+        changed = true;
+        return node.remove(t);
     }
 
     private Node findNode(BigInteger t){
@@ -112,12 +131,6 @@ public class Page extends Node{
     public ByteBuffer get(BigInteger t) {
         Node node = findNode(t);
         return node.get(t);
-    }
-
-    @Override
-    public ByteBuffer remove(BigInteger t) {
-        Node node = findNode(t);
-        return node.remove(t);
     }
 
     @Override

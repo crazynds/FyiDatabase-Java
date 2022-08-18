@@ -21,6 +21,8 @@ public class Leaf extends Node{
     private int nextLeaf;
     private TreeMap<BigInteger, Map.Entry<Long,ByteBuffer>> mapPosition;
 
+    private boolean changed = false;
+
     public Leaf(BlockBuffer stream, RecordInterface ri,BTreeHandler handler, int block) {
         super(stream,ri,handler,block);
         this.sizeOfPk = handler.getSizeOfPk();
@@ -35,6 +37,7 @@ public class Leaf extends Node{
 
     @Override
     public void save() {
+        if(!changed)return;
         ReadableBlock readable = stream.getBlockReadByteStream(block);
         WriteByteStream wbs = stream.getBlockWriteByteStream(block);
         wbs.setPointer(0);
@@ -59,6 +62,8 @@ public class Leaf extends Node{
             position+=sizeOfEntry;
         }
         wbs.commitWrites();
+
+        changed = false;
     }
 
     @Override
@@ -76,12 +81,13 @@ public class Leaf extends Node{
             );
             ref.setOffset(ref.getReference()+sizeOfEntry);
         }
+        changed=false;
     }
 
     @Override
     public void insert(BigInteger t, ByteBuffer m) {
         if(mapPosition.containsKey(t)){
-            // Se contem um com essa kay faz o replace
+            // Se contem um com essa key faz o replace
             Map.Entry<Long,ByteBuffer> entry=  mapPosition.get(t);
             if(entry.getValue()==null){
                 ByteBuffer buff = ByteBuffer.allocate(sizeOfEntry);
@@ -90,16 +96,17 @@ public class Leaf extends Node{
             }else{
                 entry.getValue().put(0,m,0,m.capacity());
             }
-        }
-        if(mapPosition.size()>=maxItens){
-            // Se já ta no limite chama para o pai desse cara
-            throw new BPlusTreeInsertionException(Map.entry(t,m));
-        }
+        }else {
+            if(mapPosition.size()>=maxItens){
+                // Se já ta no limite chama para o pai desse cara
+                throw new BPlusTreeInsertionException(Map.entry(t,m));
+            }
 
-        // Se tem espaço e não tem nenhuma igual adiciona o item na memoria.
-        mapPosition.put(t,Map.entry((long)0,m.duplicate()));
-        itens++;
-
+            // Se tem espaço e não tem nenhuma igual adiciona o item na memoria.
+            mapPosition.put(t,Map.entry((long)0,m.duplicate()));
+            itens++;
+        }
+        changed=true;
     }
 
     @Override
@@ -107,6 +114,7 @@ public class Leaf extends Node{
         Map.Entry<Long,ByteBuffer> entry = mapPosition.get(t);
         if(entry!=null)return null;
 
+        if(entry.getKey()==0)return entry.getValue();
         ReadableBlock readable = stream.getBlockReadByteStream(block);
         return readable.read(entry.getKey(),sizeOfEntry);
     }
@@ -116,7 +124,9 @@ public class Leaf extends Node{
         Map.Entry<Long,ByteBuffer> entry = mapPosition.remove(t);
         if(entry!=null)return null;
         itens--;
+        changed=true;
 
+        if(entry.getKey()==0)return entry.getValue();
         ReadableBlock readable = stream.getBlockReadByteStream(block);
         return readable.read(entry.getKey(),sizeOfEntry);
     }
