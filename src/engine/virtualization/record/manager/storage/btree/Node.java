@@ -1,11 +1,10 @@
 package engine.virtualization.record.manager.storage.btree;
 
 import engine.exceptions.DataBaseException;
-import engine.file.blocks.Block;
-import engine.file.blocks.BlockID;
 import engine.file.blocks.ReadableBlock;
 import engine.file.buffers.BlockBuffer;
-import engine.virtualization.interfaces.BlockManager;
+import engine.file.streams.BlockStream;
+import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 
 import java.math.BigInteger;
@@ -14,33 +13,38 @@ import java.nio.ByteBuffer;
 public abstract class Node {
 
     protected int block;
-    protected BlockBuffer stream;
-    protected RecordInterface ri;
     protected BTreeHandler handler;
 
-    public Node(BlockBuffer stream, RecordInterface ri,BTreeHandler handler, int block){
-        this.stream=stream;
-        this.ri=ri;
+    public Node(BTreeHandler handler, int block){
         this.block = block;
         this.handler=handler;
     }
 
     public Node loadNode(int blockNode){
-        ReadableBlock rb = stream.getBlockReadByteStream(blockNode);
+        ReadableBlock rb = getStream().getBlockReadByteStream(blockNode);
         byte type = rb.read(0,1).get(0);
         Node node;
         switch (type){
             case 1:
-                node = new Leaf(stream,ri,handler,blockNode);
+                node = new Leaf(handler,blockNode);
                 break;
             case 2:
-                node = new Page(stream,ri,handler,blockNode);
+                node = new Page(handler,blockNode,null);
                 break;
             default:
                 throw new DataBaseException("BTree->Node->loadNode","Tipo do node não reconhecido");
         }
         return node;
     }
+
+    public BlockStream getStream(){
+        return this.handler.getStream();
+    }
+
+    public RecordInfoExtractor getRecordInterface(){
+        return this.handler.getRi();
+    }
+
 
     public abstract void save();
     public abstract void load();
@@ -52,6 +56,9 @@ public abstract class Node {
     //Pega metade dos dados do nó atual e retorna um novo nó com dados do antigo nó
     protected abstract Node half();
     public abstract Node merge(Node node);
+
+
+    public abstract void print(int tabs);
 
 
     public abstract boolean hasMinimun();

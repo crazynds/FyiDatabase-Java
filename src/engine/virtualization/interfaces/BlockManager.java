@@ -6,7 +6,7 @@ public class BlockManager {
     private int lastBlock = 0;
 
 
-    public long allocNew(){
+    public int allocNew(){
         return lastBlock++;
     }
 

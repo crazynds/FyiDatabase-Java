@@ -1,15 +1,14 @@
 package engine.virtualization.record.manager.storage.btree;
 
 import engine.file.blocks.ReadableBlock;
-import engine.file.buffers.BlockBuffer;
 import engine.file.streams.ReferenceReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.util.Util;
-import engine.virtualization.record.RecordInterface;
 import lib.btree.BPlusTreeInsertionException;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -23,8 +22,8 @@ public class Leaf extends Node{
 
     private boolean changed = false;
 
-    public Leaf(BlockBuffer stream, RecordInterface ri,BTreeHandler handler, int block) {
-        super(stream,ri,handler,block);
+    public Leaf(BTreeHandler handler, int block) {
+        super(handler,block);
         this.sizeOfPk = handler.getSizeOfPk();
         this.sizeOfEntry = handler.getSizeOfEntry();
         this.itens = 0;
@@ -32,14 +31,14 @@ public class Leaf extends Node{
         this.mapPosition = new TreeMap<>();
 
         // (tamanho do bloco - 9 bytes de headers) /sizeOfEntry
-        maxItens = (stream.getBlockSize() - 9)/sizeOfEntry;
+        maxItens = (getStream().getBlockSize() - 9)/sizeOfEntry;
     }
 
     @Override
     public void save() {
         if(!changed)return;
-        ReadableBlock readable = stream.getBlockReadByteStream(block);
-        WriteByteStream wbs = stream.getBlockWriteByteStream(block);
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
+        WriteByteStream wbs = getStream().getBlockWriteByteStream(block);
         wbs.setPointer(0);
         wbs.writeSeq(new byte[]{1},0,1);
         wbs.writeSeq(Util.convertLongToByteArray(itens,4),0,4);
@@ -69,7 +68,7 @@ public class Leaf extends Node{
 
     @Override
     public void load() {
-        ReadableBlock readable = stream.getBlockReadByteStream(block);
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
 
         readable.setPointer(1);
         itens = Util.convertByteBufferToNumber(readable.readSeq(4)).intValue();
@@ -77,7 +76,7 @@ public class Leaf extends Node{
         ReferenceReadByteStream ref = new ReferenceReadByteStream(readable,readable.getPointer());
         for(int x=0;x<itens;x++){
             mapPosition.put(
-                    ri.getExtractor().getPrimaryKey(ref),
+                    getRecordInterface().getPrimaryKey(ref),
                     Map.entry(ref.getReference(),(ByteBuffer) null)
             );
             ref.setOffset(ref.getReference()+sizeOfEntry);
@@ -116,7 +115,7 @@ public class Leaf extends Node{
         if(entry!=null)return null;
 
         if(entry.getKey()==0)return entry.getValue();
-        ReadableBlock readable = stream.getBlockReadByteStream(block);
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
         return readable.read(entry.getKey(),sizeOfEntry);
     }
 
@@ -128,18 +127,51 @@ public class Leaf extends Node{
         changed=true;
 
         if(entry.getKey()==0)return entry.getValue();
-        ReadableBlock readable = stream.getBlockReadByteStream(block);
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
         return readable.read(entry.getKey(),sizeOfEntry);
     }
 
     @Override
     protected Node half() {
-        return null;
+        Leaf left = this;
+        Leaf right = new Leaf(this.handler,this.handler.getBlockManager().allocNew());
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
+
+        int savedQtd = itens;
+
+        for(int x=itens/2;x<savedQtd;x++){
+            Map.Entry<BigInteger, Map.Entry<Long,ByteBuffer>> aux = mapPosition.pollLastEntry();
+            if(aux.getValue().getValue()!=null){
+                right.insert(aux.getKey(),aux.getValue().getValue());
+            }else{
+                right.insert(aux.getKey(),readable.read(aux.getValue().getKey(),sizeOfEntry));
+            }
+            itens--;
+        }
+        right.setNextLeaf(left.getNextLeaf());
+        left.setNextLeaf(right.block);
+        return right;
+    }
+
+    private void setNextLeaf(int block){
+        this.nextLeaf = block;
+    }
+
+    public int getNextLeaf(){
+        return this.nextLeaf;
     }
 
     @Override
     public Node merge(Node node) {
         return null;
+    }
+
+    @Override
+    public void print(int tabs) {
+        for(Map.Entry<BigInteger, Map.Entry<Long,ByteBuffer>> e:mapPosition.entrySet()){
+            for(int x=0;x<tabs;x++)System.out.print("\t");
+            System.out.println("PK: "+e.getKey()+" | Bloco: "+block+" | Pos: "+e.getValue().getKey());
+        }
     }
 
     @Override

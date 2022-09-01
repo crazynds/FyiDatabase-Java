@@ -28,22 +28,26 @@ public class Page extends Node{
 
     private boolean changed = false;
 
-    public Page(BlockBuffer stream, RecordInterface ri,BTreeHandler handler, int block) {
-        super(stream, ri, handler, block);
+    public Page(BTreeHandler handler, int block,Node smaller) {
+        super(handler, block);
         this.sizeOfPk=handler.getSizeOfPk();
         this.sizeOfEntry = 4+sizeOfPk;
-        this.maxNodes = (stream.getBlockSize()-HEADERS_SIZE)/sizeOfEntry + 1;
-        this.nodes = 0;
-        this.nodesMap = new TreeMap<>();
-        this.smaller = null;
+        this.maxNodes = (getStream().getBlockSize()-HEADERS_SIZE)/sizeOfEntry + 1;
         if(maxNodes <=1 || sizeOfPk<=0) throw new DataBaseException("TreeMap->Page","SizeOfPk é inválido, deve ser maior que 0 caber dentro de um (bloco - headers - 4)");
+        this.nodesMap = new TreeMap<>();
+        this.nodes = 0;
+        this.smaller = null;
+        if(smaller!=null){
+            this.nodes = 1;
+            this.smaller = Map.entry(smaller.block,smaller);
+        }
     }
 
     @Override
     public void save() {
         if(!changed)return;
-        ReadableBlock readable = stream.getBlockReadByteStream(block);
-        WriteByteStream wbs = stream.getBlockWriteByteStream(block);
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
+        WriteByteStream wbs = getStream().getBlockWriteByteStream(block);
         wbs.setPointer(0);
         wbs.writeSeq(new byte[]{1},0,1);
         wbs.writeSeq(Util.convertLongToByteArray(nodes,4),0,4);
@@ -68,7 +72,7 @@ public class Page extends Node{
 
     @Override
     public void load() {
-        ReadableBlock readable = stream.getBlockReadByteStream(block);
+        ReadableBlock readable = getStream().getBlockReadByteStream(block);
 
         readable.setPointer(0);
         nodes = Util.convertByteBufferToNumber(readable.readSeq(4)).intValue();
@@ -78,7 +82,7 @@ public class Page extends Node{
             if(x==0){
                 smaller = Map.entry(nodeNumber, (Node) null);
             }else {
-                BigInteger pk = ri.getExtractor().getPrimaryKey(ref);
+                BigInteger pk = getRecordInterface().getPrimaryKey(ref);
                 nodesMap.put(
                         pk,
                         Map.entry(nodeNumber, (Node) null)
@@ -89,6 +93,18 @@ public class Page extends Node{
         changed=false;
     }
 
+
+    public void insertNode(Node node){
+        nodes++;
+        BigInteger nodeMin = node.min();
+        Node small = loadNodeIfNotExist(smaller);
+        if(small.min().compareTo(nodeMin) == -1){
+            nodesMap.put(nodeMin,Map.entry(node.block,node));
+        }else{
+            nodesMap.put(small.min(),smaller);
+            smaller = Map.entry(node.block,node);
+        }
+    }
 
     @Override
     public void insert(BigInteger t, ByteBuffer m) {
@@ -141,6 +157,21 @@ public class Page extends Node{
     @Override
     public Node merge(Node node) {
         return null;
+    }
+
+    @Override
+    public void print(int tabs) {
+        for(int x=0;x<tabs;x++)System.out.print("\t");
+        System.out.println("V");
+        for (int x = 0; x < tabs; x++) System.out.print("\t");
+        System.out.println(0+"-> BLOCO: "+smaller.getKey());
+        smaller.getValue().print(tabs+1);
+        for (Map.Entry<BigInteger, Map.Entry<Integer, Node>> e:nodesMap.entrySet()) {
+            Node n = loadNodeIfNotExist(e.getValue());
+            for (int x = 0; x < tabs; x++) System.out.print("\t");
+            System.out.println(e.getKey()+"-> BLOCO: "+e.getValue().getKey());
+            n.print(tabs+1);
+        }
     }
 
     @Override
