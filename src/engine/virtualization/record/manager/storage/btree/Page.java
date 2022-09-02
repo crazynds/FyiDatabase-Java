@@ -26,7 +26,7 @@ public class Page extends Node{
     private TreeMap<BigInteger, Map.Entry<Integer,Node>> nodesMap;
     private Map.Entry<Integer,Node> smaller;
 
-    private boolean changed = false;
+    private boolean changed;
 
     public Page(BTreeHandler handler, int block,Node smaller) {
         super(handler, block);
@@ -37,6 +37,7 @@ public class Page extends Node{
         this.nodesMap = new TreeMap<>();
         this.nodes = 0;
         this.smaller = null;
+        this.changed = true;
         if(smaller!=null){
             this.nodes = 1;
             this.smaller = Map.entry(smaller.block,smaller);
@@ -46,7 +47,6 @@ public class Page extends Node{
     @Override
     public void save() {
         if(!changed)return;
-        ReadableBlock readable = getStream().getBlockReadByteStream(block);
         WriteByteStream wbs = getStream().getBlockWriteByteStream(block);
         wbs.setPointer(0);
         wbs.writeSeq(new byte[]{1},0,1);
@@ -88,7 +88,7 @@ public class Page extends Node{
                         Map.entry(nodeNumber, (Node) null)
                 );
             }
-            ref.setOffset(ref.getReference()+sizeOfEntry);
+            ref.setOffset(ref.getOffset()+sizeOfEntry);
         }
         changed=false;
     }

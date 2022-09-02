@@ -27,6 +27,7 @@ public class SimpleMain {
         FileManager fm = new FileManager("bin/teste.dat", new FIFOBlockBuffer(4));
         RecordManager rm = new FixedBTreeRecordManager(fm,ri.getExtractor(),4,sizeOfRecord);
 
+        //rm.restart();
 
 
         for (int y = 0; y < qtdOfRecords; y++) {
@@ -45,7 +46,7 @@ public class SimpleMain {
             ri.getExtractor().setActiveRecord(r1, true);
             rm.write(r1);
         }
-
+        rm.flush();
         rm.close();
         System.out.println("Tempo total: "+(System.nanoTime()-time)/1000000f+"ms");
         System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

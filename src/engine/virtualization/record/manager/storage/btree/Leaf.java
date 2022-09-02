@@ -8,7 +8,6 @@ import lib.btree.BPlusTreeInsertionException;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,9 +17,9 @@ public class Leaf extends Node{
 
     private int itens,maxItens;
     private int nextLeaf;
-    private TreeMap<BigInteger, Map.Entry<Long,ByteBuffer>> mapPosition;
+    private TreeMap<BigInteger, Map.Entry<Integer,ByteBuffer>> mapPosition;
 
-    private boolean changed = false;
+    private boolean changed;
 
     public Leaf(BTreeHandler handler, int block) {
         super(handler,block);
@@ -29,6 +28,7 @@ public class Leaf extends Node{
         this.itens = 0;
         this.nextLeaf = -1;
         this.mapPosition = new TreeMap<>();
+        this.changed = true;
 
         // (tamanho do bloco - 9 bytes de headers) /sizeOfEntry
         maxItens = (getStream().getBlockSize() - 9)/sizeOfEntry;
@@ -46,17 +46,17 @@ public class Leaf extends Node{
 
         int position = (int)wbs.getPointer();
         ByteBuffer bufferAux = ByteBuffer.allocate(sizeOfEntry);
-        for(Map.Entry<BigInteger,Map.Entry<Long,ByteBuffer>> entry:mapPosition.entrySet()){
-            Map.Entry<Long,ByteBuffer> value = entry.getValue();
+        for(Map.Entry<BigInteger,Map.Entry<Integer,ByteBuffer>> entry:mapPosition.entrySet()){
+            Map.Entry<Integer,ByteBuffer> value = entry.getValue();
             if(value.getValue()!=null || value.getKey()!=position){
-                ByteBuffer buff = null;
+                ByteBuffer buff;
                 if(value.getValue()==null){
                     readable.read(value.getKey(),bufferAux,0,sizeOfEntry);
                     buff = bufferAux;
                 }else{
                     buff = value.getValue();
-                    value.setValue(null);
                 }
+                entry.setValue(makeEntry(position,null));
                 wbs.write(position,buff.array(),buff.capacity());
             }
             position+=sizeOfEntry;
@@ -77,9 +77,9 @@ public class Leaf extends Node{
         for(int x=0;x<itens;x++){
             mapPosition.put(
                     getRecordInterface().getPrimaryKey(ref),
-                    Map.entry(ref.getReference(),(ByteBuffer) null)
+                    makeEntry((int)ref.getOffset(),(ByteBuffer) null)
             );
-            ref.setOffset(ref.getReference()+sizeOfEntry);
+            ref.setOffset(ref.getOffset()+sizeOfEntry);
         }
         changed=false;
     }
@@ -88,7 +88,7 @@ public class Leaf extends Node{
     public void insert(BigInteger t, ByteBuffer m) {
         if(mapPosition.containsKey(t)){
             // Se contem um com essa key faz o replace
-            Map.Entry<Long,ByteBuffer> entry=  mapPosition.get(t);
+            Map.Entry<Integer,ByteBuffer> entry=  mapPosition.get(t);
             if(entry.getValue()==null){
                 ByteBuffer buff = ByteBuffer.allocate(sizeOfEntry);
                 buff.put(0,m,0,m.capacity());
@@ -103,15 +103,38 @@ public class Leaf extends Node{
             }
 
             // Se tem espaço e não tem nenhuma igual adiciona o item na memoria.
-            mapPosition.put(t,Map.entry((long)0,m.duplicate()));
+            mapPosition.put(t,makeEntry(0,m.duplicate()));
             itens++;
         }
         changed=true;
     }
 
+    private Map.Entry<Integer,ByteBuffer> makeEntry(Integer key,ByteBuffer buff){
+        return new Map.Entry<Integer, ByteBuffer>() {
+            Integer k = key;
+            ByteBuffer b =buff;
+
+            @Override
+            public Integer getKey() {
+                return k;
+            }
+
+            @Override
+            public ByteBuffer getValue() {
+                return b;
+            }
+
+            @Override
+            public ByteBuffer setValue(ByteBuffer value) {
+                b = value;
+                return b;
+            }
+        };
+    }
+
     @Override
     public ByteBuffer get(BigInteger t) {
-        Map.Entry<Long,ByteBuffer> entry = mapPosition.get(t);
+        Map.Entry<Integer,ByteBuffer> entry = mapPosition.get(t);
         if(entry!=null)return null;
 
         if(entry.getKey()==0)return entry.getValue();
@@ -121,7 +144,7 @@ public class Leaf extends Node{
 
     @Override
     public ByteBuffer remove(BigInteger t) {
-        Map.Entry<Long,ByteBuffer> entry = mapPosition.remove(t);
+        Map.Entry<Integer,ByteBuffer> entry = mapPosition.remove(t);
         if(entry!=null)return null;
         itens--;
         changed=true;
@@ -140,7 +163,7 @@ public class Leaf extends Node{
         int savedQtd = itens;
 
         for(int x=itens/2;x<savedQtd;x++){
-            Map.Entry<BigInteger, Map.Entry<Long,ByteBuffer>> aux = mapPosition.pollLastEntry();
+            Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>> aux = mapPosition.pollLastEntry();
             if(aux.getValue().getValue()!=null){
                 right.insert(aux.getKey(),aux.getValue().getValue());
             }else{
@@ -168,7 +191,7 @@ public class Leaf extends Node{
 
     @Override
     public void print(int tabs) {
-        for(Map.Entry<BigInteger, Map.Entry<Long,ByteBuffer>> e:mapPosition.entrySet()){
+        for(Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>> e:mapPosition.entrySet()){
             for(int x=0;x<tabs;x++)System.out.print("\t");
             System.out.println("PK: "+e.getKey()+" | Bloco: "+block+" | Pos: "+e.getValue().getKey());
         }

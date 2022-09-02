@@ -12,6 +12,8 @@ import engine.virtualization.record.manager.storage.btree.BTreeStorage;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class FixedBTreeRecordManager extends RecordManager {
 
@@ -33,6 +35,7 @@ public class FixedBTreeRecordManager extends RecordManager {
     public void restart() {
         btree = new BTreeStorage(fileManager,recordInterface,new BlockManager(),sizeOfPk,sizeOfEachRecord);
         fileManager.clearFile();
+        btree.save();
     }
 
     @Override
@@ -59,13 +62,21 @@ public class FixedBTreeRecordManager extends RecordManager {
     public void write(Record r) {
         BigInteger pk = recordInterface.getPrimaryKey(r);
         btree.insert(pk,ByteBuffer.wrap(r.getData()));
+        btree.save();
     }
 
     @Override
     public void write(List<Record> list) {
+        TreeMap<BigInteger,Record> map = new TreeMap<>();
         for(Record r: list){
-            write(r);
+            BigInteger pk = recordInterface.getPrimaryKey(r);
+            map.put(pk,r);
         }
+        Map.Entry<BigInteger,Record> e;
+        while((e = map.pollFirstEntry()) !=null){
+            btree.insert(e.getKey(),ByteBuffer.wrap(e.getValue().getData()));
+        }
+        btree.save();
     }
 
     @Override

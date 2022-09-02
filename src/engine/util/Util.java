@@ -2,6 +2,7 @@ package engine.util;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class Util {
@@ -21,8 +22,16 @@ public class Util {
 		buffered = invertByteArray(buffered,arr.length);
 		return new BigInteger(Arrays.copyOfRange(buffered,0,arr.length));
 	}
-	public static synchronized BigInteger convertByteBufferToNumber(ByteBuffer arr) {
-		return new BigInteger(arr.flip().array());
+	public static synchronized BigInteger convertByteBufferToNumber(ByteBuffer buff) {
+		byte[] arr = buff.array();
+		if(buffered == null)buffered = arr.clone();
+		else if(buffered.length<arr.length){
+			buffered = arr.clone();
+		}else{
+			System.arraycopy(arr,0,buffered,0,arr.length);
+		}
+		buffered = invertByteArray(buffered,arr.length);
+		return new BigInteger(Arrays.copyOfRange(buffered,0,arr.length));
 	}
 
 	public static byte[] convertNumberToByteArray(BigInteger number,int size) {
@@ -35,9 +44,12 @@ public class Util {
     	return aux;
 	}
 	public static byte[] convertLongToByteArray(long num,int size) {
+		ByteBuffer buff = ByteBuffer.allocate(8);
+		buff.order(ByteOrder.LITTLE_ENDIAN);
+		buff.putLong(0,num);
+
 		byte[] arr = new byte[size];
-		for(int x=0;x<size&&num>0;x++,num>>=8)
-			arr[x] = (byte)num;
+		System.arraycopy(buff.array(),0,arr,0,size);
 		return arr;
 	}
 	

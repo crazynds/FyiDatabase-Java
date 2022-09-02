@@ -31,9 +31,12 @@ public abstract class Node {
             case 2:
                 node = new Page(handler,blockNode,null);
                 break;
+            case -1:
+                throw new DataBaseException("BTree->Node->loadNode","Tentou ler um bloco base proibido");
             default:
                 throw new DataBaseException("BTree->Node->loadNode","Tipo do node não reconhecido");
         }
+        node.load();
         return node;
     }
 
