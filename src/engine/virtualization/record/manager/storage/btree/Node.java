@@ -9,6 +9,7 @@ import engine.virtualization.record.RecordInterface;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.TreeMap;
 
 public abstract class Node {
 
@@ -18,26 +19,11 @@ public abstract class Node {
     public Node(BTreeHandler handler, int block){
         this.block = block;
         this.handler=handler;
+        this.handler.getBlockManager().setNode(block);
     }
 
     public Node loadNode(int blockNode){
-        ReadableBlock rb = getStream().getBlockReadByteStream(blockNode);
-        byte type = rb.read(0,1).get(0);
-        Node node;
-        switch (type){
-            case 1:
-                node = new Leaf(handler,blockNode);
-                break;
-            case 2:
-                node = new Page(handler,blockNode,null);
-                break;
-            case -1:
-                throw new DataBaseException("BTree->Node->loadNode","Tentou ler um bloco base proibido");
-            default:
-                throw new DataBaseException("BTree->Node->loadNode","Tipo do node não reconhecido");
-        }
-        node.load();
-        return node;
+        return this.handler.loadNode(blockNode);
     }
 
     public BlockStream getStream(){

@@ -49,7 +49,7 @@ public class Page extends Node{
         if(!changed)return;
         WriteByteStream wbs = getStream().getBlockWriteByteStream(block);
         wbs.setPointer(0);
-        wbs.writeSeq(new byte[]{1},0,1);
+        wbs.writeSeq(new byte[]{2},0,1);
         wbs.writeSeq(Util.convertLongToByteArray(nodes,4),0,4);
 
         wbs.writeSeq(Util.convertLongToByteArray(smaller.getKey(),4),0,4);
@@ -127,7 +127,7 @@ public class Page extends Node{
     }
 
     private Node findNode(BigInteger t){
-        Map.Entry<BigInteger, Map.Entry<Integer, Node>> entry = nodesMap.ceilingEntry(t);
+        Map.Entry<BigInteger, Map.Entry<Integer, Node>> entry = nodesMap.floorEntry(t);
         Map.Entry<Integer, Node> node;
         if(entry == null)
             node = smaller;

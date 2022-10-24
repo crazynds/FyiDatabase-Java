@@ -157,6 +157,7 @@ public class Leaf extends Node{
     @Override
     protected Node half() {
         Leaf left = this;
+
         Leaf right = new Leaf(this.handler,this.handler.getBlockManager().allocNew());
         ReadableBlock readable = getStream().getBlockReadByteStream(block);
 

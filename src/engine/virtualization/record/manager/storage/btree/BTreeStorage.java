@@ -24,8 +24,8 @@ public class BTreeStorage {
 
     public BTreeStorage(BlockStream stream, RecordInfoExtractor ri, BlockManager blockManager, int sizeOfPk, int sizeOfEntry){
         this.handler = new BTreeHandler(stream,ri,blockManager,sizeOfPk,sizeOfEntry);
-        leafNode = new Leaf(handler,1);
-        rootNode = leafNode;
+        this.handler.getBlockManager().setNode(0);
+        load();
     }
 
 
@@ -59,13 +59,12 @@ public class BTreeStorage {
         if(blockRoot <=0 || blockLeaf <= 0 || blockRoot >maxBlock || blockLeaf>maxBlock)return;
 
         if(blockLeaf == blockRoot){
-            leafNode = new Leaf(handler,blockLeaf);
+            leafNode = (Leaf)this.handler.loadNode(blockLeaf);
             rootNode = leafNode;
         }else{
-            rootNode = rootNode.loadNode(blockRoot);
-            leafNode = new Leaf(handler,blockLeaf);
+            rootNode = this.handler.loadNode(blockRoot);
+            leafNode = (Leaf)this.handler.loadNode(blockLeaf);
         }
-        leafNode.load();
     }
 
     public void save(){

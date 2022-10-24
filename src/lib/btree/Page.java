@@ -119,9 +119,8 @@ public class Page<T extends Comparable<T>,M> extends Node<T,M> {
             //para cada entrada do nó removido insere normalmente na arvore
             for (Map.Entry<T,M> entry:
                  no) {
-                insert(entry.getKey(),entry.getValue());
+                insert(entry.getKey(), entry.getValue());
             }
-
             // executa ação para liberar esse nó
             // No caso é so ignorar que o nó vai ser limpo sozinho
 
