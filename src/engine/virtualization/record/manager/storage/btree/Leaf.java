@@ -1,5 +1,6 @@
 package engine.virtualization.record.manager.storage.btree;
 
+import engine.exceptions.DataBaseException;
 import engine.file.blocks.ReadableBlock;
 import engine.file.streams.ReferenceReadByteStream;
 import engine.file.streams.WriteByteStream;
@@ -8,6 +9,7 @@ import lib.btree.BPlusTreeInsertionException;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -77,7 +79,7 @@ public class Leaf extends Node{
         for(int x=0;x<itens;x++){
             mapPosition.put(
                     getRecordInterface().getPrimaryKey(ref),
-                    makeEntry((int)ref.getOffset(),(ByteBuffer) null)
+                    Node.<Integer,ByteBuffer>makeEntry((int)ref.getOffset(),(ByteBuffer) null)
             );
             ref.setOffset(ref.getOffset()+sizeOfEntry);
         }
@@ -109,28 +111,6 @@ public class Leaf extends Node{
         changed=true;
     }
 
-    private Map.Entry<Integer,ByteBuffer> makeEntry(Integer key,ByteBuffer buff){
-        return new Map.Entry<Integer, ByteBuffer>() {
-            Integer k = key;
-            ByteBuffer b =buff;
-
-            @Override
-            public Integer getKey() {
-                return k;
-            }
-
-            @Override
-            public ByteBuffer getValue() {
-                return b;
-            }
-
-            @Override
-            public ByteBuffer setValue(ByteBuffer value) {
-                b = value;
-                return b;
-            }
-        };
-    }
 
     @Override
     public ByteBuffer get(BigInteger t) {
@@ -145,7 +125,7 @@ public class Leaf extends Node{
     @Override
     public ByteBuffer remove(BigInteger t) {
         Map.Entry<Integer,ByteBuffer> entry = mapPosition.remove(t);
-        if(entry!=null)return null;
+        if(entry==null)return null;
         itens--;
         changed=true;
 
@@ -173,21 +153,34 @@ public class Leaf extends Node{
             itens--;
         }
         right.setNextLeaf(left.getNextLeaf());
-        left.setNextLeaf(right.block);
+        left.setNextLeaf(right);
         return right;
     }
 
-    private void setNextLeaf(int block){
-        this.nextLeaf = block;
+    private void setNextLeaf(Node leaf){
+        if(leaf==null)this.nextLeaf = -99;
+        else this.nextLeaf = leaf.block;
     }
 
-    public int getNextLeaf(){
-        return this.nextLeaf;
+    public Leaf getNextLeaf(){
+        try {
+            return (Leaf) loadNode(this.nextLeaf);
+        }catch (DataBaseException e){
+            return null;
+        }
     }
 
     @Override
     public Node merge(Node node) {
-        return null;
+        Leaf leaf = (Leaf)node;
+        if(leaf.nextLeaf == block){
+            leaf.setNextLeaf(getNextLeaf());
+        }
+        for (Map.Entry<BigInteger, ByteBuffer> e:
+             this) {
+            leaf.insert(e.getKey(),e.getValue());
+        }
+        return leaf;
     }
 
     @Override
@@ -228,4 +221,36 @@ public class Leaf extends Node{
         return this;
     }
 
+    @Override
+    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator(BigInteger pk) {
+        return new Iterator<Map.Entry<BigInteger, ByteBuffer>>() {
+
+            Iterator<Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>>> it = mapPosition.tailMap(pk).entrySet().iterator();
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public Map.Entry<BigInteger, ByteBuffer> next() {
+                Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>> e = it.next();
+                if(e==null)return null;
+                BigInteger pk = e.getKey();
+                ByteBuffer buff = e.getValue().getValue();
+                if(buff==null){
+                    ReadableBlock readable = getStream().getBlockReadByteStream(block);
+                    buff = readable.read(e.getValue().getKey(),sizeOfEntry);
+                }
+                return Node.<BigInteger,ByteBuffer>makeEntry(pk,buff);
+            }
+        };
+    }
+
+    @Override
+    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator() {
+        if(this.mapPosition.size()==0){
+            return this.iterator(BigInteger.ZERO);
+        }
+        return this.iterator(this.mapPosition.firstKey());
+    }
 }

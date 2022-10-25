@@ -9,10 +9,10 @@ import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 public class SimpleMain {
 
@@ -49,7 +49,7 @@ public class SimpleMain {
         Long time = System.nanoTime();
         Random rand = new Random(12);
 
-        int sizeOfRecord = 600;
+        int sizeOfRecord = 800;
         int maxPk = 100;
         int qtdOfRecords = 10;
 
@@ -57,24 +57,45 @@ public class SimpleMain {
         FileManager fm = new FileManager("bin/teste.dat", new FIFOBlockBuffer(4));
         RecordManager rm = new FixedBTreeRecordManager(fm,ri.getExtractor(),4,sizeOfRecord);
 
+        Vector<Integer> primaryKeys = new Vector<Integer>();
+
+        for(int x=0;x<100;x++){
+            primaryKeys.add(x);
+        }
+        //Collections.shuffle(primaryKeys);
+        qtdOfRecords = primaryKeys.size();
+
         rm.restart();
         for (int y = 0; y < qtdOfRecords; y++) {
             byte[] data = new byte[sizeOfRecord];
-            Arrays.fill(data,(byte)y);
+            Arrays.fill(data, (byte) y);
 
             Record r1 = new GenericRecord(data);
 
-            int val = rand.nextInt(maxPk);
+            //int val = rand.nextInt(maxPk);
+            int val = primaryKeys.remove(0);
             ByteBuffer b = ByteBuffer.allocate(4);
             b.order(ByteOrder.LITTLE_ENDIAN);
             b.putInt(val);
             byte[] pk = b.array();
-            System.arraycopy(pk,0,data,1,4);
+            System.arraycopy(pk, 0, data, 1, 4);
 
             ri.getExtractor().setActiveRecord(r1, true);
             rm.write(r1);
+
         }
         rm.flush();
+
+        RecordStream rs = rm.sequencialRead();
+
+        rs.open(false);
+        System.out.print("[");
+        while(rs.hasNext()){
+            Record r = rs.next();
+            System.out.print(ri.getExtractor().getPrimaryKey(r).intValue()+",");
+        }
+        System.out.println("]");
+        rs.close();
 
         //printRecords(rm,sizeOfRecord);
 

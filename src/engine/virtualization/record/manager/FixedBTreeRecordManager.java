@@ -11,13 +11,17 @@ import engine.virtualization.record.manager.storage.btree.BTreeStorage;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FixedBTreeRecordManager extends RecordManager {
 
     private BTreeStorage btree;
+    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private int sizeOfPk,sizeOfEachRecord;
 
@@ -61,8 +65,12 @@ public class FixedBTreeRecordManager extends RecordManager {
     @Override
     public void write(Record r) {
         BigInteger pk = recordInterface.getPrimaryKey(r);
-        btree.insert(pk,ByteBuffer.wrap(r.getData()));
-        btree.save();
+        if(!recordInterface.isActiveRecord(r)){
+            btree.remove(pk);
+        }else{
+            btree.insert(pk,ByteBuffer.wrap(r.getData()));
+            btree.save();
+        }
     }
 
     @Override
@@ -74,7 +82,11 @@ public class FixedBTreeRecordManager extends RecordManager {
         }
         Map.Entry<BigInteger,Record> e;
         while((e = map.pollFirstEntry()) !=null){
-            btree.insert(e.getKey(),ByteBuffer.wrap(e.getValue().getData()));
+            if(!recordInterface.isActiveRecord(e.getValue())){
+                btree.remove(e.getKey());
+            }else{
+                btree.insert(e.getKey(),ByteBuffer.wrap(e.getValue().getData()));
+            }
         }
         btree.save();
     }
@@ -86,7 +98,75 @@ public class FixedBTreeRecordManager extends RecordManager {
 
     @Override
     public RecordStream sequencialRead() {
-        return null;
+        return new RecordStream() {
+
+            Iterator<Map.Entry<BigInteger, ByteBuffer>> it = btree.iterator();
+            GenericRecord buffer = new GenericRecord(new byte[sizeOfEachRecord]);
+            BigInteger pkPointer = null;
+
+            @Override
+            public void open(boolean lockToWrite) {
+                if(lockToWrite)
+                    lock.writeLock().lock();
+                else
+                    lock.readLock().lock();
+            }
+
+            @Override
+            public void close() {
+                try {
+                    lock.writeLock().unlock();
+                }catch (IllegalMonitorStateException e){}
+                try {
+                    lock.readLock().unlock();
+                }catch (IllegalMonitorStateException e){}
+            }
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public Record next() {
+                Map.Entry<BigInteger, ByteBuffer> e = it.next();
+
+                e.getValue().get(0,buffer.getData());
+                pkPointer = e.getKey();
+
+                return buffer;
+            }
+
+            @Override
+            public Record getRecord() {
+                return buffer;
+            }
+
+            @Override
+            public void write(Record r) {
+                // No implementation
+            }
+
+            @Override
+            public void remove() {
+                btree.remove(pkPointer);
+            }
+
+            @Override
+            public void reset() {
+                it = btree.iterator();
+            }
+
+            @Override
+            public void setPointer(BigInteger pk) {
+                it = btree.iterator(pk);
+            }
+
+            @Override
+            public BigInteger getPointer() {
+                return pkPointer;
+            }
+        };
     }
 
 }

@@ -1,20 +1,18 @@
 package engine.virtualization.record.manager.storage.btree;
 
-import com.sun.source.tree.Tree;
 import engine.exceptions.DataBaseException;
-import engine.file.blocks.BlockID;
 import engine.file.blocks.ReadableBlock;
-import engine.file.buffers.BlockBuffer;
 import engine.file.streams.ReferenceReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.util.Util;
-import engine.virtualization.record.RecordInterface;
 import lib.btree.BPlusTreeInsertionException;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 
 public class Page extends Node{
 
@@ -52,7 +50,13 @@ public class Page extends Node{
         wbs.writeSeq(new byte[]{2},0,1);
         wbs.writeSeq(Util.convertLongToByteArray(nodes,4),0,4);
 
-        wbs.writeSeq(Util.convertLongToByteArray(smaller.getKey(),4),0,4);
+        if(nodes>0){
+            wbs.writeSeq(Util.convertLongToByteArray(smaller.getKey(),4),0,4);
+            Node no =smaller.getValue();
+            if(no!=null){
+                no.save();
+            }
+        }
         for (Map.Entry<BigInteger,Map.Entry<Integer,Node>> map:
              nodesMap.entrySet()) {
             int nodeNumber = map.getValue().getKey();
@@ -76,16 +80,20 @@ public class Page extends Node{
 
         readable.setPointer(0);
         nodes = Util.convertByteBufferToNumber(readable.readSeq(4)).intValue();
+        if(nodes>maxNodes){
+            nodes = (smaller==null)?0:1;
+            return;
+        }
         ReferenceReadByteStream ref = new ReferenceReadByteStream(readable,readable.getPointer());
         for(int x=0;x<nodes;x++){
             int nodeNumber = Util.convertByteBufferToNumber(readable.readSeq(4)).intValue();
             if(x==0){
-                smaller = Map.entry(nodeNumber, (Node) null);
+                smaller = Node.<Integer,Node>makeEntry(nodeNumber, (Node) null);
             }else {
                 BigInteger pk = getRecordInterface().getPrimaryKey(ref);
                 nodesMap.put(
                         pk,
-                        Map.entry(nodeNumber, (Node) null)
+                        Node.<Integer,Node>makeEntry(nodeNumber, (Node) null)
                 );
             }
             ref.setOffset(ref.getOffset()+sizeOfEntry);
@@ -95,14 +103,35 @@ public class Page extends Node{
 
 
     public void insertNode(Node node){
+        changed = true;
         nodes++;
         BigInteger nodeMin = node.min();
         Node small = loadNodeIfNotExist(smaller);
         if(small.min().compareTo(nodeMin) == -1){
-            nodesMap.put(nodeMin,Map.entry(node.block,node));
+            nodesMap.put(nodeMin,makeEntry(node.block,node));
         }else{
             nodesMap.put(small.min(),smaller);
-            smaller = Map.entry(node.block,node);
+            smaller = makeEntry(node.block,node);
+        }
+    }
+    public void removeNode(Node node){
+        changed = true;
+        if(smaller.getValue().block == node.block){
+            nodes--;
+            smaller = nodesMap.remove(nodesMap.firstKey());
+        }else{
+            BigInteger key = null;
+            for (Map.Entry<BigInteger, Map.Entry<Integer,Node>> val:
+                 nodesMap.entrySet()) {
+                if(val.getValue().getKey()==node.block){
+                    key=val.getKey();
+                    break;
+                }
+            }
+            if(key!=null){
+                nodes--;
+                nodesMap.remove(key);
+            }
         }
     }
 
@@ -112,9 +141,27 @@ public class Page extends Node{
         try{
             node.insert(t,m);
         }catch(BPlusTreeInsertionException exception){
+            if(node.block != smaller.getKey()){
+                Node small = findNode(node.min().subtract(BigInteger.ONE));
+                BigInteger pk = node.min();
+                ByteBuffer buffer = node.remove(pk);
+                try{
+                    small.insert(pk,buffer);
+                    // update min key
+                    Map.Entry<Integer,Node> no= nodesMap.remove(pk);
+                    nodesMap.put(node.min(),no);
+                    this.insert(t,m);
+                    return;
+                }catch(BPlusTreeInsertionException e2) {
+                    node.insert(pk,buffer);
+                }
+            }
+            // Se necessário faz o split dos dados
             if(isFull())
                 throw exception;
-
+            Node rigth = node.half();
+            insertNode(rigth);
+            this.insert(t,m);
         }
         changed=true;
     }
@@ -123,7 +170,43 @@ public class Page extends Node{
     public ByteBuffer remove(BigInteger t) {
         Node node = findNode(t);
         changed = true;
-        return node.remove(t);
+        ByteBuffer buff = node.remove(t);
+
+        if(!node.hasMinimun()){
+            if(node.block==smaller.getKey()){
+                Node bigger = findNode(nodesMap.firstKey());
+                removeNode(bigger);
+
+                BigInteger min = bigger.min();
+                ByteBuffer buff2 = bigger.remove(min);
+                if(bigger.hasMinimun()){
+                    node.insert(min,buff2);
+                    insertNode(bigger);
+                }else {
+                    node.merge(bigger);
+                    node.insert(min,buff2);
+                    handler.getBlockManager().free(bigger.block);
+                }
+            }else{
+                Node small = findNode(node.min().subtract(BigInteger.ONE));
+
+                BigInteger max = small.max();
+                ByteBuffer buff2 = small.remove(max);
+
+                removeNode(node);
+
+                if(small.hasMinimun()){
+                    node.insert(max,buff2);
+                    insertNode(node);
+                }else {
+                    small.merge(node);
+                    small.insert(max,buff2);
+                    handler.getBlockManager().free(node.block);
+                }
+            }
+        }
+
+        return buff;
     }
 
     private Node findNode(BigInteger t){
@@ -151,12 +234,34 @@ public class Page extends Node{
 
     @Override
     protected Node half() {
-        return null;
+        Vector<Map.Entry<BigInteger, Map.Entry<Integer,Node>>> vet = new Vector<>();
+        int x = 0;
+        for (Map.Entry<BigInteger, Map.Entry<Integer,Node>> e:
+             this.nodesMap.entrySet()) {
+            if(x>=this.nodesMap.size()/2){
+                vet.add(e);
+            }
+            x++;
+        }
+        for(Map.Entry<BigInteger, Map.Entry<Integer,Node>> e:vet){
+            this.nodesMap.remove(e.getKey());
+            this.nodes--;
+        }
+        Page rigth = new Page(this.handler,this.handler.getBlockManager().allocNew(),vet.get(0).getValue().getValue());
+        for(int y=1;y<vet.size();y++){
+            rigth.insertNode(vet.get(y).getValue().getValue());
+        }
+        return rigth;
     }
 
     @Override
     public Node merge(Node node) {
-        return null;
+        Page leaf = (Page)node;
+        for (Map.Entry<BigInteger, Map.Entry<Integer,Node>> val:
+                nodesMap.entrySet()) {
+            nodesMap.put(val.getKey(),val.getValue());
+        }
+        return leaf;
     }
 
     @Override
@@ -206,4 +311,38 @@ public class Page extends Node{
         return node.leafFrom(key);
     }
 
+    @Override
+    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator() {
+        return this.iterator(min());
+    }
+    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator(BigInteger pk) {
+        return new Iterator<Map.Entry<BigInteger, ByteBuffer>>() {
+
+            Iterator<Map.Entry<Integer,Node>> itNodes = nodesMap.values().iterator();
+            Iterator<Map.Entry<BigInteger, ByteBuffer>> currIt = null;
+
+            Iterator<Map.Entry<BigInteger, ByteBuffer>> getCurrIt(){
+                while((currIt==null || !currIt.hasNext()) && itNodes.hasNext()){
+                    Map.Entry<Integer,Node> e = itNodes.next();
+                    Node n = loadNodeIfNotExist(e);
+                    currIt = n.iterator(pk);
+                }
+                return currIt;
+            }
+
+            @Override
+            public boolean hasNext() {
+                Iterator<Map.Entry<BigInteger, ByteBuffer>> a = getCurrIt();
+                if(a==null)return false;
+                return true;
+            }
+
+            @Override
+            public Map.Entry<BigInteger, ByteBuffer> next() {
+                Iterator<Map.Entry<BigInteger, ByteBuffer>> a = getCurrIt();
+                if(a==null)return null;
+                return a.next();
+            }
+        };
+    }
 }

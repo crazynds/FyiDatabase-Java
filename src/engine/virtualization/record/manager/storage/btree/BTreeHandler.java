@@ -32,15 +32,17 @@ public class BTreeHandler {
     public Node loadNode(int blockNode){
         if(nodeRelation.get(blockNode)!=null)
             return nodeRelation.get(blockNode);
+        if(blockNode<0)
+            throw new DataBaseException("BTree->Node->loadNode","Node negativo");
         ReadableBlock rb = getStream().getBlockReadByteStream(blockNode);
         byte type = rb.read(0,1).get(0);
         Node node;
         switch (type){
             case 1:
-                node = new Leaf(handler,blockNode);
+                node = new Leaf(this,blockNode);
                 break;
             case 2:
-                node = new Page(handler,blockNode,null);
+                node = new Page(this,blockNode,null);
                 break;
             case -1:
                 throw new DataBaseException("BTree->Node->loadNode","Tentou ler um bloco base proibido");

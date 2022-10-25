@@ -9,9 +9,11 @@ import engine.virtualization.record.RecordInterface;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 
-public abstract class Node {
+public abstract class Node implements Iterable<Map.Entry<BigInteger,ByteBuffer>>{
 
     protected int block;
     protected BTreeHandler handler;
@@ -20,6 +22,7 @@ public abstract class Node {
         this.block = block;
         this.handler=handler;
         this.handler.getBlockManager().setNode(block);
+        this.handler.nodeRelation.put(block,this);
     }
 
     public Node loadNode(int blockNode){
@@ -60,7 +63,29 @@ public abstract class Node {
 
     public abstract Leaf leafFrom(BigInteger key);
 
-    // Funções responsaveis por IO no arquivo
+    public abstract Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator(BigInteger pk);
 
 
+    protected static <T,J> Map.Entry<T,J> makeEntry(T key, J buff){
+        return new Map.Entry<T, J>() {
+            T k = key;
+            J b =buff;
+
+            @Override
+            public T getKey() {
+                return k;
+            }
+
+            @Override
+            public J getValue() {
+                return b;
+            }
+
+            @Override
+            public J setValue(J value) {
+                b = value;
+                return b;
+            }
+        };
+    }
 }
