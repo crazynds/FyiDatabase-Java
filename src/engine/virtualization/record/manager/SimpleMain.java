@@ -50,8 +50,8 @@ public class SimpleMain {
         Random rand = new Random(12);
 
         int sizeOfRecord = 800;
-        int maxPk = 100;
-        int qtdOfRecords = 10;
+        int maxPk = 1000;
+        int qtdOfRecords = 10000;
 
         RecordInterface ri = new Main.AuxRecordInterface();
         FileManager fm = new FileManager("bin/teste.dat", new FIFOBlockBuffer(4));
@@ -59,10 +59,10 @@ public class SimpleMain {
 
         Vector<Integer> primaryKeys = new Vector<Integer>();
 
-        for(int x=0;x<100;x++){
+        for(int x=0;x<qtdOfRecords;x++){
             primaryKeys.add(x);
         }
-        //Collections.shuffle(primaryKeys);
+        Collections.shuffle(primaryKeys,rand);
         qtdOfRecords = primaryKeys.size();
 
         rm.restart();
@@ -83,6 +83,18 @@ public class SimpleMain {
             ri.getExtractor().setActiveRecord(r1, true);
             rm.write(r1);
 
+//            RecordStream rs = rm.sequencialRead();
+//
+//            rs.open(false);
+//            System.out.print("[");
+//            while(rs.hasNext()){
+//                Record r = rs.next();
+//                int a = ri.getExtractor().getPrimaryKey(r).intValue();
+//                System.out.print(a+",");
+//            }
+//            System.out.println("]");
+//            rs.close();
+
         }
         rm.flush();
 
@@ -90,9 +102,15 @@ public class SimpleMain {
 
         rs.open(false);
         System.out.print("[");
+        int last = -1;
         while(rs.hasNext()){
             Record r = rs.next();
-            System.out.print(ri.getExtractor().getPrimaryKey(r).intValue()+",");
+            int a = ri.getExtractor().getPrimaryKey(r).intValue();
+            System.out.print(a+",");
+            if(last+1!=a){
+                System.out.println();
+            }
+            last = a;
         }
         System.out.println("]");
         rs.close();

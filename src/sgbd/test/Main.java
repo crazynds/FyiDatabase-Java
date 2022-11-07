@@ -2,10 +2,7 @@ package sgbd.test;
 
 import sgbd.prototype.Column;
 import sgbd.prototype.Prototype;
-import sgbd.table.DoubleTable;
-import sgbd.table.MemoryTable;
-import sgbd.table.SimpleTable;
-import sgbd.table.Table;
+import sgbd.table.*;
 
 import java.io.File;
 import java.util.HashMap;
@@ -24,9 +21,11 @@ public class Main {
         p1.addColumn("salario",4,Column.NONE);
         mapa.put("salario","float");
 
-        Table users = new DoubleTable("users",p1);
+        //Table users = new BTreeDoubleTable("users",p1);
+        Table users = SimpleTable.openTable("users",p1);
+        //Table users = BTreeTable.openTable("users",p1,true);
 
-        ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa);
+        ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa,156);
         int qtdData=1000000;
         int block = 10000;
         long startTime = System.nanoTime();
@@ -50,6 +49,14 @@ public class Main {
          */
 
         /**
+         * Simple data table results:
+         * [1000000/1000000] 100.0% de records válidos verificados!
+         * Dados consistentes
+         * Tempo de geração: 237.3638839
+         * Tempo de checagem: 67.5330893
+         */
+
+        /**
          * Double data table results:
          * [1000000/1000000] 100.0% de records válidos verificados!
          * Dados consistentes
@@ -66,24 +73,9 @@ public class Main {
          */
 
         /**
-         * Simple data table results:
-         * [1000000/1000000] 100.0% de records válidos verificados!
-         * Dados consistentes
-         * Tempo de geração: 237.3638839
-         * Tempo de checagem: 67.5330893
-         */
-
-        /**
          * Testes usando o novo método de escrita e leitura direta (Não mudo nada):
          */
 
-        /**
-         * Double data table results:
-         * [1000000/1000000] 100.0% de records válidos verificados!
-         * Dados consistentes
-         * Tempo de geração: 20.3080704
-         * Tempo de checagem: 97.7573857
-         */
         /**
          * Simple data table results:
          * [1000000/1000000] 100.0% de records válidos verificados!
@@ -93,11 +85,33 @@ public class Main {
          */
 
         /**
+         * Double data table results:
+         * [1000000/1000000] 100.0% de records válidos verificados!
+         * Dados consistentes
+         * Tempo de geração: 20.3080704
+         * Tempo de checagem: 97.7573857
+         */
+
+        /**
          * Memory data table results:
          * [1000000/1000000] 100.0% de records válidos verificados!
          * Dados consistentes
          * Tempo de geração: 4.0426391
          * Tempo de checagem: 2.49235
+         */
+
+        /**
+         * BTree data table results:
+         * [999997/1000000] 99.9997% de records válidos verificados!
+         * Tempo de geração: 54.7251642
+         * Tempo de checagem: 8.8203467
+         */
+
+        /**
+         * BTree data table results:
+         * [999997/1000000] 99.9997% de records válidos verificados!
+         * Tempo de geração: 13.6002134
+         * Tempo de checagem: 58.9323223
          */
 
     }

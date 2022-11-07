@@ -17,11 +17,11 @@ public class ConsistenceTest {
     private Map<String,String> columnTypes;
 
 
-    public ConsistenceTest(Table t,Map<String,String> columnTypes){
+    public ConsistenceTest(Table t,Map<String,String> columnTypes,int seed){
         t.clear();
         this.table = t;
         this.columnTypes = columnTypes;
-        this.seed = new Random().nextInt();
+        this.seed = new Random(seed).nextInt();
     }
 
 
@@ -141,7 +141,7 @@ public class ConsistenceTest {
                     printRowData(toCompare);
             }
         }
-        System.out.println("["+valids+"/"+qtdData+"] "+(valids/qtdData)*100.0+"% de records válidos verificados!");
+        System.out.println("["+valids+"/"+qtdData+"] "+((float)valids/qtdData)*100.0+"% de records válidos verificados!");
 
         return invalidos.isEmpty();
     }

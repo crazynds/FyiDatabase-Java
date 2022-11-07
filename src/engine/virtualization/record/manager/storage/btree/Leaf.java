@@ -115,7 +115,7 @@ public class Leaf extends Node{
     @Override
     public ByteBuffer get(BigInteger t) {
         Map.Entry<Integer,ByteBuffer> entry = mapPosition.get(t);
-        if(entry!=null)return null;
+        if(entry==null)return null;
 
         if(entry.getKey()==0)return entry.getValue();
         ReadableBlock readable = getStream().getBlockReadByteStream(block);

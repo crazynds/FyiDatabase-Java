@@ -104,6 +104,9 @@ public class Page extends Node{
 
     public void insertNode(Node node){
         changed = true;
+        if(nodes>=maxNodes){
+            throw new DataBaseException("WTF","WTF");
+        }
         nodes++;
         BigInteger nodeMin = node.min();
         Node small = loadNodeIfNotExist(smaller);
@@ -141,21 +144,46 @@ public class Page extends Node{
         try{
             node.insert(t,m);
         }catch(BPlusTreeInsertionException exception){
-            if(node.block != smaller.getKey()){
-                Node small = findNode(node.min().subtract(BigInteger.ONE));
-                BigInteger pk = node.min();
-                ByteBuffer buffer = node.remove(pk);
-                try{
-                    small.insert(pk,buffer);
-                    // update min key
-                    Map.Entry<Integer,Node> no= nodesMap.remove(pk);
-                    nodesMap.put(node.min(),no);
-                    this.insert(t,m);
-                    return;
-                }catch(BPlusTreeInsertionException e2) {
-                    node.insert(pk,buffer);
+            if(node instanceof Leaf){
+                if(node.block != smaller.getKey()){
+                    Node small = findNode(node.min().subtract(BigInteger.ONE));
+                    BigInteger pk = node.min();
+                    ByteBuffer buffer = this.remove(pk);
+                    try{
+                        small.insert(pk,buffer);
+                        // update min key
+                        if(node.min().compareTo(t) > 0){
+                            node.insert(t,m);
+                            removeNode(node);
+                            insertNode(node);
+                        }else {
+                            removeNode(node);
+                            insertNode(node);
+                            this.insert(t,m);
+                        }
+                        return;
+                    }catch(BPlusTreeInsertionException e2) {
+                        node.insert(pk,buffer);
+                    }
+                }
+                if(node.block != nodesMap.get(nodesMap.lastKey()).getKey()){
+                    Node bigger = findNode(nodesMap.higherKey(node.min()));
+                    BigInteger pk = node.max();
+                    ByteBuffer buffer = this.remove(pk);
+                    try{
+                        bigger.insert(pk,buffer);
+
+                        removeNode(bigger);
+                        insertNode(bigger);
+
+                        this.insert(t,m);
+                        return;
+                    }catch(BPlusTreeInsertionException e2) {
+                        node.insert(pk,buffer);
+                    }
                 }
             }
+
             // Se necessário faz o split dos dados
             if(isFull())
                 throw exception;
@@ -170,6 +198,7 @@ public class Page extends Node{
     public ByteBuffer remove(BigInteger t) {
         Node node = findNode(t);
         changed = true;
+        BigInteger minNode = node.min();
         ByteBuffer buff = node.remove(t);
 
         if(!node.hasMinimun()){
@@ -188,7 +217,7 @@ public class Page extends Node{
                     handler.getBlockManager().free(bigger.block);
                 }
             }else{
-                Node small = findNode(node.min().subtract(BigInteger.ONE));
+                Node small = findNode(minNode.subtract(BigInteger.ONE));
 
                 BigInteger max = small.max();
                 ByteBuffer buff2 = small.remove(max);
@@ -239,7 +268,7 @@ public class Page extends Node{
         for (Map.Entry<BigInteger, Map.Entry<Integer,Node>> e:
              this.nodesMap.entrySet()) {
             if(x>=this.nodesMap.size()/2){
-                vet.add(e);
+                vet.add(makeEntry(e.getKey(),e.getValue()));
             }
             x++;
         }
@@ -286,7 +315,7 @@ public class Page extends Node{
 
     @Override
     public boolean isFull() {
-        return nodesMap.size()>=maxNodes;
+        return nodes>=maxNodes;
     }
 
     @Override

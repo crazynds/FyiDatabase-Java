@@ -1,5 +1,6 @@
 package engine.virtualization.record.manager.storage.btree;
 
+import engine.exceptions.DataBaseException;
 import engine.file.blocks.ReadableBlock;
 import engine.file.buffers.BlockBuffer;
 import engine.file.streams.BlockStream;
@@ -44,13 +45,17 @@ public class BTreeStorage implements Iterable<Map.Entry<BigInteger,ByteBuffer>>{
         int maxBlock = handler.getStream().lastBlock();
 
         if(blockRoot <=0 || blockLeaf <= 0 || blockRoot >maxBlock || blockLeaf>maxBlock)return;
-
-        if(blockLeaf == blockRoot){
-            leafNode = (Leaf)this.handler.loadNode(blockLeaf);
+        try {
+            if (blockLeaf == blockRoot) {
+                leafNode = (Leaf) this.handler.loadNode(blockLeaf);
+                rootNode = leafNode;
+            } else {
+                rootNode = this.handler.loadNode(blockRoot);
+                leafNode = (Leaf) this.handler.loadNode(blockLeaf);
+            }
+        }catch (DataBaseException dbe){
+            this.leafNode = new Leaf(this.handler,this.handler.getBlockManager().allocNew());
             rootNode = leafNode;
-        }else{
-            rootNode = this.handler.loadNode(blockRoot);
-            leafNode = (Leaf)this.handler.loadNode(blockLeaf);
         }
     }
 
