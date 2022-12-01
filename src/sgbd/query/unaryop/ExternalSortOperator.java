@@ -58,7 +58,7 @@ public class ExternalSortOperator extends UnaryOperator {
         Column c = t.getContent(source).getMeta(column);
         pt.addColumn("__aux",8,Column.PRIMARY_KEY);
         pt.addColumn("sort",c.getSize(),
-                (c.isShift8Size()?Column.SHIFT_8_SIZE_COLUMN:Column.NONE)|
+                (c.isShift8Size()?Column.LSHIFT_8_SIZE_COLUMN:Column.NONE)|
                         Column.PRIMARY_KEY);
         pt.addColumn("reference",8, Column.NONE);
         pt.addColumn("size",4, Column.NONE);

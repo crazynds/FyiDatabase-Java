@@ -23,7 +23,7 @@ public class Main {
         p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
         p1.addColumn("anoNascimento",4,Column.NONE);
         p1.addColumn("email",120,Column.NONE);
-        p1.addColumn("idade",4,Column.CAM_NULL_COLUMN);
+        p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
         p1.addColumn("salario",4,Column.NONE);
         p1.addColumn("idCidade",4,Column.NONE);
 

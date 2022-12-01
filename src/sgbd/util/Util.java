@@ -1,5 +1,7 @@
 package sgbd.util;
 
+import sgbd.prototype.Column;
+
 import java.text.Normalizer;
 
 public class Util {
@@ -30,5 +32,13 @@ public class Util {
         if(columnName.contains("descricao"))return "string";
 
         return "string";
+    }
+
+    public static String typeOfColumn(Column column){
+        if(column.isString())return "string";
+        if(column.isInt())return "int";
+        if(column.isFloat())return "float";
+        if(column.isDouble())return "double";
+        return typeOfColumnByName(column.getName());
     }
 }

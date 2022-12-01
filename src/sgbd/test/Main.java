@@ -16,7 +16,7 @@ public class Main {
         mapa.put("id","int");
         p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
         mapa.put("nome","string");
-        p1.addColumn("idade",4,Column.CAM_NULL_COLUMN);
+        p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
         mapa.put("idade","int");
         p1.addColumn("salario",4,Column.NONE);
         mapa.put("salario","float");
