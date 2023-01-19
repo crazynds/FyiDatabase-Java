@@ -1,12 +1,16 @@
 package sgbd.query.sourceop;
 
 import sgbd.info.Query;
+import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Tuple;
 import sgbd.table.Table;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PKTableScan extends SourceOperator{
 
@@ -17,6 +21,10 @@ public class PKTableScan extends SourceOperator{
     public PKTableScan(Table table, BigInteger pk) {
         super(table);
         this.pk=pk;
+        columns = new ArrayList<String>();
+        for(Column c : table.getTranslator()){
+            columns.add(c.getName());
+        }
     }
     public PKTableScan(Table table, BigInteger pk, List<String> columns) {
         super(table);
@@ -57,5 +65,12 @@ public class PKTableScan extends SourceOperator{
     @Override
     public void close() {
         row = null;
+    }
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        HashMap<String,List<String>> map = new HashMap<>();
+        map.put(sourceName(),columns);
+        return map;
     }
 }

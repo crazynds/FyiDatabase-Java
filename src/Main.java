@@ -13,6 +13,7 @@ import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.FilterOperator;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
+import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 import sgbd.util.Util;
 
@@ -23,25 +24,11 @@ import java.util.Map;
 public class Main {
 
     public static Table openUser(){
-
-        Prototype p1 = new Prototype();
-        p1.addColumn("id",4,Column.PRIMARY_KEY);
-        p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
-        p1.addColumn("anoNascimento",4,Column.NONE);
-        p1.addColumn("email",120,Column.NONE);
-        p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
-        p1.addColumn("salario",4,Column.NONE);
-        p1.addColumn("idCidade",4,Column.NONE);
-
-        Table tableUsers = SimpleTable.openTable("users",p1);
+        Table tableUsers = Table.loadFromHeader("users.head");
         return tableUsers;
     }
     public static Table openCidade(){
-        Prototype p2 = new Prototype();
-        p2.addColumn("id",4,Column.PRIMARY_KEY);
-        p2.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
-
-        Table tableCidades = SimpleTable.openTable("cidades",p2);
+        Table tableCidades = Table.loadFromHeader("cidades.head");
         return tableCidades;
     }
 

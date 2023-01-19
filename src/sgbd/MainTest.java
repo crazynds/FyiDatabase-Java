@@ -3,6 +3,7 @@ package sgbd;
 import sgbd.prototype.*;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
+import sgbd.table.components.Header;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -17,7 +18,7 @@ public class MainTest {
         p2.addColumn("id",4,Column.PRIMARY_KEY);
         p2.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
 
-        Table tableCidades = SimpleTable.openTable("cidades",p2,true);
+        Table tableCidades = Table.openTable(new Header(p2,"cidades"),true);
         tableCidades.open();
 
         RowData cidade = new RowData();
@@ -60,8 +61,9 @@ public class MainTest {
             }
         }
         tableCidades.close();
+        tableCidades.saveHeader("cidades.head");
 
-        return SimpleTable.openTable("cidades",p2);
+        return Table.openTable(new Header(p2,"cidades"));
     }
     public static Table prepareUsuario(boolean print){
         String name = "users";
@@ -74,7 +76,7 @@ public class MainTest {
         p1.addColumn("salario",4,Column.NONE);
         p1.addColumn("idCidade",4,Column.NONE);
 
-        Table tableUsers = SimpleTable.openTable("users",p1,true);
+        Table tableUsers = Table.openTable(new Header(p1,"users"),true);
         Random rand = new Random();
 
         tableUsers.open();
@@ -110,8 +112,9 @@ public class MainTest {
             }
         }
         tableUsers.close();
+        tableUsers.saveHeader("users.head");
 
-        return SimpleTable.openTable("users",p1);
+        return Table.openTable(new Header(p1,"users"));
     }
 
 

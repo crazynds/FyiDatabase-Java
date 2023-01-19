@@ -8,6 +8,7 @@ import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.RecordManager;
 import sgbd.prototype.*;
+import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 
 import java.math.BigInteger;
@@ -31,20 +32,33 @@ public class DoubleTable extends Table{
     protected RecordManager data;
     protected int maxSizeDataRowData;
     protected TranslatorApi dataTranslator;
+    protected FileManager indexFile,dataFile;
 
     private Prototype startedPrototype;
 
     private long maxIdData=0;
 
 
-    public DoubleTable(String tableName, Prototype pt) {
-        super(tableName, pt);
-        this.startedPrototype = pt;
+
+    DoubleTable(Header header) {
+        super(header);
+        this.startedPrototype = header.getPrototype();
+
+        header.set(Header.TABLE_TYPE,"DoubleTable");
+        indexFile = new FileManager(header.get(Header.TABLE_NAME)+"-index.dat");
+        dataFile = new FileManager(header.get(Header.TABLE_NAME)+"-data.dat");
+
+        if(header.getBool("clear")){
+            indexFile.clearFile();
+            dataFile.clearFile();
+            header.setBool("clear",false);
+        }
+
         Prototype indexTable = new Prototype();
         Prototype dataTable = new Prototype();
 
         for (Column c:
-             pt) {
+                this.startedPrototype) {
             if(c.isPrimaryKey()){
                 indexTable.addColumn(c);
             }else{
@@ -71,10 +85,10 @@ public class DoubleTable extends Table{
     @Override
     public void open() {
         if(index==null){
-            index = new FixedRecordManager(new FileManager(tableName+"-index.dat"),indexTranslator,maxSizeIndexRowData);
+            index = new FixedRecordManager(indexFile,indexTranslator,maxSizeIndexRowData);
         }
         if(data==null){
-            data = new FixedRecordManager(new FileManager(tableName+"-data.dat"),dataTranslator,maxSizeDataRowData);
+            data = new FixedRecordManager(dataFile,dataTranslator,maxSizeDataRowData);
         }
     }
 

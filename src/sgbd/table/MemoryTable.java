@@ -3,13 +3,16 @@ package sgbd.table;
 import engine.virtualization.record.manager.MemoryBTreeRecordManager;
 
 import sgbd.prototype.Prototype;
+import sgbd.table.components.Header;
 
 public class MemoryTable extends GenericTable{
 
     private int maxRecordSize;
 
-    public MemoryTable(String tableName, Prototype pt) {
-        super(tableName,pt);
+    MemoryTable(Header header) {
+        super(header);
+        header.set(Header.TABLE_TYPE,"MemoryTable");
+        header.setBool("clear",false);
         maxRecordSize = this.translatorApi.maxRecordSize();
     }
 

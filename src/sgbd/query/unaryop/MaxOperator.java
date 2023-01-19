@@ -7,6 +7,10 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MaxOperator extends UnaryOperator {
     protected BigInteger maxValue = null;
@@ -51,7 +55,7 @@ public class MaxOperator extends UnaryOperator {
         if(data==null)return null;
         Tuple t = new Tuple();
         ComplexRowData complexRowData = new ComplexRowData();
-        complexRowData.setData("max("+column+")",data,meta);
+        complexRowData.setData(getAsColumn(),data,meta);
         t.setContent(source,complexRowData);
         data = null;
         maxValue = null;
@@ -67,5 +71,17 @@ public class MaxOperator extends UnaryOperator {
     public void close() {
         maxValue = null;
         data = null;
+    }
+
+    protected String getAsColumn(){
+        return "max("+column+")";
+    }
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put(source,new ArrayList<>());
+        map.get(source).add(getAsColumn());
+        return super.getContentInfo();
     }
 }

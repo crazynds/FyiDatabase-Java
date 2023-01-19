@@ -1,25 +1,62 @@
 package sgbd.table;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
+import engine.exceptions.DataBaseException;
+import engine.file.FileManager;
+import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import sgbd.index.Index;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.TranslatorApi;
 import sgbd.prototype.RowData;
+import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 
 public abstract class Table implements Iterable<ComplexRowData>{
 
 	protected TranslatorApi translatorApi;
 
-	protected String tableName;
+	protected Header header;
 
 
-	public Table(String tableName, Prototype pt)  {
-		translatorApi =pt.validateColumns();
-		this.tableName=tableName;
+	public Table(Header header)  {
+		translatorApi =header.getPrototype().validateColumns();
+		this.header = header;
+	}
+
+
+
+	public static Table openTable(Header header){
+		return SimpleTable.openTable(header,false);
+	}
+	public static Table openTable(Header header, boolean clear){
+		header.setBool("clear",clear);
+		if(header.get(Header.TABLE_TYPE)==null)return new SimpleTable(header);
+		switch (header.get(Header.TABLE_TYPE)){
+			case "BTreeDoubleTable":
+				return new BTreeDoubleTable(header);
+			case "BTreeTable":
+				return new BTreeTable(header);
+			case "DoubleTable":
+				return new DoubleTable(header);
+			case "MemoryTable":
+				return new MemoryTable(header);
+			case "SimpleTable":
+			default:
+				return new SimpleTable(header);
+		}
+	}
+	public static Table loadFromHeader(String headerPath){
+		Header header;
+		try {
+			header = Header.load(headerPath);
+		}catch (IOException ex){
+			throw new DataBaseException("Table->saveHeader",ex.getMessage());
+		}
+		return openTable(header);
 	}
 
 
@@ -36,6 +73,13 @@ public abstract class Table implements Iterable<ComplexRowData>{
 	public abstract void clear();
 	public abstract void open();
 	public abstract void close();
+	public void saveHeader(String path) {
+		try {
+			header.save(path);
+		}catch (IOException ex){
+			throw new DataBaseException("Table->saveHeader",ex.getMessage());
+		}
+	}
 
 	/*
 		Retorna a classe responsavel por traduzir o byte array armazenado em uma linha de dados com diversas
@@ -48,7 +92,7 @@ public abstract class Table implements Iterable<ComplexRowData>{
 		Retorna nome da table
 	 */
 	public String getTableName(){
-		return tableName;
+		return header.get(Header.TABLE_NAME);
 	}
 
 	/*

@@ -6,6 +6,7 @@ import engine.virtualization.record.manager.RecordManager;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
+import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 
 import java.math.BigInteger;
@@ -17,8 +18,8 @@ public abstract class GenericTable extends Table{
     protected RecordManager manager;
 
 
-    public GenericTable(String tableName, Prototype pt) {
-        super(tableName,pt);
+    public GenericTable(Header header) {
+        super(header);
     }
 
     @Override

@@ -11,29 +11,19 @@ import sgbd.query.unaryop.ExternalSortOperator;
 import sgbd.query.unaryop.FilterOperator;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
+import sgbd.table.components.Header;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) {
-        Prototype p1 = new Prototype();
-        p1.addColumn("id",4,Column.PRIMARY_KEY);
-        p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
-        p1.addColumn("anoNascimento",4,Column.NONE);
-        p1.addColumn("email",120,Column.NONE);
-        p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
-        p1.addColumn("salario",4,Column.NONE);
-        p1.addColumn("idCidade",4,Column.NONE);
 
-        Prototype p2 = new Prototype();
-        p2.addColumn("id",4, Column.PRIMARY_KEY);
-        p2.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
+        Table users = Table.loadFromHeader("cidades.head");
 
-        Table users = SimpleTable.openTable("users",p1);
-
-        Table cidades = SimpleTable.openTable("cidades",p2);
+        Table cidades = Table.loadFromHeader("cidades.head");
 
         users.open();
         cidades.open();
@@ -69,6 +59,13 @@ public class Main {
 
 
         Operator executor=sorted;
+
+        for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
+            for(String col:content.getValue()){
+                System.out.print(content.getKey()+"."+col+" |");
+            }
+        }
+        System.out.println();
 
         executor.open();
         while(executor.hasNext()){

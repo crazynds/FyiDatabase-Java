@@ -3,6 +3,7 @@ package sgbd.test;
 import sgbd.prototype.Column;
 import sgbd.prototype.Prototype;
 import sgbd.table.*;
+import sgbd.table.components.Header;
 
 import java.io.File;
 import java.util.HashMap;
@@ -21,9 +22,7 @@ public class Main {
         p1.addColumn("salario",4,Column.NONE);
         mapa.put("salario","float");
 
-        //Table users = new BTreeDoubleTable("users",p1);
-        Table users = SimpleTable.openTable("users",p1);
-        //Table users = BTreeTable.openTable("users",p1,true);
+        Table users = Table.openTable(new Header(p1,"users"));
 
         ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa,156);
         int qtdData=1000000;

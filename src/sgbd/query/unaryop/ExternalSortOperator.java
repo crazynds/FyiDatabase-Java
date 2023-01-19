@@ -12,6 +12,8 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.sourceop.TableScan;
 import sgbd.table.SimpleTable;
+import sgbd.table.Table;
+import sgbd.table.components.Header;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +21,11 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ExternalSortOperator extends UnaryOperator {
 
-    protected SimpleTable externalSortedTable;
+    protected Table externalSortedTable;
     protected File temp,dataFile;
     protected String source,column;
 
@@ -64,7 +67,8 @@ public class ExternalSortOperator extends UnaryOperator {
         pt.addColumn("size",4, Column.NONE);
 
         try {
-            externalSortedTable = new SimpleTable("externalSorted", new FileManager(File.createTempFile("table", "sortOperation")), pt);
+            Header header = new Header(pt,"__externalSortedTable__");
+            externalSortedTable = Table.openTable(header,true);
             scan = new TableScan(externalSortedTable, List.of("reference","size"));
 
             dataFile = File.createTempFile("data","sortOperation");
@@ -161,4 +165,5 @@ public class ExternalSortOperator extends UnaryOperator {
             dataFile.delete();
         }
     }
+
 }
