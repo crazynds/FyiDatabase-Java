@@ -4,6 +4,7 @@ import sgbd.query.Operator;
 import sgbd.table.Table;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class UnaryOperator implements Operator {
 
@@ -24,5 +25,10 @@ public abstract class UnaryOperator implements Operator {
 
     public List<Table> getSources(){
         return operator.getSources();
+    }
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        return operator.getContentInfo();
     }
 }

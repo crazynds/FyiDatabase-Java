@@ -1,11 +1,15 @@
 package sgbd.query.sourceop;
 
+import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Tuple;
 import sgbd.table.Table;
 import sgbd.table.components.RowIterator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TableScan extends SourceOperator {
 
@@ -14,6 +18,10 @@ public class TableScan extends SourceOperator {
 
     public TableScan(Table t){
         super(t);
+        columns = new ArrayList<String>();
+        for(Column c : table.getTranslator()){
+            columns.add(c.getName());
+        }
     }
     public TableScan(Table t,List<String> columns){
         super(t);
@@ -48,5 +56,12 @@ public class TableScan extends SourceOperator {
     @Override
     public void close() {
         iterator=null;
+    }
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        HashMap<String,List<String>> map = new HashMap<>();
+        map.put(sourceName(),new ArrayList<>(columns));
+        return map;
     }
 }

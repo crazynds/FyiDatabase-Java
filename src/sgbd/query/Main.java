@@ -13,6 +13,7 @@ import sgbd.table.SimpleTable;
 import sgbd.table.Table;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
@@ -69,6 +70,13 @@ public class Main {
 
 
         Operator executor=sorted;
+
+        for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
+            for(String col:content.getValue()){
+                System.out.print(content.getKey()+"."+col+" |");
+            }
+        }
+        System.out.println();
 
         executor.open();
         while(executor.hasNext()){

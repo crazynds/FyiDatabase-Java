@@ -3,22 +3,21 @@ package sgbd.query.unaryop;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
-import sgbd.util.Conversor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class AsOperator extends UnaryOperator {
+public class FilterColumnsOperator extends UnaryOperator{
 
-    private Conversor conversor;
-    private String name;
+    private String content;
+    private List<String> columns;
 
-    public AsOperator(Operator op, Conversor conversor, String name) {
+    public FilterColumnsOperator(Operator op, String content, List<String> columns) {
         super(op);
-        this.conversor  = conversor;
-        this.name       = name;
+        this.columns = columns;
+        this.content = content;
     }
+
     @Override
     public void open() {
         operator.open();
@@ -27,8 +26,11 @@ public class AsOperator extends UnaryOperator {
     @Override
     public Tuple next() {
         Tuple t = operator.next();
-        ComplexRowData row = t.getContent("asOperation");
-        row.setData(name,conversor.process(t),conversor.metaInfo(t));
+        ComplexRowData row = t.getContent(content);
+        if(row!=null){
+            for(String colName: columns)
+                row.unset(colName);
+        }
         return t;
     }
 
@@ -44,11 +46,11 @@ public class AsOperator extends UnaryOperator {
 
     @Override
     public Map<String, List<String>> getContentInfo() {
-        Map<String,List<String>> map =super.getContentInfo();
-        if(!map.containsKey("asOperation")){
-            map.put("asOperation",new ArrayList<>());
+        Map<String, List<String>> map = super.getContentInfo();
+        if(map.containsKey(content)){
+            for(String colName: columns)
+                map.get(content).remove(colName);
         }
-        map.get("asOperation").add(name);
         return map;
     }
 }

@@ -4,6 +4,7 @@ import sgbd.query.Operator;
 import sgbd.table.Table;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,4 +38,16 @@ public abstract class BinaryOperator implements Operator {
         return Stream.concat(rTable.stream(),lTable.stream()).collect(Collectors.toList());
     }
 
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        Map<String, List<String>> rTable = right.getContentInfo();
+        Map<String, List<String>> lTable = left.getContentInfo();
+        for(Map.Entry<String,List<String>> a: rTable.entrySet()){
+            if(lTable.containsKey(a.getKey())){
+                a.setValue(Stream.concat(a.getValue().stream(),lTable.get(a.getKey()).stream()).collect(Collectors.toList()));
+                lTable.remove(a.getKey());
+            }
+        }
+        return Stream.concat(rTable.entrySet().stream(), lTable.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 }

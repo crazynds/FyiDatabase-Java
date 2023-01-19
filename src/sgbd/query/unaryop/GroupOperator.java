@@ -64,7 +64,7 @@ public class GroupOperator extends UnaryOperator {
             operator.close();
     }
 
-    class PreGroupOperator extends UnaryOperator{
+    private class PreGroupOperator extends UnaryOperator{
         private BigInteger actualGroup;
         private Tuple actualTuple;
         private String source,column;
