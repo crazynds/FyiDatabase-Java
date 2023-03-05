@@ -51,7 +51,7 @@ public class Main {
         });
 
         // NestedLoopJoin faz a jução da tupla A com a tupla B se a condição for verdadeira
-        Operator joinUsersCities = new NestedLoopJoin(selectSomeUsers,selectSomeCities,(t1, t2) -> {
+        Operator joinUsersCities = new NestedLoopJoin(selectSomeUsers,selectAllCities,(t1, t2) -> {
             return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
         });
 

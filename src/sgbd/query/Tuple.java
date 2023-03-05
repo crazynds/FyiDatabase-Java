@@ -23,6 +23,18 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>{
         //<Table, Dados>
     }
 
+    public Tuple(Tuple left, Tuple right){
+        sources = new HashMap<>();
+        for (Map.Entry<String, ComplexRowData> entry:
+                left) {
+            this.setContent(entry.getKey(),entry.getValue());
+        }
+        for (Map.Entry<String, ComplexRowData> entry:
+                right) {
+            this.setContent(entry.getKey(),entry.getValue());
+        }
+    }
+
     public void setContent(String asName,ComplexRowData data){
         ComplexRowData row = sources.get(asName);
         if(row!=null){

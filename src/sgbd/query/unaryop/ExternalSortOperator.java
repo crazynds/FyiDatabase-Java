@@ -25,6 +25,8 @@ import java.util.Map;
 
 public class ExternalSortOperator extends UnaryOperator {
 
+    private static final String TABLE_NAME = "__externalSortedTable__";
+
     protected Table externalSortedTable;
     protected File temp,dataFile;
     protected String source,column;
@@ -67,7 +69,7 @@ public class ExternalSortOperator extends UnaryOperator {
         pt.addColumn("size",4, Column.NONE);
 
         try {
-            Header header = new Header(pt,"__externalSortedTable__");
+            Header header = new Header(pt,TABLE_NAME);
             externalSortedTable = Table.openTable(header,true);
             scan = new TableScan(externalSortedTable, List.of("reference","size"));
 
@@ -130,7 +132,7 @@ public class ExternalSortOperator extends UnaryOperator {
             return null;
 
         Tuple t = scan.next();
-        ComplexRowData row = t.getContent("externalSorted");
+        ComplexRowData row = t.getContent(TABLE_NAME);
         long pos = row.getLong("reference");
         int size = row.getInt("size");
 
@@ -163,6 +165,10 @@ public class ExternalSortOperator extends UnaryOperator {
             scan.close();
             externalSortedTable.close();
             dataFile.delete();
+            String path = externalSortedTable.getHeader().get(Header.FILE_PATH);
+            if(path!=null){
+                (new File(path)).delete();
+            }
         }
     }
 

@@ -21,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Table users = Table.loadFromHeader("cidades.head");
+        Table users = Table.loadFromHeader("users.head");
 
         Table cidades = Table.loadFromHeader("cidades.head");
 

@@ -59,7 +59,6 @@ public abstract class Table implements Iterable<ComplexRowData>{
 		return openTable(header);
 	}
 
-
 	public Index createIndex(List<String> columns){
 		return null;
 	}
@@ -93,6 +92,12 @@ public abstract class Table implements Iterable<ComplexRowData>{
 	 */
 	public String getTableName(){
 		return header.get(Header.TABLE_NAME);
+	}
+	/*
+		Retorna o objeto Header da table
+	 */
+	public Header getHeader(){
+		return header;
 	}
 
 	/*

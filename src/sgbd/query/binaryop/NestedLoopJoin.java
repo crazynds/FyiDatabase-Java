@@ -56,15 +56,7 @@ public class NestedLoopJoin extends BinaryOperator{
                 //Faz a comparação do join
                 Query.COMPARE_JOIN++;
                 if(comparator.match(currentLeftTuple,rightTuple)){
-                    nextTuple = new Tuple();
-                    for (Map.Entry<String, ComplexRowData> entry:
-                            currentLeftTuple) {
-                        nextTuple.setContent(entry.getKey(),entry.getValue());
-                    }
-                    for (Map.Entry<String, ComplexRowData> entry:
-                            rightTuple) {
-                        nextTuple.setContent(entry.getKey(),entry.getValue());
-                    }
+                    nextTuple = new Tuple(currentLeftTuple,rightTuple);
                     return nextTuple;
                 }
             }
