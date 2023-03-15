@@ -25,6 +25,9 @@ public class UtilConversor {
     public static byte[] floatToByteArray(float f){
         return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(f).array();
     }
+    public static byte[] doubleToByteArray(double f){
+        return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putDouble(f).array();
+    }
 
     public static byte[] stringToByteArray(String s){
         return s.getBytes(StandardCharsets.UTF_8);
@@ -46,6 +49,9 @@ public class UtilConversor {
 
     public static float byteArrayToFloat(byte[] arr){
         return ByteBuffer.wrap(arr,0,4).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+    }
+    public static double byteArrayToDouble(byte[] arr){
+        return ByteBuffer.wrap(arr,0,8).order(ByteOrder.LITTLE_ENDIAN).getDouble();
     }
 
     public static String byteArrayToString(byte[] arr){

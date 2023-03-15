@@ -31,6 +31,9 @@ public class ComplexRowData extends RowData{
     public void setFloat(String column,float data,Column meta) {
         this.setData(column, UtilConversor.floatToByteArray(data),meta);
     }
+    public void setDouble(String column,double data,Column meta) {
+        this.setData(column, UtilConversor.doubleToByteArray(data),meta);
+    }
 
 
 

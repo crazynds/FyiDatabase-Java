@@ -5,13 +5,17 @@ import sgbd.info.Query;
 import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
+import sgbd.query.agregation.AvgAgregation;
+import sgbd.query.agregation.MaxAgregation;
 import sgbd.query.binaryop.BlockNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.ExternalSortOperator;
 import sgbd.query.unaryop.FilterOperator;
+import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
 import sgbd.table.components.Header;
+import sgbd.util.Util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +32,7 @@ public class Main {
         users.open();
         cidades.open();
 
-        Operator selectSomeUsers = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade"));
+        Operator selectSomeUsers = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
 
         Operator where = new FilterOperator(selectSomeUsers,(Tuple t)->{
             return t.getContent("users").getInt("idade") >=18;
@@ -54,11 +58,16 @@ public class Main {
 //        }, "formated");
 
 
+//        Operator sorted = new ExternalSortOperator(join,"cidades","nome",true);
 
-        Operator sorted = new ExternalSortOperator(join,"cidades","nome",true);
+
+        Operator agregator = new GroupOperator(join,"cidades","nome",Arrays.asList(
+                new AvgAgregation("users","anoNascimento"),
+                new MaxAgregation("users","idade")
+        ));
 
 
-        Operator executor=sorted;
+        Operator executor=agregator;
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
             for(String col:content.getValue()){
@@ -73,19 +82,17 @@ public class Main {
             String str = "";
             for (Map.Entry<String, ComplexRowData> row: t){
                 for(Map.Entry<String,byte[]> data:row.getValue()) {
-                    switch(data.getKey()){
-                        case "idade":
-                        case "anoNascimento":
-                        case "id":
-                        case "idCidade":
-                        case "size":
+                    switch(Util.typeOfColumn(row.getValue().getMeta(data.getKey()))){
+                        case "int":
                             str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getInt(data.getKey());
                             break;
-                        case "salario":
+                        case "float":
                             str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getFloat(data.getKey());
                             break;
-                        case "name":
-                        case "nome":
+                        case "double":
+                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getDouble(data.getKey());
+                            break;
+                        case "string":
                         default:
                             str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getString(data.getKey());
                             break;
