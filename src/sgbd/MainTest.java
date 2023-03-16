@@ -69,11 +69,11 @@ public class MainTest {
         String name = "users";
         Prototype p1 = new Prototype();
         p1.addColumn("id",4,Column.PRIMARY_KEY);
-        p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
+        p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE|Column.STRING);
         p1.addColumn("anoNascimento",4,Column.NONE);
-        p1.addColumn("email",120,Column.NONE);
+        p1.addColumn("email",120,Column.STRING);
         p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
-        p1.addColumn("salario",4,Column.NONE);
+        p1.addColumn("salario",4,Column.FLOATING_POINT);
         p1.addColumn("idCidade",4,Column.NONE);
 
         Table tableUsers = Table.openTable(new Header(p1,"users"),true);
