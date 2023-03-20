@@ -3,11 +3,12 @@ package sgbd.query;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>{
+public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Comparable<Tuple>{
 
     private static ComplexRowData emptyRowData = new ComplexRowData();
 
@@ -45,6 +46,15 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>{
         }else{
             sources.put(asName,data);
         }
+    }
+
+    public int compareTo(Tuple t){
+        for(Map.Entry<String,ComplexRowData> rowData: this){
+            RowData row = t.getContent(rowData.getKey());
+            int val = row.compareTo(rowData.getValue());
+            if(val!=0)return val;
+        }
+        return 0;
     }
 
     public ComplexRowData getContent(String name){

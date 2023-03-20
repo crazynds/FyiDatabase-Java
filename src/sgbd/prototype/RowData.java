@@ -2,20 +2,37 @@ package sgbd.prototype;
 
 import sgbd.util.UtilConversor;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class RowData implements Iterable<Map.Entry<String,byte[]>> {
+public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<RowData> {
 	private Map<String,byte[]> data;
+	private byte checkSum = 0;
 
 	public RowData() {
 		data=new HashMap<String, byte[]>();
 	}
 
+	private void removeCheckSum(String column){
+		byte[] arr = data.get(column);
+		if(arr != null && arr.length>0){
+			checkSum ^= arr[0];
+		}
+	}
+
+	private void addToCheckSum(String column,byte[] data){
+		if(data!= null && data.length>0){
+			checkSum ^= data[0];
+		}
+	}
+
 
 	public void setData(String column,byte[] data) {
 		valid=false;
+		removeCheckSum(column);
+		addToCheckSum(column,data);
 		this.data.put(column, data);
 	}
 	public void setInt(String column,int data) {
@@ -35,6 +52,7 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 	}
 	public byte[] unset(String column){
 		valid=false;
+		removeCheckSum(column);
 		return this.data.remove(column);
 	}
 
@@ -83,5 +101,20 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>> {
 	@Override
 	public Iterator<Map.Entry<String, byte[]>> iterator() {
 		return data.entrySet().iterator();
+	}
+
+	@Override
+	public int compareTo(RowData r) {
+		int val = checkSum - r.checkSum;
+		if(val!=0)return val;
+		val = data.size() - r.data.size();
+		if(val!=0)return val;
+		for (Map.Entry<String, byte[]> entry:
+			 this) {
+			byte[] arr = r.getData(entry.getKey());
+			val = Arrays.compare(arr,entry.getValue());
+			if(val!= 0)return val;
+		}
+		return val;
 	}
 }

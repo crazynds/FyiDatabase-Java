@@ -2,19 +2,15 @@ package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
-import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.prototype.Prototype;
 import sgbd.query.agregation.AvgAgregation;
 import sgbd.query.agregation.MaxAgregation;
 import sgbd.query.binaryop.BlockNestedLoopJoin;
+import sgbd.query.binaryop.UnionOperator;
 import sgbd.query.sourceop.TableScan;
-import sgbd.query.unaryop.ExternalSortOperator;
 import sgbd.query.unaryop.FilterOperator;
 import sgbd.query.unaryop.GroupOperator;
-import sgbd.table.SimpleTable;
 import sgbd.table.Table;
-import sgbd.table.components.Header;
 import sgbd.util.Util;
 
 import java.util.Arrays;
@@ -33,10 +29,17 @@ public class Main {
         cidades.open();
 
         Operator selectSomeUsers = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
+        Operator selectSomeUsers2 = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
 
         Operator where = new FilterOperator(selectSomeUsers,(Tuple t)->{
             return t.getContent("users").getInt("idade") >=18;
         });
+        Operator where2 = new FilterOperator(selectSomeUsers2,(Tuple t)->{
+            return t.getContent("users").getInt("idade") <=20;
+        });
+
+        Operator union = new UnionOperator(where2,where);
+
 
         Operator selectAllCidades = new TableScan(cidades);
 
@@ -67,7 +70,7 @@ public class Main {
         ));
 
 
-        Operator executor=agregator;
+        Operator executor=union;
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
             for(String col:content.getValue()){
