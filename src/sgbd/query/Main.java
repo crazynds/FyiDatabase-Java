@@ -29,46 +29,15 @@ public class Main {
         cidades.open();
 
         Operator selectSomeUsers = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
-        Operator selectSomeUsers2 = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
+        Operator selectCidades = new TableScan(cidades, Arrays.asList("id","nome"));
 
         Operator where = new FilterOperator(selectSomeUsers,(Tuple t)->{
             return t.getContent("users").getInt("idade") >=18;
         });
-        Operator where2 = new FilterOperator(selectSomeUsers2,(Tuple t)->{
-            return t.getContent("users").getInt("idade") <=20;
+
+        Operator union = new UnionOperator(selectCidades,where,(t1, t2) -> {
+            return t1.getContent("users").getInt("id") == t2.getContent("cidades").getInt("id");
         });
-
-        Operator union = new UnionOperator(where2,where);
-
-
-        Operator selectAllCidades = new TableScan(cidades);
-
-        Operator join = new BlockNestedLoopJoin(where,selectAllCidades,(t1, t2) -> {
-            return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
-        });
-
-//        Operator as = new AsOperator(join, new Conversor() {
-//            @Override
-//            public Column metaInfo(Tuple t) {
-//                return t.getContent("users").getMeta("nome");
-//            }
-//
-//            @Override
-//            public byte[] process(Tuple t) {
-//                String formated = t.getContent("users").getString("nome")+" ("+t.getContent("users").getInt("idade")+")";
-//                return formated.getBytes(StandardCharsets.UTF_8);
-//            }
-//        }, "formated");
-
-
-//        Operator sorted = new ExternalSortOperator(join,"cidades","nome",true);
-
-
-        Operator agregator = new GroupOperator(join,"cidades","nome",Arrays.asList(
-                new AvgAgregation("users","anoNascimento"),
-                new MaxAgregation("users","idade")
-        ));
-
 
         Operator executor=union;
 

@@ -1,18 +1,30 @@
 package sgbd.query.binaryop;
 
+import engine.exceptions.DataBaseException;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
+import sgbd.query.unaryop.DistinctOperator;
+import sgbd.util.ComparableFilter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UnionOperator extends BinaryOperator{
 
     private ArrayList<Tuple> tuples = new ArrayList<>();
+    private ComparableFilter<Tuple> comparator;
 
     private Tuple nextTuple = null;
 
     public UnionOperator(Operator left, Operator right) {
         super(left, right);
+        comparator = (t1, t2) -> {
+            return t1.compareTo(t2) == 0 && t2.compareTo(t1) == 0;
+        };
+    }
+    public UnionOperator(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
+        super(new DistinctOperator(left), new DistinctOperator(right));
+        this.comparator = comparator;
     }
 
     @Override
@@ -25,9 +37,8 @@ public class UnionOperator extends BinaryOperator{
     private boolean checkValid(Tuple newTuple){
         for (Tuple t:
              tuples) {
-            if(t.compareTo(newTuple)==0 && newTuple.compareTo(t)==0)return false;
+            if(comparator.match(newTuple,t))return false;
         }
-        tuples.add(newTuple);
         return true;
     }
 
@@ -35,9 +46,8 @@ public class UnionOperator extends BinaryOperator{
         if(nextTuple != null)return nextTuple;
         while(left.hasNext()){
             nextTuple = left.next();
-            if(checkValid(nextTuple)){
-                return nextTuple;
-            }else nextTuple = null;
+            tuples.add(nextTuple);
+            return nextTuple;
         }
         while(right.hasNext()){
             nextTuple = right.next();
