@@ -1,4 +1,4 @@
-package sgbd.query.binaryop;
+package sgbd.query.binaryop.joins;
 
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;

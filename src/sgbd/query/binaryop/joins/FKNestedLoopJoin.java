@@ -1,16 +1,17 @@
-package sgbd.query.binaryop;
+package sgbd.query.binaryop.joins;
 
 import engine.exceptions.DataBaseException;
 import engine.util.Util;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
+import sgbd.query.binaryop.BinaryOperator;
 import sgbd.query.sourceop.PKTableScan;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-public class FKNestedLoopJoin extends  BinaryOperator{
+public class FKNestedLoopJoin extends BinaryOperator {
 
     protected Tuple nextTuple=null;
 

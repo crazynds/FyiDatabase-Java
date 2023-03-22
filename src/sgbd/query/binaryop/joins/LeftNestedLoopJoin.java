@@ -1,46 +1,24 @@
-package sgbd.query.binaryop;
+package sgbd.query.binaryop.joins;
 
 import sgbd.info.Query;
-import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.util.ComparableFilter;
 
-import java.util.Map;
+public class LeftNestedLoopJoin extends NestedLoopJoin{
 
-public class NestedLoopJoin extends BinaryOperator{
-
-    protected Tuple nextTuple=null;
-    protected Tuple currentLeftTuple=null;
-    protected ComparableFilter<Tuple> comparator;
-
-    public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
-        super(left, right);
-        this.comparator = comparator;
+    protected int qtdFinded = 0;
+    public LeftNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
+        super(left, right, comparator);
     }
 
     @Override
     public void open() {
-        left.open();
-        nextTuple=null;
+        super.open();
+        qtdFinded = 0;
     }
 
     @Override
-    public Tuple next() {
-        try {
-            if(nextTuple==null)findNextTuple();
-            return nextTuple;
-        }finally {
-            nextTuple = null;
-        }
-    }
-
-    @Override
-    public boolean hasNext() {
-        findNextTuple();
-        return nextTuple!=null;
-    }
-
     protected Tuple findNextTuple(){
         //Executa apenas quando o next tuple não existe
         if(nextTuple!=null)return nextTuple;
@@ -49,6 +27,7 @@ public class NestedLoopJoin extends BinaryOperator{
             if(currentLeftTuple==null){
                 currentLeftTuple = left.next();
                 right.open();
+                qtdFinded = 0;
             }
             //Loopa pelo operador direito
             while(right.hasNext()){
@@ -56,19 +35,18 @@ public class NestedLoopJoin extends BinaryOperator{
                 //Faz a comparação do join
                 Query.COMPARE_JOIN++;
                 if(comparator.match(currentLeftTuple,rightTuple)){
+                    qtdFinded++;
                     nextTuple = new Tuple(currentLeftTuple,rightTuple);
                     return nextTuple;
                 }
             }
             right.close();
-            currentLeftTuple=null;
+            if(qtdFinded==0){
+                nextTuple = currentLeftTuple;
+                currentLeftTuple = null;
+                return nextTuple;
+            }else currentLeftTuple=null;
         }
         return null;
-    }
-
-    @Override
-    public void close() {
-        nextTuple = null;
-        left.close();
     }
 }

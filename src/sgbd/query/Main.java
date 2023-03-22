@@ -3,13 +3,9 @@ package sgbd.query;
 import engine.info.Parameters;
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.agregation.AvgAgregation;
-import sgbd.query.agregation.MaxAgregation;
-import sgbd.query.binaryop.BlockNestedLoopJoin;
 import sgbd.query.binaryop.UnionOperator;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.FilterOperator;
-import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.Table;
 import sgbd.util.Util;
 

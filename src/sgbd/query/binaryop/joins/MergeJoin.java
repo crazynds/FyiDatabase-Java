@@ -1,17 +1,18 @@
-package sgbd.query.binaryop;
+package sgbd.query.binaryop.joins;
 
 import engine.util.Util;
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
+import sgbd.query.binaryop.BinaryOperator;
 import sgbd.query.unaryop.SortOperator;
 import sgbd.query.unaryop.UnaryOperator;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-public class MergeJoin extends BinaryOperator{
+public class MergeJoin extends BinaryOperator {
     protected Tuple nextTuple=null;
 
     protected String leftSource,leftData,rightSource,rightData;

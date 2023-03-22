@@ -1,4 +1,4 @@
-package sgbd.query.binaryop;
+package sgbd.query.binaryop.joins;
 
 import sgbd.query.Operator;
 import sgbd.query.Tuple;

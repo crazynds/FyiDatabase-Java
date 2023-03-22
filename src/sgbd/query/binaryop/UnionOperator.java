@@ -13,12 +13,12 @@ import java.util.List;
 
 public class UnionOperator extends BinaryOperator{
 
-    private ArrayList<Tuple> tuples = new ArrayList<>();
-    private ComparableFilter<Tuple> comparator;
-    private List<String> leftColumns = null, rightColumns = null;
-    private boolean isRight = false;
+    protected ArrayList<Tuple> tuples = new ArrayList<>();
+    protected ComparableFilter<Tuple> comparator;
+    protected List<String> leftColumns = null, rightColumns = null;
+    protected boolean isRight = false;
 
-    private Tuple nextTuple = null;
+    protected Tuple nextTuple = null;
 
     public UnionOperator(Operator left, Operator right) {
         super(left, right);
@@ -59,7 +59,7 @@ public class UnionOperator extends BinaryOperator{
         isRight = false;
     }
 
-    private boolean checkValid(Tuple newTuple){
+    protected boolean checkValid(Tuple newTuple){
         for (Tuple t:
              tuples) {
             if(comparator.match(t,newTuple))return false;
@@ -67,7 +67,7 @@ public class UnionOperator extends BinaryOperator{
         return true;
     }
 
-    private Tuple getNextTuple(){
+    protected Tuple getNextTuple(){
         if(nextTuple != null)return nextTuple;
         while(left.hasNext()){
             nextTuple = left.next();
