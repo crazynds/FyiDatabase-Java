@@ -32,12 +32,14 @@ public class Main {
         Operator selectCidades = new TableScan(cidades, Arrays.asList("id","nome"));
 
         Operator where = new FilterOperator(selectSomeUsers,(Tuple t)->{
-            return t.getContent("users").getInt("idade") >=18;
+            return t.getContent("users").getInt("id") > 30;
         });
 
-        Operator union = new UnionOperator(selectCidades,where,(t1, t2) -> {
-            return t1.getContent("users").getInt("id") == t2.getContent("cidades").getInt("id");
+        Operator where2 = new FilterOperator(selectCidades,(Tuple t)->{
+            return t.getContent("cidades").getInt("id") < 3;
         });
+
+        Operator union = new UnionOperator(where,where2,Arrays.asList("users.id"),Arrays.asList("cidades.id"));
 
         Operator executor=union;
 

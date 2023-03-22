@@ -34,55 +34,6 @@ public class Main {
 
 
     public static void main(String[] args){
-        Table users = openUser();
-        Table cidades = openCidade();
-        users.open();
-        cidades.open();
-
-        // TableScan faz a leitura completa das tabelas
-        Operator selectAllUsers = new TableScan(users);
-        Operator selectAllCities = new TableScan(cidades);
-        // FilterOperator remove os items que não passarem na condição
-        Operator selectSomeUsers = new FilterOperator(selectAllUsers,(Tuple t)->{
-            return t.getContent("users").getInt("idade") >=18;
-        });
-        Operator selectSomeCities = new FilterOperator(selectAllCities,(Tuple t)->{
-            return t.getContent("cidades").getString("nome").compareToIgnoreCase("Santa Maria")==0;
-        });
-
-        // NestedLoopJoin faz a jução da tupla A com a tupla B se a condição for verdadeira
-        Operator joinUsersCities = new NestedLoopJoin(selectSomeUsers,selectAllCities,(t1, t2) -> {
-            return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
-        });
-
-        Operator query = joinUsersCities;
-
-        // Itera sobre cada linha dos operadores, note que operadores trabalham com Tupla's ao invez de RowData
-        for (query.open(); query.hasNext(); ) {
-            // Uma Tuple é um conjunto de um ou mais ComplexRowData, dependendo da quanitadade de joins que acontecerem
-            Tuple tuple = query.next();
-            String str = "";
-            for (Map.Entry<String, ComplexRowData> row: tuple){
-                for(Map.Entry<String,byte[]> data:row.getValue()) {
-                    switch(Util.typeOfColumnByName(data.getKey())){
-                        case "int":
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getInt(data.getKey());
-                            break;
-                        case "float":
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getFloat(data.getKey());
-                            break;
-                        case "string":
-                        default:
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getString(data.getKey());
-                            break;
-                    }
-                    str+=" | ";
-                }
-            }
-            System.out.println(str);
-        }
-
-        users.close();
-        cidades.close();
+        Table t = Table.loadFromHeader("BIOSTATS.head");
     }
 }
