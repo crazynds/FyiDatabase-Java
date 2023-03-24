@@ -22,9 +22,7 @@ public class UnionOperator extends BinaryOperator{
 
     public UnionOperator(Operator left, Operator right) {
         super(left, right);
-        comparator = (t1, t2) -> {
-            return t1.compareTo(t2) == 0 && t2.compareTo(t1) == 0;
-        };
+        comparator = (t1, t2) -> t1.compareTo(t2) == 0 && t2.compareTo(t1) == 0;
     }
     public UnionOperator(Operator left, Operator right, List<String> leftColumns, List<String> rightColumns) {
         super(new DistinctOperator(left), new DistinctOperator(right));
