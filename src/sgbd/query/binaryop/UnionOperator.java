@@ -15,7 +15,7 @@ public class UnionOperator extends BinaryOperator{
 
     protected ArrayList<Tuple> tuples = new ArrayList<>();
     protected ComparableFilter<Tuple> comparator;
-    protected List<String> leftColumns = null, rightColumns = null;
+    protected List<String[]> leftColumns = null, rightColumns = null;
     protected boolean isRight = false;
 
     protected Tuple nextTuple = null;
@@ -28,19 +28,22 @@ public class UnionOperator extends BinaryOperator{
     }
     public UnionOperator(Operator left, Operator right, List<String> leftColumns, List<String> rightColumns) {
         super(new DistinctOperator(left), new DistinctOperator(right));
-        this.leftColumns = leftColumns;
-        this.rightColumns = rightColumns;
         if(leftColumns.size()!=rightColumns.size())throw new DataBaseException("UnionOperator->Constructor","As listas de colunas ter a mesma quantidade de argumentos");
         if(leftColumns.size()<=0)throw new DataBaseException("UnionOperator->Constructor","Lista de colunas não devem ser vazias!");
+        ArrayList<String[]> l = new ArrayList<>(), r = new ArrayList<>();
         for(int x=0;x< leftColumns.size();x++){
             String a[] = leftColumns.get(x).split("\\.");
             String b[] = rightColumns.get(x).split("\\.");
             if(a.length!=2 || b.length!=2)throw new DataBaseException("UnionOperator->Constructor","As listas de colunas devem ter um 'source' e 'column' separados por um ponto. Ex: 'users.name'");
+            l.add(a);
+            r.add(b);
         }
+        this.leftColumns = l;
+        this.rightColumns = r;
         this.comparator = (t1, t2) -> {
-            for(int x=0;x< leftColumns.size();x++){
-                String a[] = leftColumns.get(x).split("\\.");
-                String b[] = rightColumns.get(x).split("\\.");
+            for(int x=0;x< this.leftColumns.size();x++){
+                String a[] = this.leftColumns.get(x);
+                String b[] = this.leftColumns.get(x);
                 if(
                         Arrays.compare(
                             t1.getContent(a[0]).getData(a[1]),
@@ -91,11 +94,11 @@ public class UnionOperator extends BinaryOperator{
         if(leftColumns!=null){
             Tuple n = new Tuple();
             for (int x=0;x< leftColumns.size();x++) {
-                String[] pt = leftColumns.get(x).split("\\.");
+                String[] pt = leftColumns.get(x);
                 byte[] data;
                 Column meta;
                 if(isRight){
-                    String[] pt2 = rightColumns.get(x).split("\\.");
+                    String[] pt2 = rightColumns.get(x);
                     data = t.getContent(pt2[0]).getData(pt2[1]);
                     meta = t.getContent(pt2[0]).getMeta(pt2[1]);
                 }else{
