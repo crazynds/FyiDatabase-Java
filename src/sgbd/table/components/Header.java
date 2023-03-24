@@ -23,6 +23,8 @@ public class Header {
     private HashMap<String,String> information;
     private Prototype prototype;
 
+    private String path = null;
+
 
     public Header(Prototype pt,String tableName){
         this.information = new HashMap<>();
@@ -34,9 +36,15 @@ public class Header {
         String json = Files.readString(Paths.get(path),StandardCharsets.UTF_8);
         Gson gson = new Gson();
         Header header = (Header)gson.fromJson(json,Header.class);
+        header.path = path;
         return header;
     }
     public void save(String path) throws IOException {
+        String filePath = get(Header.FILE_PATH);
+        if(filePath!=null){
+            String filePathRelative = new File(new File(path).getAbsolutePath()).getParentFile().toURI().relativize(new File(new File(filePath).getAbsolutePath()).toURI()).getPath();
+            set(Header.FILE_PATH,filePathRelative);
+        }
         setBool("saved",true);
         Gson gson = new Gson();
         String json = gson.toJson(this);
@@ -60,6 +68,9 @@ public class Header {
 
     public String getTablePath(){
         String filePath = this.get(Header.FILE_PATH);
+        if(this.path!=null || filePath!=null){
+            filePath = new File(new File(this.path).getAbsolutePath()).getParentFile() + "/" + filePath;
+        }
         if(filePath == null){
             filePath = this.get(Header.TABLE_NAME)+".dat";
         }

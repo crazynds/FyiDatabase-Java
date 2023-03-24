@@ -31,6 +31,7 @@ public class UnionOperator extends BinaryOperator{
         this.leftColumns = leftColumns;
         this.rightColumns = rightColumns;
         if(leftColumns.size()!=rightColumns.size())throw new DataBaseException("UnionOperator->Constructor","As listas de colunas ter a mesma quantidade de argumentos");
+        if(leftColumns.size()<=0)throw new DataBaseException("UnionOperator->Constructor","Lista de colunas não devem ser vazias!");
         for(int x=0;x< leftColumns.size();x++){
             String a[] = leftColumns.get(x).split("\\.");
             String b[] = rightColumns.get(x).split("\\.");
@@ -71,7 +72,6 @@ public class UnionOperator extends BinaryOperator{
         if(nextTuple != null)return nextTuple;
         while(left.hasNext()){
             nextTuple = left.next();
-            tuples.add(nextTuple);
             return nextTuple;
         }
         while(right.hasNext()){
@@ -105,6 +105,7 @@ public class UnionOperator extends BinaryOperator{
                 if(meta!=null || data!=null)
                     n.getContent(pt[0]).setData(pt[1],data,meta);
             }
+            tuples.add(n);
             t = n;
         }
         return t;
