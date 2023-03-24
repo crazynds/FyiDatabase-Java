@@ -1,5 +1,6 @@
 package sgbd.query.unaryop;
 
+import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.binaryop.UnionOperator;
@@ -19,6 +20,7 @@ public class DistinctOperator extends UnaryOperator{
     private boolean checkValid(Tuple newTuple){
         for (Tuple t:
                 tuples) {
+            Query.COMPARE_DISTINCT_TUPLE++;
             if(t.compareTo(newTuple)==0 && newTuple.compareTo(t)==0)return false;
         }
         tuples.add(newTuple);

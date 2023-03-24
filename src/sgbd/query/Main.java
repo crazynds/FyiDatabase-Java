@@ -46,34 +46,37 @@ public class Main {
         }
         System.out.println();
 
-        executor.open();
-        while(executor.hasNext()){
-            Tuple t = executor.next();
-            String str = "";
-            for (Map.Entry<String, ComplexRowData> row: t){
-                for(Map.Entry<String,byte[]> data:row.getValue()) {
-                    switch(Util.typeOfColumn(row.getValue().getMeta(data.getKey()))){
-                        case "int":
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getInt(data.getKey());
-                            break;
-                        case "float":
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getFloat(data.getKey());
-                            break;
-                        case "double":
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getDouble(data.getKey());
-                            break;
-                        case "string":
-                        default:
-                            str+=row.getKey()+"."+data.getKey()+"="+row.getValue().getString(data.getKey());
-                            break;
+        for(int x=0;x<2;x++) {
+
+            executor.open();
+            while (executor.hasNext()) {
+                Tuple t = executor.next();
+                String str = "";
+                for (Map.Entry<String, ComplexRowData> row : t) {
+                    for (Map.Entry<String, byte[]> data : row.getValue()) {
+                        switch (Util.typeOfColumn(row.getValue().getMeta(data.getKey()))) {
+                            case "int":
+                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getInt(data.getKey());
+                                break;
+                            case "float":
+                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getFloat(data.getKey());
+                                break;
+                            case "double":
+                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getDouble(data.getKey());
+                                break;
+                            case "string":
+                            default:
+                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getString(data.getKey());
+                                break;
+                        }
+                        str += " | ";
                     }
-                    str+=" | ";
                 }
+                System.out.println(str);
             }
-            System.out.println(str);
+            //Fecha operador
+            executor.close();
         }
-        //Fecha operador
-        executor.close();
 
 
         //Fecha as tables, não serão mais acessadas
@@ -89,6 +92,7 @@ public class Main {
         System.out.println("Tuplas sorteadas: "+Query.SORT_TUPLES);
         System.out.println("Comparações de FILTER: "+Query.COMPARE_FILTER);
         System.out.println("Comparações de JOIN: "+Query.COMPARE_JOIN);
+        System.out.println("Comparações de TUPLAS DISTINTAS: "+Query.COMPARE_DISTINCT_TUPLE);
 
         System.out.println("Disk performance: ");
         System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

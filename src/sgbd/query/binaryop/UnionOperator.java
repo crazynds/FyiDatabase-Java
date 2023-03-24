@@ -1,6 +1,7 @@
 package sgbd.query.binaryop;
 
 import engine.exceptions.DataBaseException;
+import sgbd.info.Query;
 import sgbd.prototype.Column;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
@@ -64,6 +65,7 @@ public class UnionOperator extends BinaryOperator{
     protected boolean checkValid(Tuple newTuple){
         for (Tuple t:
              tuples) {
+            Query.COMPARE_DISTINCT_TUPLE++;
             if(comparator.match(t,newTuple))return false;
         }
         return true;
