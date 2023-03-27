@@ -40,15 +40,12 @@ public class UnionOperator extends BinaryOperator{
         this.comparator = (t1, t2) -> {
             for(int x=0;x< this.leftColumns.size();x++){
                 String a[] = this.leftColumns.get(x);
-                String b[] = this.leftColumns.get(x);
-                if(
-                        Arrays.compare(
-                            t1.getContent(a[0]).getData(a[1]),
-                            t2.getContent(b[0]).getData(b[1])
-                        )!=0
-                )return false;
+                String b[] = this.rightColumns.get(x);
+                byte[] dataA = t1.getContent(a[0]).getData(a[1]);
+                byte[] dataB = t2.getContent(b[0]).getData(b[1]);
+                if(Arrays.compare(dataA,dataB)!=0)return false;
             }
-            return false;
+            return true;
         };
     }
 

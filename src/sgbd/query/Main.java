@@ -46,37 +46,34 @@ public class Main {
         }
         System.out.println();
 
-        for(int x=0;x<2;x++) {
-
-            executor.open();
-            while (executor.hasNext()) {
-                Tuple t = executor.next();
-                String str = "";
-                for (Map.Entry<String, ComplexRowData> row : t) {
-                    for (Map.Entry<String, byte[]> data : row.getValue()) {
-                        switch (Util.typeOfColumn(row.getValue().getMeta(data.getKey()))) {
-                            case "int":
-                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getInt(data.getKey());
-                                break;
-                            case "float":
-                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getFloat(data.getKey());
-                                break;
-                            case "double":
-                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getDouble(data.getKey());
-                                break;
-                            case "string":
-                            default:
-                                str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getString(data.getKey());
-                                break;
-                        }
-                        str += " | ";
+        executor.open();
+        while (executor.hasNext()) {
+            Tuple t = executor.next();
+            String str = "";
+            for (Map.Entry<String, ComplexRowData> row : t) {
+                for (Map.Entry<String, byte[]> data : row.getValue()) {
+                    switch (Util.typeOfColumn(row.getValue().getMeta(data.getKey()))) {
+                        case "int":
+                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getInt(data.getKey());
+                            break;
+                        case "float":
+                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getFloat(data.getKey());
+                            break;
+                        case "double":
+                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getDouble(data.getKey());
+                            break;
+                        case "string":
+                        default:
+                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getString(data.getKey());
+                            break;
                     }
+                    str += " | ";
                 }
-                System.out.println(str);
             }
-            //Fecha operador
-            executor.close();
+            System.out.println(str);
         }
+        //Fecha operador
+        executor.close();
 
 
         //Fecha as tables, não serão mais acessadas
