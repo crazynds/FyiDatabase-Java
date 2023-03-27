@@ -101,6 +101,6 @@ public class GroupOperator extends UnaryOperator {
             map.get(name.getKey()).add(name.getValue());
         }
 
-        return super.getContentInfo();
+        return map;
     }
 }
