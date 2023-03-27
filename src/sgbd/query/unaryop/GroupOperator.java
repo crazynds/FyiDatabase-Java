@@ -7,8 +7,7 @@ import sgbd.query.Tuple;
 import sgbd.query.agregation.AgregationOperation;
 
 import java.math.BigInteger;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class GroupOperator extends UnaryOperator {
 
@@ -83,5 +82,25 @@ public class GroupOperator extends UnaryOperator {
     @Override
     public void close() {
         getOperator().close();
+    }
+
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        Map<String,List<String>> old = super.getContentInfo();
+        Map<String,List<String>> map = new HashMap<>();
+        map.put(source,new ArrayList<>());
+        map.get(source).add(column);
+
+        for (AgregationOperation ag:
+             agregationOperations) {
+            Map.Entry<String,String> name = ag.getNameDestination();
+            if(map.get(name.getKey())==null){
+                map.put(name.getKey(), new ArrayList<>());
+            }
+            map.get(name.getKey()).add(name.getValue());
+        }
+
+        return super.getContentInfo();
     }
 }

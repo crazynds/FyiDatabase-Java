@@ -3,9 +3,14 @@ package sgbd.query;
 import engine.info.Parameters;
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
+import sgbd.query.agregation.AvgAgregation;
+import sgbd.query.agregation.MaxAgregation;
+import sgbd.query.agregation.MinAgregation;
 import sgbd.query.binaryop.UnionOperator;
+import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.FilterOperator;
+import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.Table;
 import sgbd.util.Util;
 
@@ -27,17 +32,23 @@ public class Main {
         Operator selectSomeUsers = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
         Operator selectCidades = new TableScan(cidades, Arrays.asList("id","nome"));
 
-        Operator where = new FilterOperator(selectSomeUsers,(Tuple t)->{
-            return t.getContent("users").getInt("id") > 30;
-        });
-
         Operator where2 = new FilterOperator(selectCidades,(Tuple t)->{
             return t.getContent("cidades").getInt("id") < 3;
         });
 
-        Operator union = new UnionOperator(where,where2,Arrays.asList("users.id"),Arrays.asList("cidades.id"));
+        Operator join = new LeftNestedLoopJoin(selectSomeUsers,where2,(t1, t2) -> {
+            return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
+        });
 
-        Operator executor=union;
+
+        Operator group = new GroupOperator(join,"users","idCidade", List.of(
+                new AvgAgregation("users","idade"),
+                new MaxAgregation("users","anoNascimento"),
+                new MinAgregation("users","idade")
+        ));
+
+
+        Operator executor=group;
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
             for(String col:content.getValue()){
