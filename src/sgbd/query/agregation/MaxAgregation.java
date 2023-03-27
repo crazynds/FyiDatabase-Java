@@ -10,6 +10,7 @@ public class MaxAgregation extends AgregationOperation{
     protected BigInteger number;
 
     protected Column meta;
+    protected boolean fisrt = false;
 
     public MaxAgregation(String sourceSrc, String columnSrc, String sourceDst, String columnDst) {
         super(sourceSrc, columnSrc, sourceDst, columnDst);
@@ -28,6 +29,7 @@ public class MaxAgregation extends AgregationOperation{
     public void initialize(Tuple acumulator) {
         number = BigInteger.ZERO;
         meta = null;
+        fisrt = true;
     }
 
     @Override
@@ -36,7 +38,10 @@ public class MaxAgregation extends AgregationOperation{
         if(arr==null)return;
         if(meta==null)meta = newData.getContent(sourceSrc).getMeta(columnSrc);
         BigInteger check = Util.convertByteArrayToNumber(arr);
-        if(number.compareTo(check)<0)number = check;
+        if(fisrt) {
+            number = check;
+            fisrt = false;
+        }else if(number.compareTo(check)<0)number = check;
     }
 
     @Override
