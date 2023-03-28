@@ -2,6 +2,8 @@ package sgbd.query.agregation;
 
 import sgbd.query.Tuple;
 
+import java.util.Map;
+
 public abstract class AgregationOperation {
 
 
@@ -25,5 +27,9 @@ public abstract class AgregationOperation {
     public abstract void initialize(Tuple acumulator);
     public abstract void process(Tuple acumulator, Tuple newData);
     public abstract void finalize(Tuple acumulator);
+
+    public Map.Entry<String, String> getNameDestination() {
+        return Map.entry(sourceDst,columnDst);
+    }
 
 }

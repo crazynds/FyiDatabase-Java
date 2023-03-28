@@ -6,6 +6,7 @@ import sgbd.query.Tuple;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
 public class AvgAgregation extends AgregationOperation{
     private double sum;
@@ -52,4 +53,5 @@ public class AvgAgregation extends AgregationOperation{
         double result = (qtd>0)?(sum / qtd):0;
         acumulator.getContent(sourceDst).setDouble(columnDst,result,new Column("avg",(short)8,Column.FLOATING_POINT));
     }
+
 }

@@ -7,13 +7,17 @@ import java.math.BigInteger;
 
 public class MinAgregation extends MaxAgregation{
 
-
     public MinAgregation(String sourceSrc, String columnSrc, String sourceDst, String columnDst) {
         super(sourceSrc, columnSrc, sourceDst, columnDst);
     }
 
     public MinAgregation(String sourceSrc, String columnSrc) {
         super(sourceSrc, columnSrc);
+    }
+
+    @Override
+    public void initialize(Tuple acumulator) {
+        super.initialize(acumulator);
     }
 
     @Override
@@ -27,7 +31,10 @@ public class MinAgregation extends MaxAgregation{
         if(arr==null)return;
         if(meta==null)meta = newData.getContent(sourceSrc).getMeta(columnSrc);
         BigInteger check = Util.convertByteArrayToNumber(arr);
-        if(number.compareTo(check)>0)number = check;
+        if(fisrt) {
+            number = check;
+            fisrt = false;
+        }else if(number.compareTo(check)<0)number = check;
     }
 
 }

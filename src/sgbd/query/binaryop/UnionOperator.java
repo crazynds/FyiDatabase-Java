@@ -8,9 +8,7 @@ import sgbd.query.Tuple;
 import sgbd.query.unaryop.DistinctOperator;
 import sgbd.util.ComparableFilter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class UnionOperator extends BinaryOperator{
 
@@ -42,15 +40,12 @@ public class UnionOperator extends BinaryOperator{
         this.comparator = (t1, t2) -> {
             for(int x=0;x< this.leftColumns.size();x++){
                 String a[] = this.leftColumns.get(x);
-                String b[] = this.leftColumns.get(x);
-                if(
-                        Arrays.compare(
-                            t1.getContent(a[0]).getData(a[1]),
-                            t2.getContent(b[0]).getData(b[1])
-                        )!=0
-                )return false;
+                String b[] = this.rightColumns.get(x);
+                byte[] dataA = t1.getContent(a[0]).getData(a[1]);
+                byte[] dataB = t2.getContent(b[0]).getData(b[1]);
+                if(Arrays.compare(dataA,dataB)!=0)return false;
             }
-            return false;
+            return true;
         };
     }
 
@@ -124,5 +119,21 @@ public class UnionOperator extends BinaryOperator{
         tuples.clear();
         left.close();
         right.close();
+    }
+
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        Map<String, List<String>> lTable = left.getContentInfo();
+        Map<String, List<String>> current = new HashMap<>();
+        for(int x=0;x< leftColumns.size();x++){
+            if(current.get(leftColumns.get(x)[0]) == null)
+                current.put(leftColumns.get(x)[0],new ArrayList<>());
+        }
+        for(int x=0;x< leftColumns.size();x++){
+            List<String> arr = current.get(leftColumns.get(x)[0]);
+            arr.add(leftColumns.get(x)[1]);
+        }
+        return current;
     }
 }
