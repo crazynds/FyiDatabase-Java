@@ -44,7 +44,11 @@ public class Prototype implements Iterable<Column>{
 	}
 	
 	public Column getColumn(int val) {
-		return columns.get(val);
+		try {
+			return columns.get(val);
+		}catch (IndexOutOfBoundsException e){
+			return null;
+		}
 	}
 	
 	public short size() {
