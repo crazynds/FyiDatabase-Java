@@ -3,14 +3,19 @@ package sgbd.prototype;
 import sgbd.util.UtilConversor;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ComplexRowData extends RowData{
 
-    private HashMap<String,Column> metaData;
+    private Map<String,Column> metaData;
 
     public ComplexRowData(){
         super();
-        metaData=new HashMap<>();
+        metaData=new HashMap<String,Column>();
+    }
+    protected ComplexRowData(ComplexRowData data){
+        super(data);
+        metaData=new HashMap<String,Column>(data.metaData);
     }
 
 
@@ -33,6 +38,10 @@ public class ComplexRowData extends RowData{
     }
     public void setDouble(String column,double data,Column meta) {
         this.setData(column, UtilConversor.doubleToByteArray(data),meta);
+    }
+
+    public ComplexRowData clone(){
+        return new ComplexRowData(this);
     }
 
 

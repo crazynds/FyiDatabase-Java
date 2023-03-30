@@ -15,6 +15,10 @@ public class NestedLoopJoin extends BinaryOperator {
     protected Tuple currentLeftTuple=null;
     protected ComparableFilter<Tuple> comparator;
 
+    public NestedLoopJoin(Operator left, Operator right) {
+        super(left, right);
+        this.comparator = null;
+    }
     public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
         super(left, right);
         this.comparator = comparator;
@@ -56,7 +60,7 @@ public class NestedLoopJoin extends BinaryOperator {
                 Tuple rightTuple = right.next();
                 //Faz a comparação do join
                 Query.COMPARE_JOIN++;
-                if(comparator.match(currentLeftTuple,rightTuple)){
+                if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
                     nextTuple = new Tuple(currentLeftTuple,rightTuple);
                     return nextTuple;
                 }

@@ -66,6 +66,15 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
         return rd;
     }
 
+    public Tuple clone(){
+        Tuple t = new Tuple();
+        for (Map.Entry<String, ComplexRowData> source:
+             sources.entrySet()) {
+            t.setContent(source.getKey(),source.getValue().clone());
+        }
+        return t;
+    }
+
     public Iterable<String> getSources(){
         return sources.keySet();
     }

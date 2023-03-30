@@ -25,7 +25,7 @@ public class FilterColumnsOperator extends UnaryOperator{
 
     @Override
     public Tuple next() {
-        Tuple t = operator.next();
+        Tuple t = operator.next().clone();
         ComplexRowData row = t.getContent(content);
         if(row!=null){
             for(String colName: columns)

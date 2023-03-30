@@ -14,6 +14,9 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 	public RowData() {
 		data=new HashMap<String, byte[]>();
 	}
+	protected RowData(RowData cloneData) {
+		data=new HashMap<String, byte[]>(cloneData.data);
+	}
 
 	private void removeCheckSum(String column){
 		byte[] arr = data.get(column);
