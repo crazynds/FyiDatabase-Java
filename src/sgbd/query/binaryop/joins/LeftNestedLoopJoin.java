@@ -11,6 +11,9 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
     public LeftNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
         super(left, right, comparator);
     }
+    public LeftNestedLoopJoin(Operator left, Operator right) {
+        super(left, right);
+    }
 
     @Override
     public void open() {
@@ -34,7 +37,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
                 Tuple rightTuple = right.next();
                 //Faz a comparação do join
                 Query.COMPARE_JOIN++;
-                if(comparator.match(currentLeftTuple,rightTuple)){
+                if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
                     qtdFinded++;
                     nextTuple = new Tuple(currentLeftTuple,rightTuple);
                     return nextTuple;

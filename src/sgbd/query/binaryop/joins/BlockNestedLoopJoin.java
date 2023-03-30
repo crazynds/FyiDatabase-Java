@@ -25,6 +25,10 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
         super(left, right,comparator);
     }
 
+    public BlockNestedLoopJoin(Operator left, Operator right) {
+        super(left, right);
+    }
+
     @Override
     public void open() {
         bufferedLeftTuples.clear();
@@ -71,7 +75,7 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
             if(bufferedLeftTuples.size()>indexLeftTuple) {
                 leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
                 Query.COMPARE_JOIN++;
-                if(comparator.match(leftTuple,rightTuple)) {
+                if(comparator==null || comparator.match(leftTuple,rightTuple)) {
                     nextTuple = new Tuple();
                     for (Map.Entry<String, ComplexRowData> entry:
                             leftTuple) {
