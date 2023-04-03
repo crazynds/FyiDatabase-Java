@@ -53,6 +53,9 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 	public void setDouble(String column,double data) {
 		this.setData(column, UtilConversor.doubleToByteArray(data));
 	}
+	public void setBoolean(String column,boolean data) {
+		this.setData(column, new byte[]{(byte) (data ? 1 : 0)});
+	}
 	public byte[] unset(String column){
 		valid=false;
 		removeCheckSum(column);
@@ -86,6 +89,11 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 		byte[] data = this.data.get(column);
 		if(data==null)return null;
 		return UtilConversor.byteArrayToString(data);
+	}
+	public Boolean getBoolean(String column) {
+		byte[] data = this.data.get(column);
+		if(data==null)return null;
+		return data[0]!=0;
 	}
 	
 	public int size() {

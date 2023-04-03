@@ -48,6 +48,9 @@ public class ComplexRowData extends RowData{
     public void setDouble(String column,double data,Column meta) {
         this.setData(column, UtilConversor.doubleToByteArray(data),meta);
     }
+    public void setBoolean(String column,boolean data,Column meta) {
+        this.setData(column, new byte[]{(byte) (data ? 1 : 0)}, meta);
+    }
 
     public ComplexRowData clone(){
         return new ComplexRowData(this);

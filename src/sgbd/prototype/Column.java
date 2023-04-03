@@ -12,6 +12,7 @@ public class Column {
 	public static final short PRIMARY_KEY = (1<<4);
 	public static final short STRING = (1<<5);
 	public static final short FLOATING_POINT = (1<<6);
+	public static final short BOOLEAN = (1<<7);
 	
 	protected short size;
 	protected short flags;
@@ -41,6 +42,11 @@ public class Column {
 			String validator="SHIFT_8_SIZE + DINAMIC_SIZE == VALID";
 			throw new DataBaseException("Column->Constructor",error,validator);
 		}
+		if(isBoolean() && isDinamicSize()){
+			String error="Uma coluna do tipo boolean não pode ter tamanho dinamico!";
+			String validator="BOOLEAN + DINAMIC_SIZE == INVALID";
+			throw new DataBaseException("Column->Constructor",error,validator);
+		}
 		int strl = name.length();
 		if(strl>240 || strl==0){
 			String error="Uma coluna com nome de tamanho inválido!";
@@ -52,6 +58,7 @@ public class Column {
 	}
 	
 	public int getSize() {
+		if(isBoolean())return 1;
 		if(isShift8Size())
 			return size<<8;
 		else
@@ -93,6 +100,9 @@ public class Column {
 	}
 	public boolean isString(){
 		return (flags&STRING)!=0;
+	}
+	public boolean isBoolean(){
+		return (flags&BOOLEAN)!=0;
 	}
 	
 }

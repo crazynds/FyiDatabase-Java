@@ -30,23 +30,13 @@ public class Main {
 
         Operator projTable = new TableScan(proj);
         Operator alocTable = new TableScan(aloc);
-        Operator funcTable = new TableScan(func,List.of("FUNC_idChefe"));
+        Operator funcTable = new TableScan(func);
         Operator deptoTable = new TableScan(depto,List.of("DEPTO_idDiretor"));
 
 
         Operator union = new UnionOperator(funcTable,deptoTable,List.of("func.FUNC_idChefe"),List.of("depto.DEPTO_idDiretor"));
 
-        Operator executor=union;
-
-
-        for (Column c:
-                func.getTranslator()) {
-            System.out.println("Nome: "+c.getName()+" Tipo: "+Util.typeOfColumn(c)+" Tamanho: "+c.getSize());
-        }
-        for (Column c:
-                depto.getTranslator()) {
-            System.out.println("Nome: "+c.getName()+" Tipo: "+Util.typeOfColumn(c)+" Tamanho: "+c.getSize());
-        }
+        Operator executor=funcTable;
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
             for(String col:content.getValue()){
@@ -59,21 +49,22 @@ public class Main {
         while (executor.hasNext()) {
             Tuple t = executor.next();
             String str = "";
-            for (Map.Entry<String, ComplexRowData> row : t) {
-                for (Map.Entry<String, byte[]> data : row.getValue()) {
-                    switch (Util.typeOfColumn(row.getValue().getMeta(data.getKey()))) {
+            for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
+                for(String col:content.getValue()){
+                    ComplexRowData row = t.getContent(content.getKey());
+                    switch (Util.typeOfColumn(row.getMeta(col))) {
                         case "int":
-                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getInt(data.getKey());
+                            str += content.getKey() + "." + col + "=" + row.getInt(col);
                             break;
                         case "float":
-                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getFloat(data.getKey());
+                            str += content.getKey() + "." + col + "=" + row.getFloat(col);
                             break;
                         case "double":
-                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getDouble(data.getKey());
+                            str += content.getKey() + "." + col + "=" + row.getDouble(col);
                             break;
                         case "string":
                         default:
-                            str += row.getKey() + "." + data.getKey() + "=" + row.getValue().getString(data.getKey());
+                            str += content.getKey() + "." + col + "=" + row.getString(col);
                             break;
                     }
                     str += " | ";
