@@ -81,6 +81,7 @@ public class CSVTable extends Table{
     public RowIterator iterator(List<String> columns) {
         return new RowIterator() {
             RowIterator sub = iterator();
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
             @Override
             public void setPointerPk(BigInteger pk) {
                 sub.setPointerPk(pk);
@@ -96,7 +97,7 @@ public class CSVTable extends Table{
                 Map.Entry<BigInteger, ComplexRowData> comp = sub.nextWithPk();
                 if(comp==null)
                     return null;
-                return Map.entry(comp.getKey(),translatorApi.convertToRowData(translatorApi.convertToRecord(comp.getValue()),columns));
+                return Map.entry(comp.getKey(),translatorApi.convertToRowData(translatorApi.convertToRecord(comp.getValue()),metaInfo));
             }
 
             @Override

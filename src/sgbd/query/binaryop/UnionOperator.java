@@ -20,7 +20,7 @@ public class UnionOperator extends BinaryOperator{
     protected Tuple nextTuple = null;
 
     public UnionOperator(Operator left, Operator right) {
-        super(left, right);
+        super(new DistinctOperator(left), new DistinctOperator(right));
         comparator = (t1, t2) -> t1.compareTo(t2) == 0 && t2.compareTo(t1) == 0;
     }
     public UnionOperator(Operator left, Operator right, List<String> leftColumns, List<String> rightColumns) {
@@ -70,6 +70,7 @@ public class UnionOperator extends BinaryOperator{
         if(nextTuple != null)return nextTuple;
         while(left.hasNext()){
             nextTuple = left.next();
+            tuples.add(nextTuple);
             return nextTuple;
         }
         while(right.hasNext()){
@@ -103,7 +104,6 @@ public class UnionOperator extends BinaryOperator{
                 if(meta!=null || data!=null)
                     n.getContent(pt[0]).setData(pt[1],data,meta);
             }
-            tuples.add(n);
             t = n;
         }
         return t;
@@ -124,13 +124,15 @@ public class UnionOperator extends BinaryOperator{
 
     @Override
     public Map<String, List<String>> getContentInfo() {
+        if(leftColumns==null)
+            return left.getContentInfo();
         Map<String, List<String>> lTable = left.getContentInfo();
         Map<String, List<String>> current = new HashMap<>();
-        for(int x=0;x< leftColumns.size();x++){
-            if(current.get(leftColumns.get(x)[0]) == null)
-                current.put(leftColumns.get(x)[0],new ArrayList<>());
+        for (int x = 0; x < leftColumns.size(); x++) {
+            if (current.get(leftColumns.get(x)[0]) == null)
+                current.put(leftColumns.get(x)[0], new ArrayList<>());
         }
-        for(int x=0;x< leftColumns.size();x++){
+        for (int x = 0; x < leftColumns.size(); x++) {
             List<String> arr = current.get(leftColumns.get(x)[0]);
             arr.add(leftColumns.get(x)[1]);
         }

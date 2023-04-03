@@ -22,7 +22,7 @@ public class SanitizationOperator extends UnaryOperator {
     public Tuple next() {
         Tuple t = operator.next();
         if(t==null)return null;
-        return sanitization.sanitize(t);
+        return sanitization.sanitize(t.clone());
     }
 
     @Override

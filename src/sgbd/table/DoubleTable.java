@@ -153,9 +153,9 @@ public class DoubleTable extends Table{
         this.index.write(indexList);
     }
 
-    private ComplexRowData mountRowData(Record indexRecord,List<String> columns){
+    private ComplexRowData mountRowData(Record indexRecord,Map<String,Column> metaInfo){
         ComplexRowData rowComplex = new ComplexRowData();
-        ComplexRowData row = this.indexTranslator.convertToRowData(indexRecord);
+        ComplexRowData row = this.indexTranslator.convertToRowData(indexRecord,metaInfo);
 
         BigInteger ref = null;
 
@@ -163,23 +163,19 @@ public class DoubleTable extends Table{
             if(data.getKey() == "_ ref _") {
                 ref = Util.convertByteArrayToNumber(data.getValue());
             }else{
-                if(columns==null)
-                    rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
-                else if(columns.contains(data.getKey()))
+                if(metaInfo.containsKey(data.getKey()))
                     rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
             }
         }
         if(ref==null)throw new DataBaseException("DoubleTable->mountRowData","Referencia não encontrada para a montagem do dado");
         Record dataRecord = this.data.read(ref);
 
-        row = this.dataTranslator.convertToRowData(dataRecord);
+        row = this.dataTranslator.convertToRowData(dataRecord,metaInfo);
         for(Map.Entry<String,byte[]> data:row){
             if(data.getKey()=="_ id _"){
                 //ignore;
             }else{
-                if(columns==null)
-                    rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
-                else if(columns.contains(data.getKey()))
+                if(metaInfo.containsKey(data.getKey()))
                     rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
             }
         }
@@ -189,13 +185,13 @@ public class DoubleTable extends Table{
     @Override
     public ComplexRowData find(BigInteger pk) {
         Record record = index.read(pk);
-        return this.mountRowData(record,null);
+        return this.mountRowData(record,this.translatorApi.generateMetaInfo(null));
     }
 
     @Override
     public ComplexRowData find(BigInteger pk, List<String> colunas) {
         Record record = index.read(pk);
-        return this.mountRowData(record,colunas);
+        return this.mountRowData(record,this.translatorApi.generateMetaInfo(colunas));
     }
 
     @Override
@@ -206,7 +202,7 @@ public class DoubleTable extends Table{
     @Override
     public RowData delete(BigInteger pk) {
         Record recordIndex = index.read(pk);
-        RowData row = this.indexTranslator.convertToRowData(recordIndex, Arrays.asList("_ ref _"));
+        RowData row = this.indexTranslator.convertToRowData(recordIndex, this.indexTranslator.generateMetaInfo(Arrays.asList("_ ref _")));
         Record recordData = data.read(Util.convertByteArrayToNumber(row.getData("_ ref _")));
         ComplexRowData rowData = this.mountRowData(recordIndex,null);
         this.indexTranslator.setActiveRecord(recordIndex,false);
@@ -226,6 +222,7 @@ public class DoubleTable extends Table{
         return new RowIterator() {
             boolean started = false;
             RecordStream recordStream;
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
             private void start(){
                 recordStream = index.sequencialRead();
@@ -251,7 +248,7 @@ public class DoubleTable extends Table{
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
-                return Map.entry(translatorApi.getPrimaryKey(record),mountRowData(record,columns));
+                return Map.entry(translatorApi.getPrimaryKey(record),mountRowData(record,metaInfo));
             }
 
             @Override
@@ -272,7 +269,7 @@ public class DoubleTable extends Table{
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
-                return mountRowData(record,columns);
+                return mountRowData(record,metaInfo);
             }
 
             @Override

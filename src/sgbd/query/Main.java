@@ -2,53 +2,51 @@ package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
+import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.agregation.AvgAgregation;
-import sgbd.query.agregation.MaxAgregation;
-import sgbd.query.agregation.MinAgregation;
 import sgbd.query.binaryop.UnionOperator;
-import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
+import sgbd.query.binaryop.joins.BlockNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
+import sgbd.query.unaryop.FilterColumnsOperator;
 import sgbd.query.unaryop.FilterOperator;
-import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.Table;
 import sgbd.util.Util;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Table users = Table.loadFromHeader("users.head");
+        Table proj = Table.loadFromHeader("proj.head");
+        Table aloc = Table.loadFromHeader("aloc.head");
+        Table func = Table.loadFromHeader("func.head");
+        Table depto = Table.loadFromHeader("depto.head");
 
-        Table cidades = Table.loadFromHeader("cidades.head");
+        proj.open();
+        aloc.open();
+        func.open();
+        depto.open();
 
-        users.open();
-        cidades.open();
-
-        Operator selectSomeUsers = new TableScan(users, Arrays.asList("id","idade","nome", "idCidade","anoNascimento"));
-        Operator selectCidades = new TableScan(cidades, Arrays.asList("id","nome"));
-
-        Operator where2 = new FilterOperator(selectCidades,(Tuple t)->{
-            return t.getContent("cidades").getInt("id") < 3;
-        });
-
-        Operator join = new LeftNestedLoopJoin(selectSomeUsers,where2,(t1, t2) -> {
-            return t1.getContent("users").getInt("idCidade") == t2.getContent("cidades").getInt("id");
-        });
+        Operator projTable = new TableScan(proj);
+        Operator alocTable = new TableScan(aloc);
+        Operator funcTable = new TableScan(func,List.of("FUNC_idChefe"));
+        Operator deptoTable = new TableScan(depto,List.of("DEPTO_idDiretor"));
 
 
-        Operator group = new GroupOperator(join,"users","idCidade", List.of(
-                new AvgAgregation("users","idade"),
-                new MaxAgregation("users","anoNascimento"),
-                new MinAgregation("users","idade")
-        ));
+        Operator union = new UnionOperator(funcTable,deptoTable,List.of("func.FUNC_idChefe"),List.of("depto.DEPTO_idDiretor"));
+
+        Operator executor=union;
 
 
-        Operator executor=group;
+        for (Column c:
+                func.getTranslator()) {
+            System.out.println("Nome: "+c.getName()+" Tipo: "+Util.typeOfColumn(c)+" Tamanho: "+c.getSize());
+        }
+        for (Column c:
+                depto.getTranslator()) {
+            System.out.println("Nome: "+c.getName()+" Tipo: "+Util.typeOfColumn(c)+" Tamanho: "+c.getSize());
+        }
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
             for(String col:content.getValue()){
@@ -88,8 +86,6 @@ public class Main {
 
 
         //Fecha as tables, não serão mais acessadas
-        users.close();
-        cidades.close();
 
 
         System.out.println("");

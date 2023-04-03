@@ -28,11 +28,11 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
         sources = new HashMap<>();
         for (Map.Entry<String, ComplexRowData> entry:
                 left) {
-            this.setContent(entry.getKey(),entry.getValue());
+            this.setContent(entry.getKey(),entry.getValue().clone());
         }
         for (Map.Entry<String, ComplexRowData> entry:
                 right) {
-            this.setContent(entry.getKey(),entry.getValue());
+            this.setContent(entry.getKey(),entry.getValue().clone());
         }
     }
 

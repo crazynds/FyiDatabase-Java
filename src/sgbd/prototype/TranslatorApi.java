@@ -149,44 +149,8 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         rw.setValid();
     }
 
-
-    public synchronized ComplexRowData convertToRowData(Record r){
-        ComplexRowData row = new ComplexRowData();
-        byte[] data = r.getData();
-        byte[] header = headerBuffer;
-        System.arraycopy(data,0,header,0,this.headerSize);
-        int headerPointer = 1;
-        int offset = this.headerSize;
-
-        for(Column c: columns){
-            if(c.camBeNull()){
-                try {
-                    if ((header[headerPointer / 8] & (1 << headerPointer%8)) != 0) {
-                        //campo é nulo
-                        continue;
-                    }
-                }finally {
-                    headerPointer++;
-                }
-            }
-            if(c.isDinamicSize()){
-                int size = UtilConversor.byteArrayToInt(Arrays.copyOfRange(data,offset,offset+4));
-                offset+=4;
-                byte[] arr = Arrays.copyOfRange(data,offset,offset+size);
-                offset+=size;
-                row.setData(c.getName(),arr,c);
-            }else{
-                byte[] arr = Arrays.copyOfRange(data,offset,offset+c.getSize());
-                offset+=c.getSize();
-                row.setData(c.getName(),arr,c);
-            }
-        }
-        return row;
-    }
-
-
-    public synchronized ComplexRowData convertToRowData(Record r, List<String> select){
-        ComplexRowData row = new ComplexRowData();
+    public synchronized ComplexRowData convertToRowData(Record r, Map<String,Column> meta){
+        ComplexRowData row = new ComplexRowData(meta);
         byte[] data = r.getData();
         byte[] header = headerBuffer;
         System.arraycopy(data,0,header,0,this.headerSize);
@@ -195,8 +159,8 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         int selecteds = 0;
 
         for(Column c: columns){
-            if(selecteds >= select.size())break;
-            boolean checkColumn = select.contains(c.getName());
+            if(selecteds >= meta.size())break;
+            boolean checkColumn = meta.containsKey(c.getName());
             if(checkColumn)selecteds++;
             if(c.camBeNull()){
                 try {
@@ -213,13 +177,13 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
                 offset += 4;
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
-                    row.setData(c.getName(), arr,c);
+                    row.setData(c.getName(), arr);
                 }
                 offset += size;
             } else {
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
-                    row.setData(c.getName(), arr,c);
+                    row.setData(c.getName(), arr);
                 }
                 offset += c.getSize();
             }
@@ -267,6 +231,15 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             offset+=data.length;
         }
         return new GenericRecord(bufferRecord);
+    }
+
+    public Map<String,Column> generateMetaInfo(List<String> select){
+        HashMap<String,Column> map = new HashMap<>();
+        for (Column c: columns) {
+            if(select == null || select.contains(c.getName()))
+                map.put(c.getName(),c);
+        }
+        return Collections.unmodifiableMap(map);
     }
 
     @Override

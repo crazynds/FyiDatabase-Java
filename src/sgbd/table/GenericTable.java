@@ -3,6 +3,7 @@ package sgbd.table;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.manager.RecordManager;
+import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
@@ -58,12 +59,11 @@ public abstract class GenericTable extends Table{
     @Override
     public ComplexRowData find(BigInteger pk, List<String> colunas) {
         Record r =this.manager.read(pk);
-        return translatorApi.convertToRowData(r,colunas);
+        return translatorApi.convertToRowData(r,translatorApi.generateMetaInfo(colunas));
     }
     @Override
     public ComplexRowData find(BigInteger pk) {
-        Record r =this.manager.read(pk);
-        return translatorApi.convertToRowData(r);
+        return this.find(pk,null);
     }
 
     @Override
@@ -77,7 +77,7 @@ public abstract class GenericTable extends Table{
         translatorApi.setActiveRecord(r,false);
         this.manager.write(r);
         this.manager.flush();
-        return translatorApi.convertToRowData(r);
+        return translatorApi.convertToRowData(r,translatorApi.generateMetaInfo(null));
     }
 
 
@@ -85,6 +85,7 @@ public abstract class GenericTable extends Table{
         return new RowIterator() {
             boolean started = false;
             RecordStream recordStream;
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
             private void start(){
                 recordStream = manager.sequencialRead();
@@ -110,7 +111,7 @@ public abstract class GenericTable extends Table{
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
-                return Map.entry(translatorApi.getPrimaryKey(record),translatorApi.convertToRowData(record,columns));
+                return Map.entry(translatorApi.getPrimaryKey(record),translatorApi.convertToRowData(record,metaInfo));
             }
 
             @Override
@@ -131,7 +132,7 @@ public abstract class GenericTable extends Table{
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
-                return translatorApi.convertToRowData(record,columns);
+                return translatorApi.convertToRowData(record,metaInfo);
             }
 
             @Override
@@ -147,6 +148,7 @@ public abstract class GenericTable extends Table{
         return new RowIterator() {
             boolean started = false;
             RecordStream recordStream;
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(null);
 
             private void start(){
                 recordStream = manager.sequencialRead();
@@ -178,7 +180,7 @@ public abstract class GenericTable extends Table{
 
                     @Override
                     public ComplexRowData getValue() {
-                        return translatorApi.convertToRowData(record);
+                        return translatorApi.convertToRowData(record,metaInfo);
                     }
 
                     @Override
@@ -206,7 +208,7 @@ public abstract class GenericTable extends Table{
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
                 if(record==null)return null;
-                return translatorApi.convertToRowData(record);
+                return translatorApi.convertToRowData(record,metaInfo);
             }
 
             @Override

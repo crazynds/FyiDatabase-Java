@@ -141,11 +141,7 @@ public class MergeJoin extends BinaryOperator {
                     rightCurrent = nextRight();
                     break;
                 case 0:
-                    Tuple tuple = leftCurrent.getKey();
-                    for (Map.Entry<String, ComplexRowData> entry :
-                            rightCurrent.getKey()) {
-                        tuple.setContent(entry.getKey(), entry.getValue());
-                    }
+                    Tuple tuple = new Tuple(leftCurrent.getKey(),rightCurrent.getKey());
                     leftCurrent = null;
                     nextTuple = tuple;
                     return nextTuple;

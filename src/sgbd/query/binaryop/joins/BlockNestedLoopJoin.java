@@ -76,15 +76,7 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
                 leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
                 Query.COMPARE_JOIN++;
                 if(comparator==null || comparator.match(leftTuple,rightTuple)) {
-                    nextTuple = new Tuple();
-                    for (Map.Entry<String, ComplexRowData> entry:
-                            leftTuple) {
-                        nextTuple.setContent(entry.getKey(),entry.getValue());
-                    }
-                    for (Map.Entry<String, ComplexRowData> entry:
-                            rightTuple) {
-                        nextTuple.setContent(entry.getKey(),entry.getValue());
-                    }
+                    nextTuple = new Tuple(leftTuple,rightTuple);
                 }
             }else{
                 rightTuple= null;

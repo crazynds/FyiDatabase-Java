@@ -26,7 +26,7 @@ public class AsOperator extends UnaryOperator {
 
     @Override
     public Tuple next() {
-        Tuple t = operator.next();
+        Tuple t = operator.next().clone();
         ComplexRowData row = t.getContent("asOperation");
         row.setData(name,conversor.process(t),conversor.metaInfo(t));
         return t;
