@@ -1,8 +1,6 @@
 package sgbd.prototype;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 
 import engine.exceptions.DataBaseException;
 
@@ -25,7 +23,7 @@ public class Prototype implements Iterable<Column>{
 
 	public void addColumn(Column c) {
 		if(c == null)
-			throw new DataBaseException("Prototype->addColumn","Column passada é nula");
+			throw new DataBaseException("Prototype->addColumn","Column passada Ã© nula");
 		columns.add(c);
 		if(c.isDinamicSize())stat=false;
 	}
@@ -58,7 +56,7 @@ public class Prototype implements Iterable<Column>{
 	public TranslatorApi validateColumns()  {
 		DataBaseException ex =null;
 		if(size()==0){
-			String error="Não é valido uma tabela com nenhuma coluna!";
+			String error="NÃ£o Ã© valido uma tabela com nenhuma coluna!";
 			ex=new DataBaseException("Prototype->ValidateColumns",error);
 			ex.addValidation("Min:1");
 			throw ex;
@@ -67,20 +65,20 @@ public class Prototype implements Iterable<Column>{
 			Column col=getColumn(x);
 			int namelen=col.getName().length();
 			if(namelen>240 || namelen<1){
-				String error="Coluna "+x+" tem nome de tamanhos inválido!";
+				String error="Coluna "+x+" tem nome de tamanhos invÃ¡lido!";
 				ex=new DataBaseException("Prototype->ValidateColumns",error);
 				ex.addValidation("Max:240");
 				ex.addValidation("Min:1");
 				throw ex;
 			}
 			if(col.isPrimaryKey() && col.camBeNull()){
-				String error="Coluna "+col.getName()+" não pode ser nula e ao mesmo tempo ser primary key!";
+				String error="Coluna "+col.getName()+" nÃ£o pode ser nula e ao mesmo tempo ser primary key!";
 				ex=new DataBaseException("Prototype->ValidateColumns",error);
 				ex.addValidation("NULL not in PRIMARY KEY");
 				throw ex;
 			}
 			if(col.isPrimaryKey() && col.isDinamicSize()){
-				String error="Coluna "+col.getName()+" não pode ser dinamica ao mesmo tempo que é primary key!";
+				String error="Coluna "+col.getName()+" nÃ£o pode ser dinamica ao mesmo tempo que Ã© primary key!";
 				ex=new DataBaseException("Prototype->ValidateColumns",error);
 				ex.addValidation("DINAMIC not in PRIMARY KEY");
 				throw ex;
@@ -119,6 +117,10 @@ public class Prototype implements Iterable<Column>{
 	@Override
 	public Iterator<Column> iterator() {
 		return columns.iterator();
+	}
+
+	public List<Column> getColumns() {
+		return Collections.unmodifiableList(columns);
 	}
 
 }
