@@ -18,7 +18,7 @@ public class MainTest {
         p2.addColumn("id",4,Column.PRIMARY_KEY);
         p2.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
 
-        Table tableCidades = Table.openTable(new Header(p2,"cidades"),true);
+        Table tableCidades = Table.openTable(new Header(p2,name),true);
         tableCidades.open();
 
         RowData cidade = new RowData();
@@ -38,7 +38,7 @@ public class MainTest {
         cidade.setString("nome","Minas Gerais");
         tableCidades.insert(cidade);
         cidade.setInt("id",6);
-        cidade.setString("nome","São Paulo");
+        cidade.setString("nome","SÃ£o Paulo");
         tableCidades.insert(cidade);
         cidade.setInt("id",7);
         cidade.setString("nome","Uberlandia");
@@ -76,7 +76,7 @@ public class MainTest {
         p1.addColumn("salario",4,Column.FLOATING_POINT);
         p1.addColumn("idCidade",4,Column.NONE);
 
-        Table tableUsers = Table.openTable(new Header(p1,"users"),true);
+        Table tableUsers = Table.openTable(new Header(p1,name),true);
         Random rand = new Random();
 
         tableUsers.open();
@@ -119,7 +119,7 @@ public class MainTest {
 
 
     public static void main(String[] args) throws IOException {
-        //Prepara o protótipo da tabela
+        //Prepara o protÃ³tipo da tabela
         prepareCidade(true);
         prepareUsuario(true);
     }
