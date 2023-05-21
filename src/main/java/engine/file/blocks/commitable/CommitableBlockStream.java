@@ -35,7 +35,7 @@ public class CommitableBlockStream implements WriteByteStream {
 	public int write(long pos, byte[] data, int offset, int len)  {
 		if(pos>=blockSize)return 0;
 		if(data.length+offset<len){
-			throw new DataBaseException("Block->write","Array passado é menor que o solicitado para escrever");
+			throw new DataBaseException("Block->write","Array passado Ã© menor que o solicitado para escrever");
 		}
 		//WriteCache bw = new WriteCache(pos, data,offset,len);
 

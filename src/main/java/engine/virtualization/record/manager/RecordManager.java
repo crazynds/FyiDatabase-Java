@@ -31,12 +31,12 @@ public abstract class RecordManager{
 	
 	/*
 	 * Inicia um arquivo do zero
-	 * Reinicia todos os dados necessários
+	 * Reinicia todos os dados necessÃ¡rios
 	 */
 	public abstract void restart() ;
 	
 	/*
-	 * Força os buffers a liberarem as modificações escritas
+	 * Forï¿½a os buffers a liberarem as modificaÃ§Ãµes escritas
 	 */
 	public void flush(){
 		if(fileManager!=null)
@@ -44,7 +44,7 @@ public abstract class RecordManager{
 	}
 	
 	/*
-	 * Fecha a manipulação do arquivo e faz o salvametno dos dados
+	 * Fecha a manipulaÃ§Ã£o do arquivo e faz o salvamento dos dados
 	 */
 	public void close(){
 		if(fileManager!=null)
@@ -58,9 +58,9 @@ public abstract class RecordManager{
 	public abstract void read(BigInteger pk,byte[] buffer);
 	
 	/*
-	 * Essa função tem como objetivo procurar algum record que tenha a chave primaria correspondente
-	 * e atualiza-la com as informações do record correspondente.
-	 * Caso não encontre ela deve ser adicionada a lista
+	 * Essa funÃ§Ã£o tem como objetivo procurar algum record que tenha a chave primaria correspondente
+	 * e atualiza-la com as informaÃ§Ãµes do record correspondente.
+	 * Caso nÃ©o encontre ela deve ser adicionada a lista
 	 */
 	public abstract void write(Record r) ;
 	public abstract void write(List<Record> list) ;
@@ -72,7 +72,7 @@ public abstract class RecordManager{
 	
 	/*
 	 * Retorna um objeto que vai fazer a leitura sequencial dos records.
-	 * Esse objeto possui funcões auxiliares de controle
+	 * Esse objeto possui funcï¿½es auxiliares de controle
 	 */
 	public abstract RecordStream sequencialRead();
 	

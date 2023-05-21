@@ -32,7 +32,7 @@ public class CSVTable extends Table{
     @Override
     public void open() {
         if(!csvFile.exists() || !csvFile.isFile() || !csvFile.canRead())
-            throw new RuntimeException("CSV n„o È acessivel!");
+            throw new RuntimeException("CSV n√£o √© acessivel!");
     }
 
     @Override

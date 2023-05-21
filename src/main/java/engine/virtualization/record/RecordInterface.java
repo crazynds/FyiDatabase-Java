@@ -11,7 +11,7 @@ public class RecordInterface{
 
 	/*
 	 * Atualiza a referencia da primary key na tabela de referencias do manipulador;
-	 * N„o È ncess·rio a implementaÁ„o de uma lÛgica dentro dessa funÁ„o
+	 * N√£o √© ncess√°rio a implementa√ß√£o de uma l√≥gica dentro dessa fun√ß√£o
 	 * mas pode ser utilizada por otmizadores e cache para busca futura
 	 */
 	public void updeteReference(BigInteger pk,long key){

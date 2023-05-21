@@ -7,30 +7,30 @@ public interface RecordStream {
 	
 	/*
 	 * Abre e fecha o leitor sequencial
-	 * … importante caso seja necess·rio bloquear a tabela dependendo do record manager
-	 * Na funÁ„o open deve ser passado true caso possa ser chamado a funÁ„o write
+	 * √â importante caso seja necess√°rio bloquear a tabela dependendo do record manager
+	 * Na fun√ß√£o open deve ser passado true caso possa ser chamado a fun√ß√£o write
 	 */
 	public void open(boolean lockToWrite);
 	public void close();
 	
 	/*
-	 * Verifica se existe um record para a prÛxima leitura
+	 * Verifica se existe um record para a pr√≥xima leitura
 	 */
 	public boolean hasNext() ;
 
 	/*
-	 * Retorna o record no ponteiro atual, e atualiza o ponteiro para o prÛximo ponteiro;
+	 * Retorna o record no ponteiro atual, e atualiza o ponteiro para o proximo ponteiro;
 	 */
 	public Record next();
 	
 	/*
-	 * Faz a leitura do record ou a posiÁ„o em que ele est· armazendo no banco de dados
+	 * Faz a leitura do record ou a posi√ß√£o em que ele est√° armazendo no banco de dados
 	 */
 	public Record getRecord();
 	
 	/*
-	 * Faz a chamada de escrita do record na posiÁ„o em que estava
-	 * Caso seja necess·rio, o objeto ira fazer chamadas de atualizaÁ„o da posiÁ„o dos outros records
+	 * Faz a chamada de escrita do record na posi√ß√£o em que estava
+	 * Caso seja necess√°rio, o objeto ira fazer chamadas de atualiza√ß√£o da posi√ß√£o dos outros records
 	 */
 	public void write(Record r);
 
@@ -40,11 +40,11 @@ public interface RecordStream {
 	public void remove();
 	
 	/*
-	 * Reinicia a leitura da stream, voltando para a primieira posiÁ„o
+	 * Reinicia a leitura da stream, voltando para a primieira posi√ß√£o
 	 */
 	public void reset();
 	/*
-	 * Define a posiÁ„o para a leitura, caso seja passado uma posiÁ„o inv·lida, a leitura pode ocorrer de forma errada.
+	 * Define a posi√ß√£o para a leitura, caso seja passado uma posi√ß√£o inv√°lida, a leitura pode ocorrer de forma errada.
 	 */
 	public void setPointer(BigInteger pk);
 	public BigInteger getPointer();

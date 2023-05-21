@@ -34,7 +34,7 @@ public class NoBlockBuffer extends BlockBuffer {
 
 	@Override
 	public Block readBlock(int pos)  {
-		if(stream==null)throw new DataBaseException("NoBlockBuffer->readBlock","BlockStream n„o definido!");
+		if(stream==null)throw new DataBaseException("NoBlockBuffer->readBlock","BlockStream n√£o definido!");
 		try {
 			return stream.readBlock(pos);
 		}catch(DataBaseException e) {
@@ -45,7 +45,7 @@ public class NoBlockBuffer extends BlockBuffer {
 
 	@Override
 	public void writeBlock(int pos, Block b)  {
-		if(stream==null)throw new DataBaseException("NoBlockBuffer->writeBlock","BlockStream n„o definido!");
+		if(stream==null)throw new DataBaseException("NoBlockBuffer->writeBlock","BlockStream n√£o definido!");
 		try {
 			stream.writeBlock(pos,b);
 		}catch(DataBaseException e) {

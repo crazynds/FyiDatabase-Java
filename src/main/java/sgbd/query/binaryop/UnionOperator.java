@@ -26,7 +26,7 @@ public class UnionOperator extends BinaryOperator{
     public UnionOperator(Operator left, Operator right, List<String> leftColumns, List<String> rightColumns) {
         super(new DistinctOperator(left), new DistinctOperator(right));
         if(leftColumns.size()!=rightColumns.size())throw new DataBaseException("UnionOperator->Constructor","As listas de colunas ter a mesma quantidade de argumentos");
-        if(leftColumns.size()<=0)throw new DataBaseException("UnionOperator->Constructor","Lista de colunas n„o devem ser vazias!");
+        if(leftColumns.size()<=0)throw new DataBaseException("UnionOperator->Constructor","Lista de colunas n√£o devem ser vazias!");
         ArrayList<String[]> l = new ArrayList<>(), r = new ArrayList<>();
         for(int x=0;x< leftColumns.size();x++){
             String a[] = leftColumns.get(x).split("\\.");

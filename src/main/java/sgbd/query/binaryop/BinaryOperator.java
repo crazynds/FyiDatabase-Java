@@ -33,21 +33,25 @@ public abstract class BinaryOperator implements Operator {
 
 
     public List<Table> getSources(){
-        List<Table> rTable = right.getSources();
         List<Table> lTable = left.getSources();
-        return Stream.concat(rTable.stream(),lTable.stream()).collect(Collectors.toList());
+        List<Table> rTable = right.getSources();
+        return Stream.concat(lTable.stream(),rTable.stream()).collect(Collectors.toList());
     }
 
     @Override
     public Map<String, List<String>> getContentInfo() {
-        Map<String, List<String>> rTable = right.getContentInfo();
+        return getStringListMap(left, right);
+    }
+
+    protected static Map<String, List<String>> getStringListMap(Operator left, Operator right) {
         Map<String, List<String>> lTable = left.getContentInfo();
-        for(Map.Entry<String,List<String>> a: rTable.entrySet()){
-            if(lTable.containsKey(a.getKey())){
-                a.setValue(Stream.concat(a.getValue().stream(),lTable.get(a.getKey()).stream()).collect(Collectors.toList()));
-                lTable.remove(a.getKey());
+        Map<String, List<String>> rTable = right.getContentInfo();
+        for(Map.Entry<String,List<String>> a: lTable.entrySet()){
+            if(rTable.containsKey(a.getKey())){
+                a.setValue(Stream.concat(a.getValue().stream(),rTable.get(a.getKey()).stream()).collect(Collectors.toList()));
+                rTable.remove(a.getKey());
             }
         }
-        return Stream.concat(rTable.entrySet().stream(), lTable.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return Stream.concat(lTable.entrySet().stream(), rTable.entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

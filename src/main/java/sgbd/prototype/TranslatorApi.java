@@ -31,7 +31,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         this.headerPosition = new HashMap<>();
         /*
         0 - 256
-                0-253 -> ja é o tamanho => 1 byte
+                0-253 -> ja Ã© o tamanho => 1 byte
                 254 -> deve ler um short => 3 byes
                 255 -> deve ler um int   => 5 bytes => unico pior caso
                 5 bytes
@@ -130,18 +130,18 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             byte[] data = rw.getData(c.getName());
             if(data == null){
                 if(!c.camBeNull()){
-                    throw new DataBaseException("RecordTranslateApi->convertToRecord","Coluna "+c.getName()+" não pode ser nula!");
+                    throw new DataBaseException("RecordTranslateApi->convertToRecord","Coluna "+c.getName()+" nÃ£o pode ser nula!");
                 }else if(c.isPrimaryKey()){
-                    throw new DataBaseException("RecordTranslateApi->convertToRecord","Coluna "+c.getName()+" não pode ser nula!");
+                    throw new DataBaseException("RecordTranslateApi->convertToRecord","Coluna "+c.getName()+" nÃ£o pode ser nula!");
                 }
             }else{
                 if(c.isDinamicSize()){
                     if(data.length>c.getSize()){
-                        throw new DataBaseException("RecordTranslateApi->convertToRecord","Dado passado para a coluna "+c.getName()+" é maior que o limite: "+c.getSize());
+                        throw new DataBaseException("RecordTranslateApi->convertToRecord","Dado passado para a coluna "+c.getName()+" Ã© maior que o limite: "+c.getSize());
                     }
                 }else{
                     if(data.length>c.getSize()){
-                        throw new DataBaseException("RecordTranslateApi->convertToRecord","Dado passado para a coluna "+c.getName()+" é diferente do tamanho fixo: "+c.getSize());
+                        throw new DataBaseException("RecordTranslateApi->convertToRecord","Dado passado para a coluna "+c.getName()+" Ã© diferente do tamanho fixo: "+c.getSize());
                     }
                 }
             }
@@ -165,7 +165,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             if(c.camBeNull()){
                 try {
                     if ((header[headerPointer / 8] & (1 << headerPointer%8)) != 0) {
-                        //campo é nulo
+                        //campo Ã© nulo
                         continue;
                     }
                 }finally {

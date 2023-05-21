@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public class Page<T extends Comparable<T>,M> extends Node<T,M> {
 
-    //Se for menor que essa key ent„o È o node dessa entrada
+    //Se for menor que essa key ent√£o √© o node dessa entrada
 
     protected ArrayList<T> keys;
     protected ArrayList<Node<T,M>> nodes;
@@ -52,7 +52,7 @@ public class Page<T extends Comparable<T>,M> extends Node<T,M> {
         nodes.get(index).insert(t,m);
         // busca a nova key minima
         keys.add(nodes.get(index).min());
-        // Ordena novamente as keys, n„o È necess·rio ordenar os nodos
+        // Ordena novamente as keys, n√£o √© necess√°rio ordenar os nodos
         keys.sort(Comparator.comparing(ta -> ta));
     }
     private void freeToRight(int index, T t, M m){
@@ -60,8 +60,8 @@ public class Page<T extends Comparable<T>,M> extends Node<T,M> {
         // remove a key minima do cara da direita, pq ele recebeu um novo minimo
         keys.remove(index);
 
-        // Se o valor que vai ser inserido È maior que o valor que vai ser movido,
-        // n„o È necessario remover o da esquerda, somente mandar o cara atual pra direita
+        // Se o valor que vai ser inserido √© maior que o valor que vai ser movido,
+        // n√£o √© necessario remover o da esquerda, somente mandar o cara atual pra direita
         if(auxT.compareTo(t)!=1){
             nodes.get(index+1).insert(t,m);
             keys.add(t);
@@ -112,17 +112,17 @@ public class Page<T extends Comparable<T>,M> extends Node<T,M> {
         M removed = nodes.get(index).remove(t);
         if(t.compareTo(actualMin)==0)actualMin=nodes.get(0).min();
 
-        //Se um nÛ n„o tem um minimo, remove ele da filiaÁ„o dos nÛs, e itera entre os valores dentro dele para dentro dos outros nÛs, se necess·rio vai criar novos nÛs
+        //Se um n√≥ n√£o tem um minimo, remove ele da filia√ß√£o dos n√≥s, e itera entre os valores dentro dele para dentro dos outros n√≥s, se necess√°rio vai criar novos n√≥s
         if(!nodes.get(index).hasMinimun()){
             Node<T,M> no = nodes.remove(index);
             keys.remove((index==0)?index:index-1);
-            //para cada entrada do nÛ removido insere normalmente na arvore
+            //para cada entrada do n√≥ removido insere normalmente na arvore
             for (Map.Entry<T,M> entry:
                  no) {
                 insert(entry.getKey(), entry.getValue());
             }
-            // executa aÁ„o para liberar esse nÛ
-            // No caso È so ignorar que o nÛ vai ser limpo sozinho
+            // executa a√ß√£o para liberar esse n√≥
+            // No caso √© so ignorar que o n√≥ vai ser limpo sozinho
 
         }
 
@@ -163,7 +163,7 @@ public class Page<T extends Comparable<T>,M> extends Node<T,M> {
     @Override
     public boolean isFull() {
         if(nodes.size()<BPlusTree.ORDER)return false;
-        //Se tiver alguma casa que est· cheia e os caras ao lado tambÈm est„o cheios, ent„o retornar que esse nÛ est· cheio
+        //Se tiver alguma casa que est√° cheia e os caras ao lado tamb√©m est√£o cheios, ent√£o retornar que esse n√≥ est√° cheio
         boolean leftFull = true;
         boolean midFull = nodes.get(0).isFull();
         boolean rightFull = nodes.get(1).isFull();

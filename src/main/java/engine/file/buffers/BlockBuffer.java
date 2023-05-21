@@ -15,8 +15,8 @@ public abstract class BlockBuffer implements BlockStream{
 	}
 	
 	public abstract Block getBlockIfExistInBuffer(int num);//Retorna o bloco se o mesmo estiver em algum buffer
-	public abstract void hintBlock(int num);//Da a dica a classe que determinado bloco pode ser util no futuro e que dever· ser carregado
-	public abstract void forceBlock(int num);//ForÁa um bloco em cache
+	public abstract void hintBlock(int num);//Da a dica a classe que determinado bloco pode ser util no futuro e que dever√° ser carregado
+	public abstract void forceBlock(int num);//For√ßa um bloco em cache
 
-	public abstract void clearBuffer(); // Limpa o buffer independente se È necess·rio salvar ou n„o
+	public abstract void clearBuffer(); // Limpa o buffer independente se √© necess√°rio salvar ou n√£o
 }

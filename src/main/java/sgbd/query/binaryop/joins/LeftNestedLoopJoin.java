@@ -23,7 +23,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
 
     @Override
     protected Tuple findNextTuple(){
-        //Executa apenas quando o next tuple n„o existe
+        //Executa apenas quando o next tuple n√£o existe
         if(nextTuple!=null)return nextTuple;
         //Loopa pelo operador esquerdo
         while(currentLeftTuple!=null || left.hasNext()){
@@ -35,7 +35,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
             //Loopa pelo operador direito
             while(right.hasNext()){
                 Tuple rightTuple = right.next();
-                //Faz a comparaÁ„o do join
+                //Faz a compara√ß√£o do join
                 Query.COMPARE_JOIN++;
                 if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
                     qtdFinded++;

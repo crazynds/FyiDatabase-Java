@@ -8,7 +8,7 @@ public abstract class Node<T extends Comparable<T>,M>  implements Iterable<Map.E
     public abstract M get(T t);
     public abstract M remove(T t);
 
-    //Pega metade dos dados do nó atual e retorna um novo nó com dados do antigo nó
+    //Pega metade dos dados do nÃ³ atual e retorna um novo nÃ³ com dados do antigo nÃ³
     protected abstract Node<T,M> half();
     public abstract Node<T,M> merge(Node<T,M> node);
 

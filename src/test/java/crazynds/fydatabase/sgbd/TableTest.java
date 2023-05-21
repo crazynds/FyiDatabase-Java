@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TableTest {
 
-    private void testConsistence(String tableType){
+    protected void testConsistence(String tableType){
         HashMap<String,String> mapa = new HashMap<>();
         Prototype p1 = new Prototype();
         p1.addColumn("id",4, Column.PRIMARY_KEY);

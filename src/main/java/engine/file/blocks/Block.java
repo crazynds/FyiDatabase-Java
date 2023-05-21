@@ -61,7 +61,7 @@ public class Block extends ReadableBlock implements WriteByteStream {
 
 	@Override
 	public ByteBuffer read(long pos, int len) throws  DataBaseException {
-		if(pos>=this.size)throw new DataBaseException("GenericRecord->read","PosiÁ„o inicial maior que o m·ximo");
+		if(pos>=this.size)throw new DataBaseException("GenericRecord->read","Posi√ß√£o inicial maior que o m√°ximo");
 		if(pos+len>this.size) {
 			len =(int) (this.size -pos);
 		}
@@ -73,8 +73,8 @@ public class Block extends ReadableBlock implements WriteByteStream {
 
 	@Override
 	public int read(long pos, byte[] arr,int offset, int len)  {
-		if(pos>=this.size)throw new DataBaseException("Block->read","PosiÁ„o inicial maior que o m·ximo");
-		if(arr.length-offset<len)throw new DataBaseException("Block->read", "Buffer passado È menor do que o que vai ser lido");
+		if(pos>=this.size)throw new DataBaseException("Block->read","Posi√ß√£o inicial maior que o m√°ximo");
+		if(arr.length-offset<len)throw new DataBaseException("Block->read", "Buffer passado √© menor do que o que vai ser lido");
 		if(pos+len>this.size) {
 			len =(int) (this.size -pos);
 		}
@@ -90,8 +90,8 @@ public class Block extends ReadableBlock implements WriteByteStream {
 
 	@Override
 	public int read(long pos, ByteBuffer buffer, int offset, int len) {
-		if(pos>=this.size)throw new DataBaseException("Block->read","PosiÁ„o inicial maior que o m·ximo");
-		if(buffer.capacity()-offset<len)throw new DataBaseException("Block->read", "Buffer passado È menor do que o que vai ser lido");
+		if(pos>=this.size)throw new DataBaseException("Block->read","Posi√ß√£o inicial maior que o m√°ximo");
+		if(buffer.capacity()-offset<len)throw new DataBaseException("Block->read", "Buffer passado √© menor do que o que vai ser lido");
 		if(pos+len>this.size) {
 			len =(int) (this.size -pos);
 		}
@@ -115,8 +115,8 @@ public class Block extends ReadableBlock implements WriteByteStream {
 	
 	@Override
 	public int write(long pos, byte[] data, int offset, int len) throws  DataBaseException {
-		if(pos>=this.size)throw new DataBaseException("Block->write","PosiÁ„o inicial maior que o m·ximo");
-		if(data.length<len)throw new DataBaseException("Block->write","Array passado È menor que o solicitado para escrever");
+		if(pos>=this.size)throw new DataBaseException("Block->write","Posi√ß√£o inicial maior que o m√°ximo");
+		if(data.length<len)throw new DataBaseException("Block->write","Array passado √© menor que o solicitado para escrever");
 		if(pos+len>this.size) {
 			len =(int) (this.size -pos);
 		}

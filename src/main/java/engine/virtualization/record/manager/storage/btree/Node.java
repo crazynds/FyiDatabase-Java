@@ -45,7 +45,7 @@ public abstract class Node implements Iterable<Map.Entry<BigInteger,ByteBuffer>>
     public abstract ByteBuffer get(BigInteger t);
     public abstract ByteBuffer remove(BigInteger t);
 
-    //Pega metade dos dados do nó atual e retorna um novo nó com dados do antigo nó
+    //Pega metade dos dados do nÃ³ atual e retorna um novo nÃ³ com dados do antigo nÃ³
     protected abstract Node half();
     public abstract Node merge(Node node);
 

@@ -100,11 +100,11 @@ public class Leaf extends Node{
             }
         }else {
             if(mapPosition.size()>=maxItens){
-                // Se j· ta no limite chama para o pai desse cara
+                // Se j√° ta no limite chama para o pai desse cara
                 throw new BPlusTreeInsertionException(Map.entry(t,m));
             }
 
-            // Se tem espaÁo e n„o tem nenhuma igual adiciona o item na memoria.
+            // Se tem espa√ßo e n√£o tem nenhuma igual adiciona o item na memoria.
             mapPosition.put(t,makeEntry(0,m.duplicate()));
             itens++;
         }

@@ -82,7 +82,7 @@ public class Main {
 			byte dat = r.getData()[5];
 			for(int z=6;z<r.size();z++){
 				if(r.getData()[z]!=dat){
-					System.out.println("(WARNING) Dados inválidos -> "+num+" <= arr["+z+"] == "+r.getData()[z]+", esperado => DATA=["+r.getData()[5]+", "+r.getData()[6]+"]");
+					System.out.println("(WARNING) Dados invÃ¡lidos -> "+num+" <= arr["+z+"] == "+r.getData()[z]+", esperado => DATA=["+r.getData()[5]+", "+r.getData()[6]+"]");
 					break;
 				}
 			}

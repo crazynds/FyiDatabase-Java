@@ -25,12 +25,12 @@ public class BlockID extends Block {
 	}
 
 	public void changeBlockID(ByteBuffer data, int id) {
-		if(getBlockSize()!=data.capacity())throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necess·rio para reutilizar o bloco.");
+		if(getBlockSize()!=data.capacity())throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necess√°rio para reutilizar o bloco.");
 		write(0, data.array(), 0, data.capacity());
 		this.blockId=id;
 	}
 	public void changeBlockID(Block b,int id) {
-		if(!this.compareBlockFaces(b))throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necess·rio para reutilizar o bloco.");
+		if(!this.compareBlockFaces(b))throw new DataBaseException("ChangeBlockID","Dados enviados possuem tamanho diferentes do necess√°rio para reutilizar o bloco.");
 		this.buffer=b.getBuffer();
 		this.blockId=id;
 	}

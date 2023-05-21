@@ -9,37 +9,37 @@ import java.util.List;
 public interface RecordStorageController {
 
 	/*
-	 *	O RecordStorage organiza os records baseado em posições, ou seja, a key passada
-	 * é relativa a posição que aquele storage está armazenado sendo 0 o primeiro dado
+	 *	O RecordStorage organiza os records baseado em posiÃ§Ã£es, ou seja, a key passada
+	 * Ã© relativa a posiÃ§Ã£o que aquele storage estÃ¡ armazenado sendo 0 o primeiro dado
 	 * e N-1 o ultimo dado.
 	 *
-	 * 	O RecordStorage também implementa
+	 * 	O RecordStorage tambÃ©m implementa
 	 */
 
 	/*
 	 * Inicia um arquivo do zero
-	 * Reinicia todos os dados necessários
+	 * Reinicia todos os dados necessÃ¡rios
 	 */
 	public void restartFileSet() ;
 
 	/*
-	 * Força os buffers a liberarem as modificações escritas
+	 * ForÃ§a os buffers a liberarem as modificaÃ§Ãµes escritas
 	 */
 	public void flush() ;
 
 	/*
-	 * Le o dado a partir da posição solicitada
+	 * Le o dado a partir da posiÃ§Ã£o solicitada
 	 */
 	public Record read(long key) ;
 	public void read(long key,byte[] buffer) ;
 
 	/*
-	 * Sobrescreve o record naquela posição
+	 * Sobrescreve o record naquela posiÃ§Ã£o
 	 */
 	public long write(Record r,long key);
 	
 	/*
-	 * Escreve um record na posição anterior aquela
+	 * Escreve um record na posiÃ§Ã£o anterior aquela
 	 */
 	public long writeNew(Record r);
 	public void writeNew(List<Record> list);

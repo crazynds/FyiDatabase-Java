@@ -76,7 +76,7 @@ public class Main {
         executor.close();
 
 
-        //Fecha as tables, não serão mais acessadas
+        //Fecha as tables, nÃ£o serÃ£o mais acessadas
 
 
         System.out.println("");
@@ -85,9 +85,9 @@ public class Main {
         System.out.println("Query performance: ");
         System.out.println("Buscas por chave primaria: "+ Query.PK_SEARCH);
         System.out.println("Tuplas sorteadas: "+Query.SORT_TUPLES);
-        System.out.println("Comparações de FILTER: "+Query.COMPARE_FILTER);
-        System.out.println("Comparações de JOIN: "+Query.COMPARE_JOIN);
-        System.out.println("Comparações de TUPLAS DISTINTAS: "+Query.COMPARE_DISTINCT_TUPLE);
+        System.out.println("ComparaÃ§Ãµes de FILTER: "+Query.COMPARE_FILTER);
+        System.out.println("ComparaÃ§Ãµes de JOIN: "+Query.COMPARE_JOIN);
+        System.out.println("ComparaÃ§Ãµes de TUPLAS DISTINTAS: "+Query.COMPARE_DISTINCT_TUPLE);
 
         System.out.println("Disk performance: ");
         System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

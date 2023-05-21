@@ -25,8 +25,8 @@ public class TemporaryBuffer{
 		3 -> 101
 		4 -> 120
 		..
-		0 -> cabeçalho 512
-		513 -> cebeçalho 512
+		0 -> cabeÃ§alho 512
+		513 -> cebeÃ§alho 512
 	 */
 
 	@SuppressWarnings("deprecation")
@@ -71,12 +71,12 @@ public class TemporaryBuffer{
 		}
 		//Pequeno previsor do proximo bloco a ser buscado
 		if(lastLoaded!=block){
-			//Identificar o padrão e dar hint no bloco de maneira rapida
+			//Identificar o padrÃ£o e dar hint no bloco de maneira rapida
 			if(lastLoaded+1 == block){
-				//Se o lastLoaded = x e o bloco atual q ele qr é x+1, então existe grande chance dele querer o x+2
+				//Se o lastLoaded = x e o bloco atual q ele qr Ã© x+1, entÃ£o existe grande chance dele querer o x+2
 				buffer.getBuffer().hintBlock(block+1);
 			}else if(lastLoaded-1==block){
-				//Se o lastLoaded = x e o bloco atual q ele qr é x-1, então existe grande chance dele querer o x-2
+				//Se o lastLoaded = x e o bloco atual q ele qr Ã© x-1, entÃ£o existe grande chance dele querer o x-2
 				if(block-1>=0)
 					buffer.getBuffer().hintBlock(block-1);
 			}

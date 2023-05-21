@@ -31,7 +31,7 @@ public class Page extends Node{
         this.sizeOfPk=handler.getSizeOfPk();
         this.sizeOfEntry = 4+sizeOfPk;
         this.maxNodes = (getStream().getBlockSize()-HEADERS_SIZE)/sizeOfEntry + 1;
-        if(maxNodes <=1 || sizeOfPk<=0) throw new DataBaseException("TreeMap->Page","SizeOfPk È inv·lido, deve ser maior que 0 caber dentro de um (bloco - headers - 4)");
+        if(maxNodes <=1 || sizeOfPk<=0) throw new DataBaseException("TreeMap->Page","SizeOfPk √© inv√°lido, deve ser maior que 0 caber dentro de um (bloco - headers - 4)");
         this.nodesMap = new TreeMap<>();
         this.nodes = 0;
         this.smaller = null;
@@ -184,7 +184,7 @@ public class Page extends Node{
                 }
             }
 
-            // Se necess·rio faz o split dos dados
+            // Se necess√°rio faz o split dos dados
             if(isFull())
                 throw exception;
             Node rigth = node.half();

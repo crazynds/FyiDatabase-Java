@@ -36,7 +36,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
         for (Record r:list) {
             if(r.size()==sizeOfEachRecord){
                 data = r.getData();
-                if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados È menor que o informado na classe record");
+                if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados √© menor que o informado na classe record");
             }else{
                 data = new byte[sizeOfEachRecord];
                 System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
@@ -82,8 +82,8 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
 
         while(readOffset<qtdOfRecords && !records.isEmpty()){
             long readPosition = getPositionOfRecord(readOffset);
-            //Ao invez de fazer a leitura inteira do record, ler apenas os dados necess·rios e se
-            // indentificado que vai ser necess·rio a leitura completa, ele le completamente
+            //Ao invez de fazer a leitura inteira do record, ler apenas os dados necess√°rios e se
+            // indentificado que vai ser necess√°rio a leitura completa, ele le completamente
             reference.setOffset(readPosition);
 
             //heap.read(readPosition,sizeOfEachRecord,buffer.getData(),0);
@@ -102,8 +102,8 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                             writeOffset++;
                             writePosition+= sizeOfEachRecord;
                             /**
-                             * Estrategia de otimizaÁ„o:
-                             * Remover a verificaÁıa writeOffset <= readOffset
+                             * Estrategia de otimiza√ß√£o:
+                             * Remover a verifica√ß√£a writeOffset <= readOffset
                              * Enquanto a key alvo for menor do que a key na fila, vai escrevendo.
                              */
                         }while (
@@ -124,12 +124,12 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                             }
                         }else{
                             if(writeOffset>readOffset) {
-                                //Necess·rio para leitura tardia do dado em buffer
+                                //Necess√°rio para leitura tardia do dado em buffer
                                 reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                                 records.putIfAbsent(buffPk, buffer.getData());
                                 buffer.setData(data);
                             }else if(writeOffset<readOffset) {
-                                //Necess·rio para leitura tardia do dado em buffer
+                                //Necess√°rio para leitura tardia do dado em buffer
                                 reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                                 writePosition = getPositionOfRecord(writeOffset);
                                 while (readOffset - writeOffset > records.size()) {
@@ -155,7 +155,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                         break;
                     case 1:
                         if(writeOffset<readOffset) {
-                            //Necess·rio para leitura tardia do dado em buffer
+                            //Necess√°rio para leitura tardia do dado em buffer
                             reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                             writePosition = getPositionOfRecord(writeOffset);
                             while (readOffset - writeOffset > records.size()) {
@@ -170,7 +170,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
                         }else if(writeOffset==readOffset){
                             writeOffset=readOffset+1;
                         }else{
-                            //Necess·rio para leitura tardia do dado em buffer
+                            //Necess√°rio para leitura tardia do dado em buffer
                             reference.read(0,buffer.getData(),0,sizeOfEachRecord);
                             wbs.write(writePosition,buffer.getData(),sizeOfEachRecord);
                             recordInterface.updeteReference(buffPk, writePosition);

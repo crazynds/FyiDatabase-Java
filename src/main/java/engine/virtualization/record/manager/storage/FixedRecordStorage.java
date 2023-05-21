@@ -32,7 +32,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	protected int sizeOfEachRecord;
 	
 	/*
-	 * Tamanho do inteiro que ira representar quantos records estão armazenados
+	 * Tamanho do inteiro que ira representar quantos records estÃ£o armazenados
 	 */
 	protected byte sizeOfBytesQtdRecords = 4;
 
@@ -201,7 +201,7 @@ public class FixedRecordStorage implements RecordStorageController {
 			byte[] data;
 			if(r.size()==sizeOfEachRecord){
 				data = r.getData();
-				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados é menor que o informado na classe record");
+				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados Ã© menor que o informado na classe record");
 				arr.put(pk,r.getData());
 			}else{
 				data = new byte[sizeOfEachRecord];
@@ -265,8 +265,8 @@ public class FixedRecordStorage implements RecordStorageController {
 							writeOffset++;
 							writePosition+= sizeOfEachRecord;
 							/**
-							 * Estrategia de otimização:
-							 * Remover a verificaçõa writeOffset <= readOffset
+							 * Estrategia de otimizaÃ§Ã£o:
+							 * Remover a verificaÃ§Ã£a writeOffset <= readOffset
 							 * Enquanto a key alvo for menor do que a key na fila, vai escrevendo.
 							 */
 						}while (writeOffset <= readOffset && !records.isEmpty() && records.firstKey().compareTo(buffPk) == -1);
@@ -344,7 +344,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		for (Record r:list) {
 			if(r.size()==sizeOfEachRecord){
 				data = r.getData();
-				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados é menor que o informado na classe record");
+				if(data.length<sizeOfEachRecord)throw new DataBaseException("FixedRecordStorage->writeNew","Tamanho passado no vetor de dados Ã© menor que o informado na classe record");
 			}else{
 				data = new byte[sizeOfEachRecord];
 				System.arraycopy(r.getData(),0,data,0,(r.size()<sizeOfEachRecord)?r.size():sizeOfEachRecord);
@@ -462,7 +462,7 @@ public class FixedRecordStorage implements RecordStorageController {
 			@Override
 			public void write(Record r) {
 				boolean b =lock.writeLock().tryLock();
-				if(!b)throw new DataBaseException("RecordStream->write","Não foi possivel adiquirir write lock");
+				if(!b)throw new DataBaseException("RecordStream->write","NÃ£o foi possivel adiquirir write lock");
 				try {
 					if(pos<=0)return;
 					fixedRecordStorage.write(r, getPositionOfRecord(pos-1));
@@ -474,7 +474,7 @@ public class FixedRecordStorage implements RecordStorageController {
 			@Override
 			public void remove() {
 				boolean b =lock.writeLock().tryLock();
-				if(!b)throw new DataBaseException("RecordStream->write","Não foi possivel adiquirir write lock");
+				if(!b)throw new DataBaseException("RecordStream->write","NÃ£o foi possivel adiquirir write lock");
 				try {
 					if(pos<=0)return;
 					recordInterface.getExtractor().setActiveRecord(buffer,false);
@@ -512,8 +512,8 @@ public class FixedRecordStorage implements RecordStorageController {
 
 	private long checkKey(long position) {
 		long checkPosition = position-sizeOfBytesQtdRecords;
-		if(checkPosition%sizeOfEachRecord!=0)throw new DataBaseException("OrdenedFixedLinearRecordManager->isValidKey", "Posição passada é inválida. ("+position+")");
-		if(checkPosition/sizeOfEachRecord>qtdOfRecords)throw new DataBaseException("OrdenedFixedLinearRecordManager->isValidKey", "Posição passada é acima da quantiade de registros existentes. ("+position+")");
+		if(checkPosition%sizeOfEachRecord!=0)throw new DataBaseException("OrdenedFixedLinearRecordManager->isValidKey", "PosiÃ§Ã£o passada Ã© invÃ¡lida. ("+position+")");
+		if(checkPosition/sizeOfEachRecord>qtdOfRecords)throw new DataBaseException("OrdenedFixedLinearRecordManager->isValidKey", "PosiÃ§Ã£o passada Ã© acima da quantiade de registros existentes. ("+position+")");
 		return checkPosition;
 	}
 

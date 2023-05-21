@@ -43,7 +43,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
     @Override
     public int lastBlock()  {
-        if(stream==null)throw new DataBaseException("FIFOBlockBuffer->lastBlock","BlockStream n„o definido!");
+        if(stream==null)throw new DataBaseException("FIFOBlockBuffer->lastBlock","BlockStream n√£o definido!");
         int last = stream.lastBlock();
         int last2 = blockMaping.lastKey();
         return (last>last2)?last:last2;
@@ -51,7 +51,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
     @Override
     public synchronized void flush() {
-        if(stream==null)throw new DataBaseException("FIFOBlockBuffer->flush","BlockStream n„o definido!");
+        if(stream==null)throw new DataBaseException("FIFOBlockBuffer->flush","BlockStream n√£o definido!");
         TreeMap<Integer, EntryBlock> tree = new TreeMap<Integer, EntryBlock>();
 
         for (Map.Entry<Integer,Integer> x:
@@ -188,7 +188,7 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
 
     protected synchronized EntryBlock loadBlock(int block,boolean read)  {
-        if(stream==null)throw new DataBaseException("FIFOBlockBuffer->loadBlock","BlockStream n„o definido!");
+        if(stream==null)throw new DataBaseException("FIFOBlockBuffer->loadBlock","BlockStream n√£o definido!");
         Map.Entry<Long,Integer> entry = timeMaping.pollFirstEntry();
         EntryBlock usable = entries[entry.getValue()];
         if(usable.getBlock().getBlockId()>=0){

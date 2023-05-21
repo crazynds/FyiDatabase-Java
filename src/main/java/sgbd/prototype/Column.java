@@ -33,7 +33,7 @@ public class Column {
 	
 	private void checkErrors()  {
 		if(size==0){
-			String error="Uma coluna não pode ter tamanho zero!";
+			String error="Uma coluna nÃ£o pode ter tamanho zero!";
 			String validator="size_column > 0";
 			throw new DataBaseException("Column->Constructor",error,validator);
 		}
@@ -43,13 +43,13 @@ public class Column {
 			throw new DataBaseException("Column->Constructor",error,validator);
 		}
 		if(isBoolean() && isDinamicSize()){
-			String error="Uma coluna do tipo boolean não pode ter tamanho dinamico!";
+			String error="Uma coluna do tipo boolean nÃ£o pode ter tamanho dinamico!";
 			String validator="BOOLEAN + DINAMIC_SIZE == INVALID";
 			throw new DataBaseException("Column->Constructor",error,validator);
 		}
 		int strl = name.length();
 		if(strl>240 || strl==0){
-			String error="Uma coluna com nome de tamanho inválido!";
+			String error="Uma coluna com nome de tamanho invÃ¡lido!";
 			DataBaseException ex=new DataBaseException("Column->Constructor",error);
 			ex.addValidation("Max:240");
 			ex.addValidation("Min:1");

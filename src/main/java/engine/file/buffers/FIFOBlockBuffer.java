@@ -25,7 +25,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 
 	@Override
 	public int lastBlock() {
-		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->lastBlock","BlockStream n„o definido!");
+		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->lastBlock","BlockStream n√£o definido!");
 		int last = stream.lastBlock();
 		for (EntryBlock e:
 			 blocks) {
@@ -38,7 +38,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 
 	@Override
 	public synchronized void flush()  {
-		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->flush","BlockStream n„o definido!");
+		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->flush","BlockStream n√£o definido!");
 		TreeMap<Integer, EntryBlock> tree = new TreeMap<Integer, FIFOBlockBuffer.EntryBlock>();
 		
 		try {
@@ -172,7 +172,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 	}
 
 	protected synchronized EntryBlock loadBlock(int block)  {
-		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->loadBlock","BlockStream n„o definido!");
+		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->loadBlock","BlockStream n√£o definido!");
 		EntryBlock usable = null;
 		if(blocks.size()>=maxSize) {
 			usable = removeItem();
@@ -195,7 +195,7 @@ public class FIFOBlockBuffer extends BlockBuffer {
 	}
 	
 	protected synchronized EntryBlock removeItem()  {
-		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->removeItem","BlockStream n„o definido!");
+		if(stream==null)throw new DataBaseException("FIFOBlockBuffer->removeItem","BlockStream n√£o definido!");
 		EntryBlock e = blocks.removeFirst();
 		if(e.isSaved()==false)
 			stream.writeBlock(e.getBlock().getBlockId(), e.getBlock());

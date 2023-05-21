@@ -142,7 +142,7 @@ public final class FileManager implements BlockFace,BlockStream {
 				Parameters.IO_READ_TIME+=System.nanoTime()-time;
 
 			}catch(EOFException e) {
-				throw new DataBaseException("FileManager->readBlock","Fim do arquivo encontado, n„o possivel concluir a leitura!");
+				throw new DataBaseException("FileManager->readBlock","Fim do arquivo encontado, n√£o possivel concluir a leitura!");
 			}catch (IOException e) {
 				throw new DataBaseException("FileManager->directAcessFile->readBlock",e.getMessage());
 			}
@@ -152,7 +152,7 @@ public final class FileManager implements BlockFace,BlockStream {
 
 		@Override
 		public void readBlock(int pos, ByteBuffer buffer)  {
-			if(buffer.capacity()!=getBlockSize())throw new DataBaseException("FileManager->directAcessFile->readBlock","Tamanho de buffer passado inv·lido");
+			if(buffer.capacity()!=getBlockSize())throw new DataBaseException("FileManager->directAcessFile->readBlock","Tamanho de buffer passado inv√°lido");
 			try {
 				long time = System.nanoTime();
 				long local = pos;
@@ -163,7 +163,7 @@ public final class FileManager implements BlockFace,BlockStream {
 				inChannel.read(buffer);
 				Parameters.IO_READ_TIME+=System.nanoTime()-time;
 			}catch(EOFException e) {
-				throw new DataBaseException("FileManager->readBlock","Fim do arquivo encontado, n„o possivel concluir a leitura!");
+				throw new DataBaseException("FileManager->readBlock","Fim do arquivo encontado, n√£o possivel concluir a leitura!");
 			}catch (IOException e) {
 				throw new DataBaseException("FileManager->directAcessFile->readBlock",e.getMessage());
 			}
@@ -208,7 +208,7 @@ public final class FileManager implements BlockFace,BlockStream {
 
 		@Override
 		public WriteByteStream getBlockWriteByteStream(int pos)  {
-			throw new DataBaseException("FileManager->directAcessFile->getBlockWriteByteStream","FunÁ„o desabilitada para acesso direto ao arquivo");
+			throw new DataBaseException("FileManager->directAcessFile->getBlockWriteByteStream","Fun√ß√£o desabilitada para acesso direto ao arquivo");
 		}
 
 		@Override

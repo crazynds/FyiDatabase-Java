@@ -36,11 +36,11 @@ public class GroupOperator extends UnaryOperator {
         if(actualTuple!=null)
             return actualTuple;
         while(operator.hasNext()){
-            // Se não tem a prox tupla carregada, carrega ela
+            // Se nÃ£o tem a prox tupla carregada, carrega ela
             if(lastTupleLoaded==null)
                 lastTupleLoaded = operator.next();
 
-            // Se a tupla de acumulador n existir, cria ela e já vincula a agregação atual
+            // Se a tupla de acumulador n existir, cria ela e jÃ¡ vincula a agregaÃ§Ã£o atual
             if(actualTuple ==null){
                 // Cria a tupla
                 actualTuple = new Tuple();
@@ -49,19 +49,19 @@ public class GroupOperator extends UnaryOperator {
                 // Seta nela o dado inicial
                 actualTuple.setContent(source,rowGroup);
                 groupName = Util.convertByteArrayToNumber(lastTupleLoaded.getContent(source).getData(column));
-                // Chama a inicialização de todas as operações de agregações
+                // Chama a inicializaÃ§Ã£o de todas as operaÃ§Ãµes de agregaÃ§Ãµes
                 agregationOperations.stream().forEach(agregationOperation -> agregationOperation.initialize(actualTuple));
             }else if(Util.convertByteArrayToNumber(
                         lastTupleLoaded.getContent(source).getData(column)
-                    ).compareTo(groupName)!=0){ // Se o grupo da tupla carregada é diferente do grupo da tupla atual, então sai do while true
+                    ).compareTo(groupName)!=0){ // Se o grupo da tupla carregada Ã© diferente do grupo da tupla atual, entï¿½o sai do while true
                 break;
             }
-            // Processa todas as operações de agregação para cada operação
+            // Processa todas as operaÃ§Ãµes de agregaÃ§Ã£o para cada operaÃ§Ã£o
             agregationOperations.stream().forEach(agregationOperation -> agregationOperation.process(actualTuple,lastTupleLoaded));
             lastTupleLoaded = null;
         }
 
-        // Aplica o finalize para todas as operações de agregação.
+        // Aplica o finalize para todas as operaÃ§Ãµes de agregaÃ§Ã£o.
         if(actualTuple!=null)
             agregationOperations.stream().forEach(agregationOperation -> agregationOperation.finalize(actualTuple));
         return actualTuple;

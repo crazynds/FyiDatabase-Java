@@ -47,7 +47,7 @@ public class BTreeHandler {
             case -1:
                 throw new DataBaseException("BTree->Node->loadNode","Tentou ler um bloco base proibido");
             default:
-                throw new DataBaseException("BTree->Node->loadNode","Tipo do node n„o reconhecido");
+                throw new DataBaseException("BTree->Node->loadNode","Tipo do node n√£o reconhecido");
         }
         node.load();
         nodeRelation.put(blockNode,node);

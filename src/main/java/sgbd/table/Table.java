@@ -82,7 +82,7 @@ public abstract class Table implements Iterable<ComplexRowData>{
 
 	/*
 		Retorna a classe responsavel por traduzir o byte array armazenado em uma linha de dados com diversas
-		colunas. Util tambÈm para apontar como deve ser montado a chave primaria.
+		colunas. Util tamb√©m para apontar como deve ser montado a chave primaria.
 	 */
 	public TranslatorApi getTranslator(){
 		return translatorApi;
@@ -109,7 +109,7 @@ public abstract class Table implements Iterable<ComplexRowData>{
 	public abstract ComplexRowData find(BigInteger pk, List<String> colunas);
 	//public abstract List<RowData> find(Query);
 	/*
-		Aceita apenas update para dados j· existentes, se n„o encontrar gera um erro
+		Aceita apenas update para dados j√° existentes, se n√£o encontrar gera um erro
 	 */
 	public abstract RowData update(BigInteger pk,RowData r);
 

@@ -28,13 +28,13 @@ public abstract class Index {
             if(columnToIndex.contains(col.getName())){
                 DataBaseException ex;
                 if(col.camBeNull()){
-                    String error="Coluna "+col.getName()+" não pode ser nula e ao mesmo tempo ser indexada!";
+                    String error="Coluna "+col.getName()+" nÃ£o pode ser nula e ao mesmo tempo ser indexada!";
                     ex=new DataBaseException("Prototype->ValidateColumns",error);
                     ex.addValidation("NULL not in PRIMARY KEY");
                     throw ex;
                 }
                 if(col.isDinamicSize()){
-                    String error="Coluna "+col.getName()+" não pode ser dinamica ao mesmo tempo que é usada como index!";
+                    String error="Coluna "+col.getName()+" nÃ£o pode ser dinamica ao mesmo tempo que Ã© usada como index!";
                     ex=new DataBaseException("Prototype->ValidateColumns",error);
                     ex.addValidation("DINAMIC not in PRIMARY KEY");
                     throw ex;
