@@ -1,5 +1,6 @@
 ![logo](./icone.png)
 # FYI-Database-Java
+_For Your Information_ Database
 
 Um banco de dados desenvolvido em java com propósitos de ensinar e demonstrar o funcionamento de um SGBD e seus recursos.
 
