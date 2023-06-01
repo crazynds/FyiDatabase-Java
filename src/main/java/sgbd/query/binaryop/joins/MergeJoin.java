@@ -8,6 +8,7 @@ import sgbd.query.Tuple;
 import sgbd.query.binaryop.BinaryOperator;
 import sgbd.query.unaryop.SortOperator;
 import sgbd.query.unaryop.UnaryOperator;
+import sgbd.util.classes.ResourceName;
 
 import java.math.BigInteger;
 import java.util.Map;
@@ -19,23 +20,23 @@ public class MergeJoin extends BinaryOperator {
 
     Map.Entry<Tuple,BigInteger> leftCurrent,rightCurrent;
 
-    public MergeJoin(Operator left, Operator right,String leftSource, String leftData, String rightSource,String rightData) {
+    public MergeJoin(Operator left, Operator right, ResourceName leftRes, ResourceName rightRes) {
         super(
             new SortOperator(left,(o1, o2) -> {
-                BigInteger int1 = Util.convertByteArrayToNumber(o1.getContent(leftSource).getData(leftData));
-                BigInteger int2 = Util.convertByteArrayToNumber(o2.getContent(leftSource).getData(leftData));
+                BigInteger int1 = Util.convertByteArrayToNumber(o1.getContent(leftRes.getSource()).getData(leftRes.getColumn()));
+                BigInteger int2 = Util.convertByteArrayToNumber(o2.getContent(leftRes.getSource()).getData(leftRes.getColumn()));
                 return int1.compareTo(int2);
             }),
             new SortOperator(right,(o1, o2) -> {
-                BigInteger int1 = Util.convertByteArrayToNumber(o1.getContent(rightSource).getData(rightData));
-                BigInteger int2 = Util.convertByteArrayToNumber(o2.getContent(rightSource).getData(rightData));
+                BigInteger int1 = Util.convertByteArrayToNumber(o1.getContent(rightRes.getSource()).getData(rightRes.getColumn()));
+                BigInteger int2 = Util.convertByteArrayToNumber(o2.getContent(rightRes.getSource()).getData(rightRes.getColumn()));
                 return int1.compareTo(int2);
             })
         );
-        this.leftSource=leftSource;
-        this.leftData=leftData;
-        this.rightSource=rightSource;
-        this.rightData=rightData;
+        this.leftSource=leftRes.getSource();
+        this.leftData=leftRes.getColumn();
+        this.rightSource=rightRes.getSource();
+        this.rightData=rightRes.getColumn();
     }
 
     @Override
