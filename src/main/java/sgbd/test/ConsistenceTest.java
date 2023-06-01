@@ -4,7 +4,7 @@ import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.table.Table;
 import sgbd.table.components.RowIterator;
-import sgbd.util.Faker;
+import sgbd.util.statics.Faker;
 
 import java.math.BigInteger;
 import java.util.*;

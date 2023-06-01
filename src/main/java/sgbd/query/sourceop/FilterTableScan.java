@@ -3,7 +3,7 @@ package sgbd.query.sourceop;
 import sgbd.info.Query;
 import sgbd.query.Tuple;
 import sgbd.table.Table;
-import sgbd.util.Filter;
+import sgbd.util.interfaces.Filter;
 
 import java.util.List;
 

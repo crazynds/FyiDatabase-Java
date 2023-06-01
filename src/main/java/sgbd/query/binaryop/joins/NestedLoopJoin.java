@@ -1,13 +1,10 @@
 package sgbd.query.binaryop.joins;
 
 import sgbd.info.Query;
-import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.binaryop.BinaryOperator;
-import sgbd.util.ComparableFilter;
-
-import java.util.Map;
+import sgbd.util.interfaces.ComparableFilter;
 
 public class NestedLoopJoin extends BinaryOperator {
 

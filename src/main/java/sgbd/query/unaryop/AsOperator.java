@@ -3,7 +3,7 @@ package sgbd.query.unaryop;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
-import sgbd.util.Conversor;
+import sgbd.util.interfaces.Conversor;
 
 import java.util.ArrayList;
 import java.util.List;

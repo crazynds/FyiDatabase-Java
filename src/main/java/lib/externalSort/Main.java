@@ -10,7 +10,7 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.sourceop.TableScan;
 import sgbd.table.Table;
-import sgbd.util.TupleComparator;
+import sgbd.util.classes.TupleComparator;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

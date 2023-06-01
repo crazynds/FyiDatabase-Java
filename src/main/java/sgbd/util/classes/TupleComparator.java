@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package sgbd.util;
+package sgbd.util.classes;
 
 import sgbd.prototype.Column;
 import sgbd.query.Tuple;
+import sgbd.util.statics.Util;
 
 import java.util.Arrays;
 import java.util.Comparator;

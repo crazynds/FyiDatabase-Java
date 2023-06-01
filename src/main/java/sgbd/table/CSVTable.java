@@ -7,7 +7,7 @@ import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
-import sgbd.util.Util;
+import sgbd.util.statics.Util;
 
 import java.io.*;
 import java.math.BigInteger;

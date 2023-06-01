@@ -3,7 +3,7 @@ package sgbd.query.unaryop;
 import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
-import sgbd.util.Filter;
+import sgbd.util.interfaces.Filter;
 
 public class FilterOperator extends UnaryOperator {
 

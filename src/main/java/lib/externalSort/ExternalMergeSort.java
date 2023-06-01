@@ -8,10 +8,8 @@ package lib.externalSort;
 import engine.exceptions.DataBaseException;
 import sgbd.info.ExternalSort;
 import sgbd.query.Tuple;
-import sgbd.util.ResourceName;
-import sgbd.util.TupleComparator;
+import sgbd.util.classes.TupleComparator;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedList;

@@ -5,8 +5,7 @@
  */
 package lib.externalSort;
 
-import sgbd.util.ResourceName;
-import sgbd.util.TupleComparator;
+import sgbd.util.classes.TupleComparator;
 
 import java.util.Arrays;
 

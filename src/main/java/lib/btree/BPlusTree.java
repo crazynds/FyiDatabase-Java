@@ -1,6 +1,6 @@
 package lib.btree;
 
-import sgbd.util.Faker;
+import sgbd.util.statics.Faker;
 
 import java.security.InvalidParameterException;
 import java.util.Iterator;

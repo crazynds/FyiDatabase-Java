@@ -10,8 +10,8 @@ import engine.exceptions.DataBaseException;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.unaryop.UnaryOperator;
-import sgbd.util.ResourceName;
-import sgbd.util.TupleComparator;
+import sgbd.util.classes.ResourceName;
+import sgbd.util.classes.TupleComparator;
 
 import java.util.List;
 import java.util.Map;

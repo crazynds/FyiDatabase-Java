@@ -1,4 +1,4 @@
-package sgbd.util;
+package sgbd.util.interfaces;
 
 public interface Filter<T>{
 

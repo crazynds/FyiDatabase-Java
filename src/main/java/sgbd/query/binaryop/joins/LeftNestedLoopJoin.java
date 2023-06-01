@@ -3,7 +3,7 @@ package sgbd.query.binaryop.joins;
 import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
-import sgbd.util.ComparableFilter;
+import sgbd.util.interfaces.ComparableFilter;
 
 public class LeftNestedLoopJoin extends NestedLoopJoin{
 

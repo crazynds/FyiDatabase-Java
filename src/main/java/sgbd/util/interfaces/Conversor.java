@@ -1,4 +1,4 @@
-package sgbd.util;
+package sgbd.util.interfaces;
 
 import sgbd.prototype.Column;
 import sgbd.query.Tuple;

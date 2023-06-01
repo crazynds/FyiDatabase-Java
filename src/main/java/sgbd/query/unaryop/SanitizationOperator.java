@@ -2,7 +2,7 @@ package sgbd.query.unaryop;
 
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
-import sgbd.util.Sanitization;
+import sgbd.util.interfaces.Sanitization;
 
 public class SanitizationOperator extends UnaryOperator {
 

@@ -1,4 +1,4 @@
-package sgbd.util;
+package sgbd.util.statics;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

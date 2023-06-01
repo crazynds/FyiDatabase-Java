@@ -6,8 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 
-import engine.file.FileManager;
-import engine.file.buffers.FIFOBlockBuffer;
 import engine.file.streams.ReadByteStream;
 import engine.info.Parameters;
 import engine.virtualization.record.Record;
@@ -15,10 +13,9 @@ import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
-import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.MemoryBTreeRecordManager;
 import engine.virtualization.record.manager.RecordManager;
-import sgbd.util.UtilConversor;
+import sgbd.util.statics.UtilConversor;
 
 public class Main {
 

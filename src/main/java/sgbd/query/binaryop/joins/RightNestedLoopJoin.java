@@ -3,7 +3,7 @@ package sgbd.query.binaryop.joins;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.table.Table;
-import sgbd.util.ComparableFilter;
+import sgbd.util.interfaces.ComparableFilter;
 
 import java.util.List;
 import java.util.Map;

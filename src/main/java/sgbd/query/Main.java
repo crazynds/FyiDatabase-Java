@@ -2,15 +2,11 @@ package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
-import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.binaryop.UnionOperator;
-import sgbd.query.binaryop.joins.BlockNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
-import sgbd.query.unaryop.FilterColumnsOperator;
-import sgbd.query.unaryop.FilterOperator;
 import sgbd.table.Table;
-import sgbd.util.Util;
+import sgbd.util.statics.Util;
 
 import java.util.*;
 
