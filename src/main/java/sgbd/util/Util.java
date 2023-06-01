@@ -32,7 +32,7 @@ public class Util {
         if(columnName.contains("description"))return "string";
         if(columnName.contains("descricao"))return "string";
 
-        return "string";
+        return "binary";
     }
 
     public static String typeOfColumn(Column column){
@@ -41,6 +41,6 @@ public class Util {
         if(column.isInt())return "int";
         if(column.isFloat())return "float";
         if(column.isDouble())return "double";
-        return typeOfColumnByName(column.getName());
+        return "binary";
     }
 }
