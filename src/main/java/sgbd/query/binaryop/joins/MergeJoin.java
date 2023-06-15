@@ -2,7 +2,6 @@ package sgbd.query.binaryop.joins;
 
 import engine.util.Util;
 import sgbd.info.Query;
-import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.binaryop.BinaryOperator;

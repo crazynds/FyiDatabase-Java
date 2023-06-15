@@ -3,6 +3,7 @@ package sgbd.query.unaryop;
 import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
+import sgbd.query.unaryop.UnaryOperator;
 
 import java.util.*;
 

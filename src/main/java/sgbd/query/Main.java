@@ -5,6 +5,7 @@ import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.binaryop.UnionOperator;
 import sgbd.query.sourceop.TableScan;
+import sgbd.query.unaryop.FilterOperator;
 import sgbd.table.Table;
 import sgbd.util.statics.Util;
 

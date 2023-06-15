@@ -11,6 +11,7 @@ import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.sourceop.TableScan;
+import sgbd.query.unaryop.UnaryOperator;
 import sgbd.table.SimpleTable;
 import sgbd.table.Table;
 import sgbd.table.components.Header;
