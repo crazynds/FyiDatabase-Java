@@ -39,6 +39,12 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 		addToCheckSum(column,newData);
 		this.data.put(column, newData);
 	}
+	public void setBData(String column,BData newData) {
+		valid=false;
+		removeCheckSum(column);
+		addToCheckSum(column,newData);
+		this.data.put(column, newData);
+	}
 	public void setInt(String column,int data) {
 		this.setData(column, UtilConversor.intToByteArray(data));
 	}
@@ -66,7 +72,9 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 	}
 
 	public byte[] getData(String column) {
-		return this.data.get(column).getData();
+		BData data = this.data.get(column);
+		if(data==null)return null;
+		return data.getData();
 	}
 	public Integer getInt(String column) {
 		BData data = this.data.get(column);

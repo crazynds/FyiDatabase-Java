@@ -36,20 +36,36 @@ public class ComplexRowData extends RowData{
         setData(column,data);
         this.metaData.put(column,meta);
     }
+    public void setMetaData(String column,Column meta) {
+        this.metaData.put(column,meta);
+    }
+    public void setBData(String column,BData data,Column meta) {
+        setBData(column,data);
+        this.metaData.put(column,meta);
+    }
     public void setInt(String column,int data,Column meta) {
-        this.setData(column, UtilConversor.intToByteArray(data),meta);
+        this.setInt(column,data);
+        this.setMetaData(column,meta);
+    }
+    public void setLong(String column,int data,Column meta) {
+        this.setLong(column,data);
+        this.setMetaData(column,meta);
     }
     public void setString(String column,String data,Column meta) {
-        this.setData(column, UtilConversor.stringToByteArray(data),meta);
+        this.setString(column,data);
+        this.setMetaData(column,meta);
     }
     public void setFloat(String column,float data,Column meta) {
-        this.setData(column, UtilConversor.floatToByteArray(data),meta);
+        this.setFloat(column,data);
+        this.setMetaData(column,meta);
     }
     public void setDouble(String column,double data,Column meta) {
-        this.setData(column, UtilConversor.doubleToByteArray(data),meta);
+        this.setDouble(column,data);
+        this.setMetaData(column,meta);
     }
     public void setBoolean(String column,boolean data,Column meta) {
-        this.setData(column, new byte[]{(byte) (data ? 1 : 0)}, meta);
+        this.setBoolean(column,data);
+        this.setMetaData(column,meta);
     }
 
     public ComplexRowData clone(){

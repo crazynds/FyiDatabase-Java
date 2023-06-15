@@ -4,6 +4,7 @@ import engine.info.Parameters;
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.agregation.AvgAgregation;
+import sgbd.query.agregation.CountAgregation;
 import sgbd.query.agregation.MaxAgregation;
 import sgbd.query.agregation.MinAgregation;
 import sgbd.query.binaryop.UnionOperator;
@@ -38,7 +39,8 @@ public class Main {
         Operator group = new GroupOperator(join,"cidades","id",List.of(
             new MinAgregation("users","salario"),
             new MaxAgregation("users","salario"),
-            new AvgAgregation("users","id")
+            new AvgAgregation("users","id"),
+            new CountAgregation("users","id")
         ));
 
         Operator executor=group;

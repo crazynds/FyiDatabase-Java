@@ -159,24 +159,24 @@ public class DoubleTable extends Table{
 
         BigInteger ref = null;
 
-        for(Map.Entry<String,byte[]> data:row){
+        for(Map.Entry<String,BData> data:row){
             if(data.getKey() == "_ ref _") {
-                ref = Util.convertByteArrayToNumber(data.getValue());
+                ref = data.getValue().getBigInteger();
             }else{
                 if(metaInfo.containsKey(data.getKey()))
-                    rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
+                    rowComplex.setBData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
             }
         }
         if(ref==null)throw new DataBaseException("DoubleTable->mountRowData","Referencia nao encontrada para a montagem do dado");
         Record dataRecord = this.data.read(ref);
 
         row = this.dataTranslator.convertToRowData(dataRecord,metaInfo);
-        for(Map.Entry<String,byte[]> data:row){
+        for(Map.Entry<String,BData> data:row){
             if(data.getKey()=="_ id _"){
                 //ignore;
             }else{
                 if(metaInfo.containsKey(data.getKey()))
-                    rowComplex.setData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
+                    rowComplex.setBData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
             }
         }
         return rowComplex;

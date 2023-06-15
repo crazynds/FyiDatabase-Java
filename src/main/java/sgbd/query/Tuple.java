@@ -1,5 +1,6 @@
 package sgbd.query;
 
+import sgbd.prototype.BData;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 
@@ -39,9 +40,9 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
     public void setContent(String asName,ComplexRowData data){
         ComplexRowData row = sources.get(asName);
         if(row!=null){
-            for (Map.Entry<String,byte[]> column:
+            for (Map.Entry<String, BData> column:
                     data) {
-                row.setData(column.getKey(), column.getValue(),row.getMeta(column.getKey()));
+                row.setBData(column.getKey(), column.getValue(),row.getMeta(column.getKey()));
             }
         }else{
             sources.put(asName,data);
@@ -88,9 +89,9 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
         int size = 0;
         for (Map.Entry<String,ComplexRowData> row:
             sources.entrySet()) {
-            for (Map.Entry<String,byte[]> data:
+            for (Map.Entry<String,BData> data:
                  row.getValue()) {
-                size+=data.getValue().length;
+                size+=data.getValue().length();
             }
         }
         return size;

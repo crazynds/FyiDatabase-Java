@@ -1,6 +1,9 @@
 package sgbd.prototype;
 
+import engine.util.Util;
 import sgbd.util.statics.UtilConversor;
+
+import java.math.BigInteger;
 
 public class BData {
     private byte[] data;
@@ -38,6 +41,11 @@ public class BData {
         byte[] data = this.data;
         if(data==null)return null;
         return UtilConversor.byteArrayToInt(data);
+    }
+    public BigInteger getBigInteger() {
+        byte[] data = this.data;
+        if(data==null)return null;
+        return Util.convertByteArrayToNumber(data);
     }
     public Long getLong() {
         byte[] data = this.data;
