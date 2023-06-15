@@ -3,9 +3,14 @@ package sgbd.query;
 import engine.info.Parameters;
 import sgbd.info.Query;
 import sgbd.prototype.ComplexRowData;
+import sgbd.query.agregation.AvgAgregation;
+import sgbd.query.agregation.MaxAgregation;
+import sgbd.query.agregation.MinAgregation;
 import sgbd.query.binaryop.UnionOperator;
+import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.FilterOperator;
+import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.Table;
 import sgbd.util.statics.Util;
 
@@ -15,25 +20,28 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Table proj = Table.loadFromHeader("proj.head");
-        Table aloc = Table.loadFromHeader("aloc.head");
-        Table func = Table.loadFromHeader("func.head");
-        Table depto = Table.loadFromHeader("depto.head");
+        Table cidades = Table.loadFromHeader("cidades.head");
+        Table users = Table.loadFromHeader("users.head");
 
-        proj.open();
-        aloc.open();
-        func.open();
-        depto.open();
+        cidades.open();
+        users.open();
 
-        Operator projTable = new TableScan(proj);
-        Operator alocTable = new TableScan(aloc);
-        Operator funcTable = new TableScan(func);
-        Operator deptoTable = new TableScan(depto,List.of("DEPTO_idDiretor"));
+        Operator cidadeTable = new TableScan(cidades);
+        Operator userTable = new TableScan(users);
 
+        Operator join = new NestedLoopJoin(cidadeTable,userTable,(t1, t2) -> {
+            Integer a = t1.getContent("cidades").getInt("id");
+            Integer b = t2.getContent("users").getInt("idCidade");
+            return a==b;
+        });
 
-        Operator union = new UnionOperator(funcTable,deptoTable,List.of("func.FUNC_idChefe"),List.of("depto.DEPTO_idDiretor"));
+        Operator group = new GroupOperator(join,"cidades","id",List.of(
+            new MinAgregation("users","salario"),
+            new MaxAgregation("users","salario"),
+            new AvgAgregation("users","id")
+        ));
 
-        Operator executor=funcTable;
+        Operator executor=group;
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
             for(String col:content.getValue()){

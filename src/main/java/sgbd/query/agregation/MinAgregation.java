@@ -3,6 +3,7 @@ package sgbd.query.agregation;
 import engine.util.Util;
 import sgbd.query.Tuple;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class MinAgregation extends MaxAgregation{
@@ -34,7 +35,7 @@ public class MinAgregation extends MaxAgregation{
         if(fisrt) {
             number = check;
             fisrt = false;
-        }else if(number.compareTo(check)<0)number = check;
+        }else if(number.compareTo(check)>0)number = check;
     }
 
 }

@@ -7,27 +7,27 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<RowData> {
-	private Map<String,byte[]> data;
+public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<RowData> {
+	private Map<String,BData> data;
 	private byte checkSum = 0;
 
 	public RowData() {
-		data=new HashMap<String, byte[]>();
+		data=new HashMap<String, BData>();
 	}
 	protected RowData(RowData cloneData) {
-		data=new HashMap<String, byte[]>(cloneData.data);
+		data=new HashMap<String, BData>(cloneData.data);
 	}
 
 	private void removeCheckSum(String column){
-		byte[] arr = data.get(column);
-		if(arr != null && arr.length>0){
-			checkSum ^= arr[0];
+		BData arr = data.get(column);
+		if(arr != null && arr.length()>0){
+			checkSum ^= arr.getData()[0];
 		}
 	}
 
-	private void addToCheckSum(String column,byte[] data){
-		if(data!= null && data.length>0){
-			checkSum ^= data[0];
+	private void addToCheckSum(String column,BData data){
+		if(data!= null && data.length()>0){
+			checkSum ^= data.getData()[0];
 		}
 	}
 
@@ -35,8 +35,9 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 	public void setData(String column,byte[] data) {
 		valid=false;
 		removeCheckSum(column);
-		addToCheckSum(column,data);
-		this.data.put(column, data);
+		BData newData = new BData(data);
+		addToCheckSum(column,newData);
+		this.data.put(column, newData);
 	}
 	public void setInt(String column,int data) {
 		this.setData(column, UtilConversor.intToByteArray(data));
@@ -59,41 +60,43 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 	public byte[] unset(String column){
 		valid=false;
 		removeCheckSum(column);
-		return this.data.remove(column);
+		if(!this.data.containsKey(column))
+			return null;
+		return this.data.remove(column).getData();
 	}
 
 	public byte[] getData(String column) {
-		return this.data.get(column);
+		return this.data.get(column).getData();
 	}
 	public Integer getInt(String column) {
-		byte[] data = this.data.get(column);
+		BData data = this.data.get(column);
 		if(data==null)return null;
-		return UtilConversor.byteArrayToInt(data);
+		return data.getInt();
 	}
 	public Long getLong(String column) {
-		byte[] data = this.data.get(column);
+		BData data = this.data.get(column);
 		if(data==null)return null;
-		return UtilConversor.byteArrayToLong(data);
+		return data.getLong();
 	}
 	public Float getFloat(String column) {
-		byte[] data = this.data.get(column);
+		BData data = this.data.get(column);
 		if(data==null)return null;
-		return UtilConversor.byteArrayToFloat(data);
+		return data.getFloat();
 	}
 	public Double getDouble(String column) {
-		byte[] data = this.data.get(column);
+		BData data = this.data.get(column);
 		if(data==null)return null;
-		return UtilConversor.byteArrayToDouble(data);
+		return data.getDouble();
 	}
 	public String getString(String column) {
-		byte[] data = this.data.get(column);
+		BData data = this.data.get(column);
 		if(data==null)return null;
-		return UtilConversor.byteArrayToString(data);
+		return data.getString();
 	}
 	public Boolean getBoolean(String column) {
-		byte[] data = this.data.get(column);
+		BData data = this.data.get(column);
 		if(data==null)return null;
-		return data[0]!=0;
+		return data.getBoolean();
 	}
 	
 	public int size() {
@@ -110,7 +113,7 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 	}
 
 	@Override
-	public Iterator<Map.Entry<String, byte[]>> iterator() {
+	public Iterator<Map.Entry<String, BData>> iterator() {
 		return data.entrySet().iterator();
 	}
 
@@ -120,10 +123,10 @@ public class RowData implements Iterable<Map.Entry<String,byte[]>>,Comparable<Ro
 		if(val!=0)return val;
 		val = data.size() - r.data.size();
 		if(val!=0)return val;
-		for (Map.Entry<String, byte[]> entry:
+		for (Map.Entry<String, BData> entry:
 			 this) {
 			byte[] arr = r.getData(entry.getKey());
-			val = Arrays.compare(arr,entry.getValue());
+			val = Arrays.compare(arr,entry.getValue().getData());
 			if(val!= 0)return val;
 		}
 		return val;
