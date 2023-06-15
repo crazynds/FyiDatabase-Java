@@ -1,4 +1,4 @@
-package sgbd.util.statics;
+package sgbd.util.statitcs;
 
 import java.util.Random;
 

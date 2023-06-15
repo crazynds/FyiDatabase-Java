@@ -7,13 +7,11 @@ import sgbd.query.agregation.AvgAgregation;
 import sgbd.query.agregation.CountAgregation;
 import sgbd.query.agregation.MaxAgregation;
 import sgbd.query.agregation.MinAgregation;
-import sgbd.query.binaryop.UnionOperator;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
-import sgbd.query.unaryop.FilterOperator;
 import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.Table;
-import sgbd.util.statics.Util;
+import sgbd.util.statitcs.Util;
 
 import java.util.*;
 

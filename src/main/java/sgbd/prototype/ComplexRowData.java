@@ -1,7 +1,5 @@
 package sgbd.prototype;
 
-import sgbd.util.statics.UtilConversor;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

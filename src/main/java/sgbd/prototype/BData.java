@@ -1,7 +1,7 @@
 package sgbd.prototype;
 
 import engine.util.Util;
-import sgbd.util.statics.UtilConversor;
+import sgbd.util.statitcs.UtilConversor;
 
 import java.math.BigInteger;
 

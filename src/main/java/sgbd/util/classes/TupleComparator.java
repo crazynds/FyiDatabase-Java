@@ -7,7 +7,7 @@ package sgbd.util.classes;
 
 import sgbd.prototype.Column;
 import sgbd.query.Tuple;
-import sgbd.util.statics.Util;
+import sgbd.util.statitcs.Util;
 
 import java.util.Arrays;
 import java.util.Comparator;
