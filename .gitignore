@@ -5,3 +5,4 @@ target
 *.dat
 *.temp
 *.head
+*.csv

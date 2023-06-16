@@ -12,7 +12,7 @@ public class CSVRecognizer implements Iterable<String[]>{
     private char separator, stringDelimiter;
     private int beginIndex;
 
-    public CSVRecognizer(String path, char separator, char stringDelimiter, int beginIndex) throws FileNotFoundException,InvalidCsvException {
+    public CSVRecognizer(String path, char separator, char stringDelimiter, int beginIndex) throws InvalidCsvException {
         this.file = new File(path);
         this.separator = separator;
         this.stringDelimiter = stringDelimiter;
@@ -30,7 +30,7 @@ public class CSVRecognizer implements Iterable<String[]>{
             line = br.readLine();
 
             isLineNull(line, "O csv possui apenas uma linha");
-            columnsNameArray = (String[])columnsNameList.stream().toArray();
+            columnsNameArray = columnsNameList.stream().toArray(String[]::new);
 
         }catch (IOException e){}
     }
@@ -55,7 +55,7 @@ public class CSVRecognizer implements Iterable<String[]>{
                 }
             }
 
-            public List<String> loadBuffer() throws IOException, InvalidCsvException {
+            private List<String> loadBuffer() throws IOException, InvalidCsvException {
                 if(buffer!=null)return buffer;
                 String line = br.readLine();
                 while (line != null) {
@@ -90,7 +90,9 @@ public class CSVRecognizer implements Iterable<String[]>{
             @Override
             public String[] next() {
                 try {
-                    return loadBuffer().stream().toArray(String[]::new);
+                    List<String> val = loadBuffer();
+                    if(val==null)return null;
+                    return val.stream().toArray(String[]::new);
                 } catch (InvalidCsvException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {

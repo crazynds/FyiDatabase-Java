@@ -1,4 +1,8 @@
 import sgbd.table.Table;
+import sgbd.util.classes.CSVRecognizer;
+import sgbd.util.classes.InvalidCsvException;
+
+import java.io.FileNotFoundException;
 
 public class Main {
 
@@ -12,7 +16,19 @@ public class Main {
     }
 
 
-    public static void main(String[] args){
-        Table t = Table.loadFromHeader("BIOSTATS.head");
+    public static void main(String[] args) throws InvalidCsvException, FileNotFoundException {
+        CSVRecognizer recognizer = new CSVRecognizer("people.csv",',','"', 1);
+        for (String dado:
+                recognizer.getColumnNames()) {
+            System.out.print(dado+"\t*");
+        }
+        for (String[] linhas:
+             recognizer) {
+            for (String dado:
+                 linhas) {
+                System.out.print(dado+"\t|");
+            }
+            System.out.println();
+        }
     }
 }

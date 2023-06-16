@@ -19,7 +19,7 @@ public class CountAgregation extends AgregationOperation{
 
     @Override
     public void initialize(Tuple acumulator) {
-        acumulator.getContent(sourceDst).setLong(columnDst,0, new Column("count", (short) 8,Column.NONE));
+        acumulator.getContent(sourceDst).setLong(columnDst, 0L, new Column("count", (short) 8,Column.NONE));
     }
 
     @Override

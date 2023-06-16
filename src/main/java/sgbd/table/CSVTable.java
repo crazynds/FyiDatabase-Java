@@ -7,6 +7,8 @@ import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
+import sgbd.util.classes.CSVRecognizer;
+import sgbd.util.classes.InvalidCsvException;
 import sgbd.util.statitcs.Util;
 
 import java.io.*;
@@ -17,11 +19,19 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class CSVTable extends Table{
-    File csvFile;
+    private CSVRecognizer recognizer;
+    private char separator,stringDelimiter;
+    private int beginIndex;
 
-    public CSVTable(Header header) throws FileNotFoundException {
+    public CSVTable(Header header,char separator, char stringDelimiter, int beginIndex) {
         super(header);
-        this.csvFile = new File(header.getTablePath());
+        header.set(Header.TABLE_TYPE,"CSVTable");
+        header.set("separator",separator+"");
+        header.set("delimiter",stringDelimiter+"");
+        header.set("beginIndex",beginIndex+"");
+        this.beginIndex = beginIndex;
+        this.separator = separator;
+        this.stringDelimiter = stringDelimiter;
     }
 
     @Override
@@ -31,12 +41,16 @@ public class CSVTable extends Table{
 
     @Override
     public void open() {
-        if(!csvFile.exists() || !csvFile.isFile() || !csvFile.canRead())
-            throw new RuntimeException("CSV não é acessivel!");
+        try {
+            this.recognizer = new CSVRecognizer(header.getTablePath(),separator,stringDelimiter,beginIndex);
+        } catch (InvalidCsvException e) {
+            throw new DataBaseException("CSVTable->Constructor",e.getMessage());
+        }
     }
 
     @Override
     public void close() {
+        this.recognizer = null;
     }
 
     @Override
@@ -114,97 +128,82 @@ public class CSVTable extends Table{
 
     @Override
     public RowIterator iterator() {
-
         return new RowIterator() {
 
-            BufferedReader br;
-            Stream<String> lines;
-            Iterator<String> iterator;
-
-            {
-                try {
-                    br = new BufferedReader(new FileReader(csvFile));
-                    lines = br.lines();
-                    iterator = lines.iterator();
-                    iterator.next();    // Ignore header
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            BigInteger currentIt = BigInteger.ZERO;
+            Iterator<String[]> csvLines = recognizer.iterator();
+            String[] headers = recognizer.getColumnNames();
 
             @Override
             public void setPointerPk(BigInteger pk) {
-                throw new DataBaseException("CSVTable","This type of table (CSVTable) not support search by PrimaryKey");
+                if(pk.compareTo(currentIt) < 0) this.restart();
+                if(pk.compareTo(currentIt) < 0) throw new DataBaseException("CSVTable->iterator->setPointerPk","PK informada é menor que a menor primary key alcançavel");
+                while(pk.compareTo(currentIt)>0 && hasNext())
+                    next();
             }
 
             @Override
             public void restart() {
-                try {
-                    iterator = null;
-                    lines.close();
-                    br.close();
-                    br = new BufferedReader(new FileReader(csvFile));
-                    lines = br.lines();
-                    iterator = lines.iterator();
-                    iterator.next();    // Ignore header
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                currentIt = BigInteger.ZERO;
+                csvLines = recognizer.iterator();
             }
 
             @Override
             public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
-                ComplexRowData row = new ComplexRowData();
-                String line = iterator.next();
-                String[] columns = line.split(",");
-                Prototype p = getHeader().getPrototype();
-                for (int x=0;x<columns.length && x<columns.length;x++) {
-                    Column c = p.getColumn(x);
-                    if(c==null)break;
-                    String s = columns[x];
-                    try {
-                        switch (Util.typeOfColumn(c)) {
-                            case "float":
-                                row.setFloat(c.getName(), Float.parseFloat(s), c);
-                                break;
-                            case "double":
-                                row.setDouble(c.getName(), Double.parseDouble(s), c);
-                                break;
-                            case "int":
-                                row.setInt(c.getName(), Integer.parseInt(s), c);
-                                break;
-                            case "string":
-                            default:
-                                row.setString(c.getName(), s, c);
-                                break;
+                String[] data = csvLines.next();
+                if(data==null)return null;
+                currentIt = currentIt.add(BigInteger.ONE);
+
+                String[] columns = csvLines.next();
+                ComplexRowData rowData = new ComplexRowData();
+                for (Column c:
+                        getHeader().getPrototype()) {
+                    for (int x=0;x<columns.length;x++) {
+                        String columnName = columns[x];
+                        if(c.getName().compareToIgnoreCase(columnName) != 0)continue;
+                        String val = data[x];
+                        if(val.isEmpty() || val == null){
+                            rowData.setData(c.getName(),null,c);
+                            continue;
                         }
-                    }catch (NumberFormatException e){
-                        row.setString(c.getName(),s,new Column(c.getName(), (short) s.length(),Column.STRING));
-                    };
+
+                        switch (Util.typeOfColumn(c)){
+                        case "string":
+                            rowData.setString(c.getName(),val,c);
+                            break;
+                        case "int":
+                            rowData.setInt(c.getName(),Integer.valueOf(val),c);
+                            break;
+                        case "long":
+                            rowData.setLong(c.getName(),Long.valueOf(val),c);
+                            break;
+                        case "double":
+                            rowData.setDouble(c.getName(),Double.valueOf(val),c);
+                            break;
+                        case "float":
+                            rowData.setFloat(c.getName(),Float.valueOf(val),c);
+                            break;
+                        case "boolean":
+                            rowData.setBoolean(c.getName(),Boolean.valueOf(val),c);
+                            break;
+                        }
+
+                    }
                 }
-                BigInteger pk = translatorApi.getPrimaryKey(row);
-                return Map.entry(pk,row);
+
+                return Map.entry(currentIt,rowData);
             }
 
             @Override
             public boolean hasNext() {
-                return iterator.hasNext();
+                return csvLines.hasNext();
             }
 
             @Override
             public ComplexRowData next() {
-                return nextWithPk().getValue();
-            }
-
-
-            @Override
-            protected void finalize() throws Throwable {
-                iterator = null;
-                lines.close();
-                br.close();
-                super.finalize();
+                Map.Entry<BigInteger, ComplexRowData> e = this.nextWithPk();
+                if(e==null)return null;
+                return e.getValue();
             }
         };
     }

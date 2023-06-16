@@ -44,6 +44,11 @@ public abstract class Table implements Iterable<ComplexRowData>{
 				return new DoubleTable(header);
 			case "MemoryTable":
 				return new MemoryTable(header);
+			case "CSVTable":
+				return new CSVTable(header,
+						header.get("separator").charAt(0),
+						header.get("delimiter").charAt(0),
+						Integer.valueOf(header.get("beginIndex")));
 			case "SimpleTable":
 			default:
 				return new SimpleTable(header);

@@ -45,7 +45,7 @@ public class ComplexRowData extends RowData{
         this.setInt(column,data);
         this.setMetaData(column,meta);
     }
-    public void setLong(String column,int data,Column meta) {
+    public void setLong(String column,Long data,Column meta) {
         this.setLong(column,data);
         this.setMetaData(column,meta);
     }
