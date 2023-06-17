@@ -1,4 +1,4 @@
-package test.java.crazynds.fydatabase;
+package test.java.crazynds.fyidatabase;
 
 import static org.junit.Assert.assertTrue;
 

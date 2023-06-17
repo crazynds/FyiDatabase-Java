@@ -1,4 +1,4 @@
-package crazynds.fydatabase.sgbd;
+package crazynds.fyidatabase.sgbd;
 
 import org.junit.Test;
 import sgbd.prototype.Column;

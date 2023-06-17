@@ -1,4 +1,4 @@
-package crazynds.fydatabase.sgbd.query;
+package crazynds.fyidatabase.sgbd.query;
 
 import org.junit.Test;
 import sgbd.prototype.Column;
