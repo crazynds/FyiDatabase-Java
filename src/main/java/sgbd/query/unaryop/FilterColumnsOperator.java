@@ -4,18 +4,35 @@ import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class FilterColumnsOperator extends UnaryOperator{
 
-    private String content;
-    private List<String> columns;
+    private List<String[]> srcColumns;
 
     public FilterColumnsOperator(Operator op, String content, List<String> columns) {
         super(op);
-        this.columns = columns;
-        this.content = content;
+        ArrayList<String[]> arr = new ArrayList<>();
+        for (String s:
+             columns) {
+            String[] v = {content,s};
+            arr.add(v);
+        }
+        srcColumns = arr;
+    }
+    public FilterColumnsOperator(Operator op, List<String> srcColumns) {
+        super(op);
+        ArrayList<String[]> arr = new ArrayList<>();
+        for (String s:
+                srcColumns) {
+            String[] vals = s.split("\\.");
+            String[] v = {vals[0],vals[1]};
+            arr.add(v);
+        }
+        this.srcColumns = arr;
     }
 
     @Override
@@ -26,10 +43,11 @@ public class FilterColumnsOperator extends UnaryOperator{
     @Override
     public Tuple next() {
         Tuple t = operator.next().clone();
-        ComplexRowData row = t.getContent(content);
-        if(row!=null){
-            for(String colName: columns)
-                row.unset(colName);
+        for(String[] srcColumn:srcColumns){
+            String src = srcColumn[0];
+            String column = srcColumn[1];
+            ComplexRowData row = t.getContent(src);
+            t.getContent(src).unset(column);
         }
         return t;
     }
@@ -47,9 +65,12 @@ public class FilterColumnsOperator extends UnaryOperator{
     @Override
     public Map<String, List<String>> getContentInfo() {
         Map<String, List<String>> map = super.getContentInfo();
-        if(map.containsKey(content)){
-            for(String colName: columns)
-                map.get(content).remove(colName);
+        for(String[] srcColumn:srcColumns){
+            String src = srcColumn[0];
+            String column = srcColumn[1];
+            if(map.containsKey(src)){
+                map.get(src).remove(column);
+            }
         }
         return map;
     }

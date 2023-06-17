@@ -31,4 +31,12 @@ public abstract class UnaryOperator implements Operator {
     public Map<String, List<String>> getContentInfo() {
         return operator.getContentInfo();
     }
+
+    public void open(){
+
+    }
+
+    public void close(){
+        getOperator().close();
+    }
 }

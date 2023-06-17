@@ -81,7 +81,7 @@ public class GroupOperator extends UnaryOperator {
 
     @Override
     public void close() {
-        getOperator().close();
+        operator.close();
     }
 
 
