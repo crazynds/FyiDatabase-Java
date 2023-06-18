@@ -38,6 +38,7 @@ public class Util {
     public static String typeOfColumn(Column column){
         if(column.isBoolean())return "boolean";
         if(column.isString())return "string";
+        if(column.isLong())return "long";
         if(column.isInt())return "int";
         if(column.isFloat())return "float";
         if(column.isDouble())return "double";

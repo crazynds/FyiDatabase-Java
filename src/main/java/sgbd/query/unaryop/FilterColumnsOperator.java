@@ -36,11 +36,6 @@ public class FilterColumnsOperator extends UnaryOperator{
     }
 
     @Override
-    public void open() {
-        operator.open();
-    }
-
-    @Override
     public Tuple next() {
         Tuple t = operator.next().clone();
         for(String[] srcColumn:srcColumns){
@@ -57,10 +52,6 @@ public class FilterColumnsOperator extends UnaryOperator{
         return operator.hasNext();
     }
 
-    @Override
-    public void close() {
-        operator.close();
-    }
 
     @Override
     public Map<String, List<String>> getContentInfo() {

@@ -10,14 +10,12 @@ import sgbd.util.interfaces.ComparableFilter;
 
 import java.util.*;
 
-public class UnionOperator extends BinaryOperator{
+public class UnionOperator extends SimpleBinaryOperator{
 
     protected ArrayList<Tuple> tuples = new ArrayList<>();
     protected ComparableFilter<Tuple> comparator;
     protected List<String[]> leftColumns = null, rightColumns = null;
     protected boolean isRight = false;
-
-    protected Tuple nextTuple = null;
 
     public UnionOperator(Operator left, Operator right) {
         super(new DistinctOperator(left), new DistinctOperator(right));
@@ -51,9 +49,8 @@ public class UnionOperator extends BinaryOperator{
 
     @Override
     public void open() {
+        super.open();
         tuples.clear();
-        left.open();
-        right.open();
         isRight = false;
     }
 
@@ -66,27 +63,26 @@ public class UnionOperator extends BinaryOperator{
         return true;
     }
 
-    protected Tuple getNextTuple(){
-        if(nextTuple != null)return nextTuple;
+    public Tuple getNextTuple(){
+        Tuple t = null;
         while(left.hasNext()){
-            nextTuple = left.next();
-            tuples.add(nextTuple);
-            return nextTuple;
+            t = left.next();
+            tuples.add(t);
+            return t;
         }
         while(right.hasNext()){
-            nextTuple = right.next();
+            t = right.next();
             isRight = true;
-            if(checkValid(nextTuple)){
-                return nextTuple;
-            }else nextTuple = null;
+            if(checkValid(t)){
+                return t;
+            }else t = null;
         }
-        return nextTuple;
+        return t;
     }
 
     @Override
     public Tuple next() {
-        Tuple t = getNextTuple();
-        nextTuple = null;
+        Tuple t = super.next();
         if(leftColumns!=null){
             Tuple n = new Tuple();
             for (int x=0;x< leftColumns.size();x++) {
@@ -110,15 +106,9 @@ public class UnionOperator extends BinaryOperator{
     }
 
     @Override
-    public boolean hasNext() {
-        return getNextTuple() != null;
-    }
-
-    @Override
     public void close() {
+        super.close();
         tuples.clear();
-        left.close();
-        right.close();
     }
 
 

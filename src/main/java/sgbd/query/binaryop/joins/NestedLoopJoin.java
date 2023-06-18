@@ -4,11 +4,10 @@ import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.binaryop.BinaryOperator;
+import sgbd.query.binaryop.SimpleBinaryOperator;
 import sgbd.util.interfaces.ComparableFilter;
 
-public class NestedLoopJoin extends BinaryOperator {
-
-    protected Tuple nextTuple=null;
+public class NestedLoopJoin extends SimpleBinaryOperator {
     protected Tuple currentLeftTuple=null;
     protected ComparableFilter<Tuple> comparator;
 
@@ -23,29 +22,11 @@ public class NestedLoopJoin extends BinaryOperator {
 
     @Override
     public void open() {
-        left.open();
-        nextTuple=null;
+        super.open();
+        right.close();
     }
 
-    @Override
-    public Tuple next() {
-        try {
-            if(nextTuple==null)findNextTuple();
-            return nextTuple;
-        }finally {
-            nextTuple = null;
-        }
-    }
-
-    @Override
-    public boolean hasNext() {
-        findNextTuple();
-        return nextTuple!=null;
-    }
-
-    protected Tuple findNextTuple(){
-        //Executa apenas quando o next tuple não existe
-        if(nextTuple!=null)return nextTuple;
+    public Tuple getNextTuple(){
         //Loopa pelo operador esquerdo
         while(currentLeftTuple!=null || left.hasNext()){
             if(currentLeftTuple==null){
@@ -58,8 +39,7 @@ public class NestedLoopJoin extends BinaryOperator {
                 //Faz a comparação do join
                 Query.COMPARE_JOIN++;
                 if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
-                    nextTuple = new Tuple(currentLeftTuple,rightTuple);
-                    return nextTuple;
+                    return new Tuple(currentLeftTuple,rightTuple);
                 }
             }
             right.close();
@@ -68,9 +48,4 @@ public class NestedLoopJoin extends BinaryOperator {
         return null;
     }
 
-    @Override
-    public void close() {
-        nextTuple = null;
-        left.close();
-    }
 }

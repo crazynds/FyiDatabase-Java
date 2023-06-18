@@ -19,10 +19,6 @@ public class AsOperator extends UnaryOperator {
         this.conversor  = conversor;
         this.name       = name;
     }
-    @Override
-    public void open() {
-        operator.open();
-    }
 
     @Override
     public Tuple next() {
@@ -37,10 +33,6 @@ public class AsOperator extends UnaryOperator {
         return operator.hasNext();
     }
 
-    @Override
-    public void close() {
-        operator.close();
-    }
 
     @Override
     public Map<String, List<String>> getContentInfo() {

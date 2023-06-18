@@ -92,6 +92,9 @@ public class Column {
 	public boolean isInt(){
 		return (!isString() && (flags&FLOATING_POINT)==0 && !isDinamicSize()) || (flags&SIGNED_INTEGER_COLUMN)!=0;
 	}
+	public boolean isLong(){
+		return this.isInt() && size==8;
+	}
 	public boolean isDouble(){
 		return (flags&FLOATING_POINT)!=0 && size==8;
 	}

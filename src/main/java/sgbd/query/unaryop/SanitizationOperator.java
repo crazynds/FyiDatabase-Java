@@ -14,11 +14,6 @@ public class SanitizationOperator extends UnaryOperator {
     }
 
     @Override
-    public void open() {
-        operator.open();
-    }
-
-    @Override
     public Tuple next() {
         Tuple t = operator.next();
         if(t==null)return null;
@@ -30,8 +25,4 @@ public class SanitizationOperator extends UnaryOperator {
         return operator.hasNext();
     }
 
-    @Override
-    public void close() {
-        operator.close();
-    }
 }

@@ -16,19 +16,19 @@ public class IntersectionOperator extends UnionOperator{
 
 
     @Override
-    protected Tuple getNextTuple(){
-        if(nextTuple != null)return nextTuple;
+    public Tuple getNextTuple(){
+        Tuple t = null;
         while(left.hasNext()){
-            nextTuple = left.next();
-            tuples.add(nextTuple);
+            t = left.next();
+            tuples.add(t);
         }
         while(right.hasNext()){
-            nextTuple = right.next();
+            t = right.next();
             isRight = true;
-            if(!checkValid(nextTuple)){
-                return nextTuple;
-            }else nextTuple = null;
+            if(!checkValid(t)){
+                return t;
+            }else t = null;
         }
-        return nextTuple;
+        return t;
     }
 }

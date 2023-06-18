@@ -5,7 +5,7 @@ import sgbd.query.Tuple;
 
 import java.util.ArrayList;
 
-public class UnionAllOperator extends BinaryOperator{
+public class UnionAllOperator extends SimpleBinaryOperator{
 
     private Tuple nextTuple = null;
 
@@ -14,13 +14,7 @@ public class UnionAllOperator extends BinaryOperator{
     }
 
     @Override
-    public void open() {
-        left.open();
-        right.open();
-    }
-
-
-    private Tuple getNextTuple(){
+    public Tuple getNextTuple(){
         if(nextTuple != null)return nextTuple;
         while(left.hasNext()){
             nextTuple = left.next();
@@ -33,21 +27,4 @@ public class UnionAllOperator extends BinaryOperator{
         return nextTuple;
     }
 
-    @Override
-    public Tuple next() {
-        Tuple t = getNextTuple();
-        nextTuple = null;
-        return t;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return getNextTuple() != null;
-    }
-
-    @Override
-    public void close() {
-        left.close();
-        right.close();
-    }
 }

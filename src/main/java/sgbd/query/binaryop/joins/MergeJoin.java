@@ -5,6 +5,7 @@ import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.binaryop.BinaryOperator;
+import sgbd.query.binaryop.SimpleBinaryOperator;
 import sgbd.query.unaryop.SortOperator;
 import sgbd.query.unaryop.UnaryOperator;
 import sgbd.util.classes.ResourceName;
@@ -12,8 +13,7 @@ import sgbd.util.classes.ResourceName;
 import java.math.BigInteger;
 import java.util.Map;
 
-public class MergeJoin extends BinaryOperator {
-    protected Tuple nextTuple=null;
+public class MergeJoin extends SimpleBinaryOperator {
 
     protected String leftSource,leftData,rightSource,rightData;
 
@@ -58,32 +58,19 @@ public class MergeJoin extends BinaryOperator {
         return ((UnaryOperator)right).getOperator();
     }
 
-    @Override
-    public void open() {
-        left.open();
-        right.open();
-    }
-
-    @Override
-    public Tuple next() {
-        try {
-            if(nextTuple==null)findNextTuple();
-            return nextTuple;
-        }finally {
-            nextTuple = null;
-        }
-    }
-
-    @Override
-    public boolean hasNext() {
-        findNextTuple();
-        return (nextTuple==null)?false:true;
-    }
 
     protected Map.Entry<Tuple,BigInteger> nextRight(){
-        if(!right.hasNext())return null;
+        return nextSide(right, rightSource, rightData);
+    }
+
+    protected Map.Entry<Tuple,BigInteger> nextLeft(){
+        return nextSide(left, leftSource, leftData);
+    }
+
+    private Map.Entry<Tuple, BigInteger> nextSide(Operator op, String rightSource, String rightData) {
+        if(!op.hasNext())return null;
         return new Map.Entry<Tuple, BigInteger>() {
-            Tuple tuple = right.next();
+            Tuple tuple = op.next();
             BigInteger val = Util.convertByteArrayToNumber(tuple.getContent(rightSource).getData(rightData));
 
             @Override
@@ -102,31 +89,8 @@ public class MergeJoin extends BinaryOperator {
             }
         };
     }
-    protected Map.Entry<Tuple,BigInteger> nextLeft(){
-        if(!left.hasNext())return null;
-        return new Map.Entry<Tuple, BigInteger>() {
-            Tuple tuple = left.next();
-            BigInteger val = Util.convertByteArrayToNumber(tuple.getContent(leftSource).getData(leftData));
 
-            @Override
-            public Tuple getKey() {
-                return tuple;
-            }
-
-            @Override
-            public BigInteger getValue() {
-                return val;
-            }
-
-            @Override
-            public BigInteger setValue(BigInteger value) {
-                return val;
-            }
-        };
-    }
-
-    protected Tuple findNextTuple(){
-        if(nextTuple!=null)return nextTuple;
+    public Tuple getNextTuple(){
         if(leftCurrent==null)
             leftCurrent = nextLeft();
         if(leftCurrent==null)return null;
@@ -143,8 +107,7 @@ public class MergeJoin extends BinaryOperator {
                 case 0:
                     Tuple tuple = new Tuple(leftCurrent.getKey(),rightCurrent.getKey());
                     leftCurrent = null;
-                    nextTuple = tuple;
-                    return nextTuple;
+                    return tuple;
                 case -1:
                     leftCurrent = nextLeft();
                     break;
@@ -153,8 +116,4 @@ public class MergeJoin extends BinaryOperator {
         return null;
     }
 
-    @Override
-    public void close() {
-        nextTuple = null;
-    }
 }

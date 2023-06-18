@@ -22,9 +22,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
     }
 
     @Override
-    protected Tuple findNextTuple(){
-        //Executa apenas quando o next tuple não existe
-        if(nextTuple!=null)return nextTuple;
+    public Tuple getNextTuple(){
         //Loopa pelo operador esquerdo
         while(currentLeftTuple!=null || left.hasNext()){
             if(currentLeftTuple==null){
@@ -39,15 +37,14 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
                 Query.COMPARE_JOIN++;
                 if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
                     qtdFinded++;
-                    nextTuple = new Tuple(currentLeftTuple,rightTuple);
-                    return nextTuple;
+                    return new Tuple(currentLeftTuple,rightTuple);
                 }
             }
             right.close();
             if(qtdFinded==0){
-                nextTuple = currentLeftTuple;
+                Tuple t = currentLeftTuple;
                 currentLeftTuple = null;
-                return nextTuple;
+                return t;
             }else currentLeftTuple=null;
         }
         return null;

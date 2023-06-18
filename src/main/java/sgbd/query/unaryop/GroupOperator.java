@@ -26,7 +26,7 @@ public class GroupOperator extends UnaryOperator {
 
     @Override
     public void open() {
-        operator.open();
+        super.open();
         lastTupleLoaded = null;
         actualTuple = null;
         groupName = null;
@@ -77,11 +77,6 @@ public class GroupOperator extends UnaryOperator {
     @Override
     public boolean hasNext() {
         return getNextTuple()!=null;
-    }
-
-    @Override
-    public void close() {
-        operator.close();
     }
 
 

@@ -6,14 +6,13 @@ import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.query.binaryop.BinaryOperator;
+import sgbd.query.binaryop.SimpleBinaryOperator;
 import sgbd.query.sourceop.PKTableScan;
 
 import java.math.BigInteger;
 import java.util.Map;
 
-public class FKNestedLoopJoin extends BinaryOperator {
-
-    protected Tuple nextTuple=null;
+public class FKNestedLoopJoin extends NestedLoopJoin {
 
     protected String source,foreignKey;
     private boolean showIfNullRightOperator;
@@ -38,28 +37,7 @@ public class FKNestedLoopJoin extends BinaryOperator {
     }
 
     @Override
-    public void open() {
-        left.open();
-        nextTuple=null;
-    }
-
-    @Override
-    public Tuple next() {
-        try {
-            if(nextTuple==null)findNextTuple();
-            return nextTuple;
-        }finally {
-            nextTuple = null;
-        }
-    }
-
-    @Override
-    public boolean hasNext() {
-        findNextTuple();
-        return (nextTuple==null)?false:true;
-    }
-    protected Tuple findNextTuple(){
-        if(nextTuple!=null)return nextTuple;
+    public Tuple getNextTuple(){
         PKTableScan tableScan = getTableScan();
 
         while(left.hasNext()){
@@ -74,21 +52,13 @@ public class FKNestedLoopJoin extends BinaryOperator {
                      rightTuple) {
                     leftTuple.setContent(entry.getKey(), entry.getValue());
                 }
-                nextTuple = leftTuple;
-                return nextTuple;
+                return leftTuple;
             }else if(this.showIfNullRightOperator){
-                nextTuple = leftTuple;
-                return nextTuple;
+                return leftTuple;
             }
             tableScan.close();
         }
         return null;
-    }
-
-    @Override
-    public void close() {
-        nextTuple = null;
-        left.close();
     }
 
     protected PKTableScan getTableScan(){

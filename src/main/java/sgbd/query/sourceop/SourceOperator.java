@@ -26,4 +26,9 @@ public abstract class SourceOperator implements Operator {
         return List.of(table);
     }
 
+    @Override
+    public void clearTempFile(){
+
+    }
+
 }

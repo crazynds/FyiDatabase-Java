@@ -7,8 +7,11 @@ import sgbd.query.agregation.AvgAgregation;
 import sgbd.query.agregation.CountAgregation;
 import sgbd.query.agregation.MaxAgregation;
 import sgbd.query.agregation.MinAgregation;
+import sgbd.query.binaryop.joins.BlockNestedLoopJoin;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
+import sgbd.query.unaryop.FilterColumnsOperator;
+import sgbd.query.unaryop.FilterOperator;
 import sgbd.query.unaryop.GroupOperator;
 import sgbd.table.Table;
 import sgbd.util.statitcs.Util;
@@ -19,66 +22,27 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Table cidades = Table.loadFromHeader("cidades.head");
-        Table users = Table.loadFromHeader("users.head");
+        Table elenco = Table.loadFromHeader("elenco.head");
+        Table filme = Table.loadFromHeader("filme.head");
 
-        cidades.open();
-        users.open();
+        elenco.open();
+        filme.open();
 
-        Operator cidadeTable = new TableScan(cidades);
-        Operator userTable = new TableScan(users);
+        Operator elencoTable = new TableScan(elenco);
+        Operator filmeTable = new TableScan(filme);
 
-        Operator join = new NestedLoopJoin(cidadeTable,userTable,(t1, t2) -> {
-            Integer a = t1.getContent("cidades").getInt("id");
-            Integer b = t2.getContent("users").getInt("idCidade");
-            return a==b;
+        Operator cartesiano = new BlockNestedLoopJoin(filmeTable,elencoTable,(t1, t2) -> true);
+        Operator filter = new FilterOperator(cartesiano,entrie -> {
+            return entrie.getContent("elenco").getLong("idFilme")==entrie.getContent("filme").getLong("idFilme");
         });
 
-        Operator group = new GroupOperator(join,"cidades","id",List.of(
-            new MinAgregation("users","salario"),
-            new MaxAgregation("users","salario"),
-            new AvgAgregation("users","id"),
-            new CountAgregation("users","id")
-        ));
+        Operator select = new FilterColumnsOperator(filter,List.of("filme.idFilme","filme.titulo"));
 
-        Operator executor=group;
 
-        for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
-            for(String col:content.getValue()){
-                System.out.print(content.getKey()+"."+col+" |");
-            }
-        }
-        System.out.println();
-
-        executor.open();
-        while (executor.hasNext()) {
-            Tuple t = executor.next();
-            String str = "";
-            for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
-                for(String col:content.getValue()){
-                    ComplexRowData row = t.getContent(content.getKey());
-                    switch (Util.typeOfColumn(row.getMeta(col))) {
-                        case "int":
-                            str += content.getKey() + "." + col + "=" + row.getInt(col);
-                            break;
-                        case "float":
-                            str += content.getKey() + "." + col + "=" + row.getFloat(col);
-                            break;
-                        case "double":
-                            str += content.getKey() + "." + col + "=" + row.getDouble(col);
-                            break;
-                        case "string":
-                        default:
-                            str += content.getKey() + "." + col + "=" + row.getString(col);
-                            break;
-                    }
-                    str += " | ";
-                }
-            }
-            System.out.println(str);
-        }
-        //Fecha operador
-        executor.close();
+        TestOperators.testOperator(elencoTable);
+        TestOperators.testOperator(filmeTable);
+        TestOperators.testOperator(filter);
+        TestOperators.testOperator(select);
 
 
         //Fecha as tables, não serão mais acessadas

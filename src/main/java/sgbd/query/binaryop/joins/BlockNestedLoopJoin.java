@@ -16,7 +16,7 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
     private Tuple rightTuple=null;
 
     private int bufferSize = 4096;
-
+    private int maxBufferedTuples = 10;
 
 
     public BlockNestedLoopJoin(Operator left, Operator right,ComparableFilter<Tuple> comparator) {
@@ -39,20 +39,19 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
     }
 
     @Override
-    protected Tuple findNextTuple() {
-        if(nextTuple!=null)return nextTuple;
-        Tuple leftTuple;
+    public Tuple getNextTuple() {
+        Tuple leftTuple,t = null;
 
         //Bufferiza o left
         while(bufferSize > currentBufferedLeft && left.hasNext()
-                && bufferedLeftTuples.size()<3
+                && bufferedLeftTuples.size()<maxBufferedTuples
         ){
             leftTuple = left.next();
             bufferedLeftTuples.add(leftTuple);
             currentBufferedLeft+=leftTuple.byteSize();
         }
 
-        while(nextTuple==null && !bufferedLeftTuples.isEmpty()){
+        while(!bufferedLeftTuples.isEmpty()){
             if(rightTuple==null){
                 if(right.hasNext()){
                     indexLeftTuple = 0;
@@ -67,19 +66,19 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
                     bufferedLeftTuples.clear();
                     currentBufferedLeft = 0;
                     indexLeftTuple = 0;
-                    return findNextTuple();
+                    return getNextTuple();
                 }
             }
             if(bufferedLeftTuples.size()>indexLeftTuple) {
                 leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
                 Query.COMPARE_JOIN++;
                 if(comparator==null || comparator.match(leftTuple,rightTuple)) {
-                    nextTuple = new Tuple(leftTuple,rightTuple);
+                    return new Tuple(leftTuple,rightTuple);
                 }
             }else{
                 rightTuple= null;
             }
         }
-        return nextTuple;
+        return null;
     }
 }

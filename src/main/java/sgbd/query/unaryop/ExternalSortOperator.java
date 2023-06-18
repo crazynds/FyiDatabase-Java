@@ -51,9 +51,12 @@ public class ExternalSortOperator extends UnaryOperator {
 
     @Override
     public void open() {
-        if(externalSortedTable!=null)return;
+        if(externalSortedTable!=null){
+            scan.open();
+            return;
+        }
+        super.open();
 
-        operator.open();
         if(!operator.hasNext()){
             operator.close();
             return;
@@ -79,6 +82,8 @@ public class ExternalSortOperator extends UnaryOperator {
 
         }catch (IOException exception){
             throw new DataBaseException("ExternalSortOperator->newTempFile",exception.getMessage());
+        }finally {
+            operator.close();
         }
 
 
@@ -159,18 +164,26 @@ public class ExternalSortOperator extends UnaryOperator {
     @Override
     public void close() {
         if(scan!=null) {
+            scan.close();
+        }else{
+            super.close();
+        }
+    }
+
+    @Override
+    public void clearTempFile() {
+        super.clearTempFile();
+        if(scan!=null) {
             try {
                 fileWriter.close();
             } catch (IOException e) {
             }
-            scan.close();
             externalSortedTable.close();
             dataFile.delete();
             String path = externalSortedTable.getHeader().get(Header.FILE_PATH);
-            if(path!=null){
+            if (path != null) {
                 (new File(path)).delete();
             }
         }
     }
-
 }

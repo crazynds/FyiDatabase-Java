@@ -32,11 +32,20 @@ public abstract class UnaryOperator implements Operator {
         return operator.getContentInfo();
     }
 
-    public void open(){
 
+    @Override
+    public void open(){
+        operator.open();
     }
 
+
+    @Override
     public void close(){
-        getOperator().close();
+        operator.close();
+    }
+
+    @Override
+    public void clearTempFile(){
+        operator.clearTempFile();
     }
 }

@@ -5,55 +5,24 @@ import sgbd.query.Operator;
 import sgbd.query.Tuple;
 import sgbd.util.interfaces.Filter;
 
-public class FilterOperator extends UnaryOperator {
+public class FilterOperator extends SimpleUnaryOperator {
 
     private Filter<Tuple> tupleFilter;
 
-    private Tuple nextTuple;
-
     public FilterOperator(Operator op, Filter<Tuple> tupleFilter) {
         super(op);
-        this.tupleFilter=tupleFilter;
+        this.tupleFilter = tupleFilter;
     }
 
-    @Override
-    public void open() {
-        operator.open();
-        nextTuple=null;
-    }
-
-    @Override
-    public Tuple next() {
-        try {
-            return findNextTuple();
-        }finally {
-            nextTuple = null;
-        }
-    }
-
-    @Override
-    public boolean hasNext() {
-        if(findNextTuple()!=null)return true;
-        return false;
-    }
-
-    private Tuple findNextTuple(){
-        if(nextTuple!=null)return nextTuple;
-
+    public Tuple getNextTuple(){
         while (operator.hasNext()){
             Tuple temp = operator.next();
             Query.COMPARE_FILTER++;
             if(tupleFilter.match(temp)) {
-                nextTuple = temp;
-                return nextTuple;
+                return temp;
             }
         }
         return null;
     }
 
-    @Override
-    public void close() {
-        operator.close();
-        nextTuple=null;
-    }
 }

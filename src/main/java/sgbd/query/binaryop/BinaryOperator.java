@@ -31,6 +31,23 @@ public abstract class BinaryOperator implements Operator {
         this.right = op;
     }
 
+    @Override
+    public void open() {
+        this.left.open();
+        this.right.open();
+    }
+
+    @Override
+    public void close() {
+        this.left.close();
+        this.right.close();
+    }
+
+    @Override
+    public void clearTempFile() {
+        this.left.clearTempFile();
+        this.right.clearTempFile();
+    }
 
     public List<Table> getSources(){
         List<Table> lTable = left.getSources();

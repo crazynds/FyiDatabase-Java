@@ -7,11 +7,10 @@ import sgbd.query.binaryop.UnionOperator;
 
 import java.util.ArrayList;
 
-public class DistinctOperator extends UnaryOperator{
+public class DistinctOperator extends SimpleUnaryOperator{
 
     private ArrayList<Tuple> tuples = new ArrayList<>();
 
-    private Tuple nextTuple = null;
     public DistinctOperator(Operator op) {
         super(op);
     }
@@ -27,40 +26,20 @@ public class DistinctOperator extends UnaryOperator{
         return true;
     }
 
-    private Tuple getNextTuple() {
-        if (nextTuple != null) return nextTuple;
+    public Tuple getNextTuple() {
         while (operator.hasNext()) {
-            nextTuple = operator.next();
-            if (checkValid(nextTuple)) {
-                return nextTuple;
-            } else nextTuple = null;
+            Tuple t = operator.next();
+            if (checkValid(t)) {
+                return t;
+            }
         }
-        return nextTuple;
+        return null;
     }
 
     @Override
     public void open() {
+        super.open();
         tuples.clear();
-        operator.open();
-
     }
 
-    @Override
-    public Tuple next() {
-        Tuple t = getNextTuple();
-        nextTuple = null;
-        return t;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return getNextTuple() != null;
-    }
-
-
-    @Override
-    public void close() {
-        tuples.clear();
-        operator.close();
-    }
 }

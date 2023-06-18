@@ -11,6 +11,7 @@ public interface Operator {
     public Tuple next();
     public boolean hasNext();
     public void close();
+    public void clearTempFile();
 
     public List<Table> getSources();
     public Map<String,List<String>> getContentInfo();
