@@ -50,6 +50,8 @@ public class SelectColumnsOperator extends UnaryOperator{
             String src = srcColumn.getValue()[0];
             String column = srcColumn.getValue()[1];
             if(map.containsKey(src) && map.get(src).contains(column)){
+                if(nMap.containsKey(src)==false)
+                    nMap.put(src,new ArrayList<>());
                 nMap.get(src).add(column);
             }
         }

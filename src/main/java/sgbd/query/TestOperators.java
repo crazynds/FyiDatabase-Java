@@ -9,6 +9,9 @@ import java.util.Map;
 public class TestOperators {
 
     public static void testOperator(Operator executor){
+        testOperator(executor,-1);
+    }
+    public static void testOperator(Operator executor,long limit){
         System.out.println("Header:");
 
         for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
@@ -21,7 +24,7 @@ public class TestOperators {
 
         long count = 0;
         executor.open();
-        while (executor.hasNext()) {
+        while (executor.hasNext() && count!=limit) {
             Tuple t = executor.next();
             String str = "";
             for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){

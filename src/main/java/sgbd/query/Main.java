@@ -13,6 +13,7 @@ import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.FilterColumnsOperator;
 import sgbd.query.unaryop.FilterOperator;
 import sgbd.query.unaryop.GroupOperator;
+import sgbd.query.unaryop.SelectColumnsOperator;
 import sgbd.table.Table;
 import sgbd.util.statitcs.Util;
 
@@ -36,13 +37,13 @@ public class Main {
             return entrie.getContent("elenco").getLong("idFilme")==entrie.getContent("filme").getLong("idFilme");
         });
 
-        Operator select = new FilterColumnsOperator(filter,List.of("filme.idFilme","filme.titulo"));
+        Operator select1 = new FilterColumnsOperator(filter,List.of("elenco.idFilme","elenco.idAtor"));
+        Operator select2 = new FilterColumnsOperator(select1,List.of("filme.bilheteria","filme.ano","filme.custo","filme.idDiretor"));
 
 
-        TestOperators.testOperator(elencoTable);
-        TestOperators.testOperator(filmeTable);
-        TestOperators.testOperator(filter);
-        TestOperators.testOperator(select);
+        TestOperators.testOperator(select2,15); // Executa select por 15 itens
+        TestOperators.testOperator(select2);         // Executa select sem limit de selecao
+
 
 
         //Fecha as tables, não serão mais acessadas
