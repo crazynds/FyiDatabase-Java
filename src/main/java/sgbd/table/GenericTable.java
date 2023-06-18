@@ -42,6 +42,7 @@ public abstract class GenericTable extends Table{
         BigInteger pk = translatorApi.getPrimaryKey(r);
         Record record = translatorApi.convertToRecord(r);
         this.manager.write(record);
+        this.manager.flush();
         return pk;
     }
     @Override

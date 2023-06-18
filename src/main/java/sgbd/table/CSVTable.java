@@ -23,8 +23,14 @@ public class CSVTable extends Table{
     private char separator,stringDelimiter;
     private int beginIndex;
 
+    private static final String pkName = "__IDX__";
+
+    private static Header prepareStuff(Header header){
+        header.getPrototype().addColumn(CSVTable.pkName,8,Column.PRIMARY_KEY);
+        return header;
+    }
     public CSVTable(Header header,char separator, char stringDelimiter, int beginIndex) {
-        super(header);
+        super(prepareStuff(header));
         header.set(Header.TABLE_TYPE,"CSVTable");
         header.set("separator",separator+"");
         header.set("delimiter",stringDelimiter+"");
@@ -158,11 +164,15 @@ public class CSVTable extends Table{
                 ComplexRowData rowData = new ComplexRowData();
                 for (Column c:
                         getHeader().getPrototype()) {
+                    if(c.getName().compareTo(CSVTable.pkName)==0){
+                        rowData.setLong(c.getName(),currentIt.longValue(),c);
+                        continue;
+                    }
                     for (int x=0;x<columns.length;x++) {
                         String columnName = columns[x];
                         if(c.getName().compareToIgnoreCase(columnName) != 0)continue;
                         String val = data[x];
-                        if(val.isEmpty() || val == null){
+                        if(val == null || val.isEmpty() || val.strip().isEmpty()){
                             rowData.setData(c.getName(),null,c);
                             continue;
                         }
