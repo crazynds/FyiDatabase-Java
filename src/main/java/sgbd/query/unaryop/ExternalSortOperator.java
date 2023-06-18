@@ -184,6 +184,7 @@ public class ExternalSortOperator extends UnaryOperator {
             if (path != null) {
                 (new File(path)).delete();
             }
+            externalSortedTable = null;
         }
     }
 }

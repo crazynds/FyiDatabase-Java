@@ -24,6 +24,7 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
     public void open() {
         super.open();
         right.close();
+        currentLeftTuple = null;
     }
 
     public Tuple getNextTuple(){

@@ -23,26 +23,21 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Table elenco = Table.loadFromHeader("elenco.head");
-        Table filme = Table.loadFromHeader("filme.head");
+        Table tab1 = Table.loadFromHeader("biostats.head");
+        Table tab2 = Table.loadFromHeader("mlbplayers.head");
 
-        elenco.open();
-        filme.open();
+        tab1.open();
+        tab2.open();
 
-        Operator elencoTable = new TableScan(elenco);
-        Operator filmeTable = new TableScan(filme);
+        Operator scan1 = new TableScan(tab1);
+        Operator scan2 = new TableScan(tab2);
 
-        Operator cartesiano = new BlockNestedLoopJoin(filmeTable,elencoTable,(t1, t2) -> true);
-        Operator filter = new FilterOperator(cartesiano,entrie -> {
-            return entrie.getContent("elenco").getLong("idFilme")==entrie.getContent("filme").getLong("idFilme");
-        });
-
-        Operator select1 = new FilterColumnsOperator(filter,List.of("elenco.idFilme","elenco.idAtor"));
-        Operator select2 = new FilterColumnsOperator(select1,List.of("filme.bilheteria","filme.ano","filme.custo","filme.idDiretor"));
+        Operator cartesiano = new NestedLoopJoin(scan1,scan2,(t1, t2) -> true);
 
 
-        TestOperators.testOperator(select2,15); // Executa select por 15 itens
-        TestOperators.testOperator(select2);         // Executa select sem limit de selecao
+        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
+        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
+        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
 
 
 
