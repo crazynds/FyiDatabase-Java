@@ -15,8 +15,8 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
 
     private Tuple rightTuple=null;
 
-    private int bufferSize = 4096;
-    private int maxBufferedTuples = 10;
+    private final int bufferSize = 4096;
+    private final int maxBufferedTuples = 10;
 
 
     public BlockNestedLoopJoin(Operator left, Operator right,ComparableFilter<Tuple> comparator) {
@@ -31,6 +31,7 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
     public void open() {
         bufferedLeftTuples.clear();
         indexLeftTuple = 0;
+        currentBufferedLeft = 0;
 
         rightTuple= null;
 

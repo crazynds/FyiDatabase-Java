@@ -25,21 +25,21 @@ public class Main {
 
         Table tab1 = Table.loadFromHeader("biostats.head");
         Table tab2 = Table.loadFromHeader("mlbplayers.head");
+        Table biostats = Table.loadFromHeader("biostats.head");
+        Table mlbplayers = Table.loadFromHeader("mlbplayers.head");
 
-        tab1.open();
-        tab2.open();
+        biostats.open();
+        mlbplayers.open();
 
-        Operator scan1 = new TableScan(tab1);
-        Operator scan2 = new TableScan(tab2);
+        Operator scan1 = new TableScan(biostats);
+        Operator scan2 = new TableScan(mlbplayers);
 
-        Operator cartesiano = new NestedLoopJoin(scan1,scan2,(t1, t2) -> true);
+        Operator cartesiano = new BlockNestedLoopJoin(scan2,scan1,(t1, t2) -> true);
 
 
         TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
         TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
         TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
-
-
 
         //Fecha as tables, não serão mais acessadas
 

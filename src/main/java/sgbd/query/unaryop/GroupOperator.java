@@ -9,7 +9,7 @@ import sgbd.query.agregation.AgregationOperation;
 import java.math.BigInteger;
 import java.util.*;
 
-public class GroupOperator extends UnaryOperator {
+public class GroupOperator extends SimpleUnaryOperator {
 
     private String source,column;
 
@@ -32,7 +32,8 @@ public class GroupOperator extends UnaryOperator {
         groupName = null;
     }
 
-    private Tuple getNextTuple(){
+    @Override
+    public Tuple getNextTuple(){
         if(actualTuple!=null)
             return actualTuple;
         while(operator.hasNext()){
@@ -66,19 +67,6 @@ public class GroupOperator extends UnaryOperator {
             agregationOperations.stream().forEach(agregationOperation -> agregationOperation.finalize(actualTuple));
         return actualTuple;
     }
-
-    @Override
-    public Tuple next() {
-        Tuple t= getNextTuple();
-        actualTuple = null;
-        return t;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return getNextTuple()!=null;
-    }
-
 
     @Override
     public Map<String, List<String>> getContentInfo() {
