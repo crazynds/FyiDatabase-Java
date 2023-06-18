@@ -1,33 +1,58 @@
 package sgbd.query.unaryop;
 
+import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SelectColumnsOperator extends UnaryOperator{
-    private List<String[]> srcColumns;
+    private HashMap<String,String[]> srcColumns;
 
     public SelectColumnsOperator(Operator op, List<String> srcColumns) {
         super(op);
-        ArrayList<String[]> arr = new ArrayList<>();
+        this.srcColumns = new HashMap<>();
         for (String s:
                 srcColumns) {
             String[] vals = s.split("\\.");
             String[] v = {vals[0],vals[1]};
-            arr.add(v);
+            this.srcColumns.put(s,v);
         }
-        this.srcColumns = arr;
     }
 
     @Override
     public Tuple next() {
-        return null;
+        Tuple t = operator.next();
+        Tuple newT = new Tuple();
+
+        for(Map.Entry<String,String[]> srcColumn:srcColumns.entrySet()){
+            String src = srcColumn.getValue()[0];
+            String column = srcColumn.getValue()[1];
+            ComplexRowData row = t.getContent(src);
+            newT.getContent(src).setBData(column,row.getBData(column),row.getMeta(column));
+        }
+        return newT;
     }
 
     @Override
     public boolean hasNext() {
-        return false;
+        return operator.hasNext();
+    }
+
+    @Override
+    public Map<String, List<String>> getContentInfo() {
+        Map<String, List<String>> map = super.getContentInfo();
+        HashMap<String,List<String>> nMap = new HashMap<>();
+        for(Map.Entry<String,String[]> srcColumn:srcColumns.entrySet()){
+            String src = srcColumn.getValue()[0];
+            String column = srcColumn.getValue()[1];
+            if(map.containsKey(src) && map.get(src).contains(column)){
+                nMap.get(src).add(column);
+            }
+        }
+        return nMap;
     }
 }

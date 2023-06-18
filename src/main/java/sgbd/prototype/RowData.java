@@ -76,6 +76,11 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 		if(data==null)return null;
 		return data.getData();
 	}
+	public BData getBData(String column) {
+		BData data = this.data.get(column);
+		if(data==null)return null;
+		return data;
+	}
 	public Integer getInt(String column) {
 		BData data = this.data.get(column);
 		if(data==null)return null;
