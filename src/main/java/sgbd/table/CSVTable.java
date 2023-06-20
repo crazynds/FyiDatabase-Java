@@ -113,6 +113,11 @@ public class CSVTable extends Table{
             }
 
             @Override
+            public void unlock() {
+                sub.unlock();
+            }
+
+            @Override
             public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
                 Map.Entry<BigInteger, ComplexRowData> comp = sub.nextWithPk();
                 if(comp==null)
@@ -146,6 +151,10 @@ public class CSVTable extends Table{
                 if(pk.compareTo(currentIt) < 0) throw new DataBaseException("CSVTable->iterator->setPointerPk","PK informada é menor que a menor primary key alcançavel");
                 while(pk.compareTo(currentIt)>0 && hasNext())
                     next();
+            }
+
+            @Override
+            public void unlock() {
             }
 
             @Override

@@ -11,6 +11,12 @@ public class CountAgregation extends AgregationOperation{
     public CountAgregation(String sourceSrc, String columnSrc) {
         super(sourceSrc, columnSrc);
     }
+    public CountAgregation(String sourceSrc) {
+        super(sourceSrc, "*");
+    }
+    public CountAgregation() {
+        super("*", "*");
+    }
 
     @Override
     public String getAgregationName() {

@@ -96,13 +96,13 @@ public abstract class GenericTable extends Table{
 
             @Override
             public void setPointerPk(BigInteger pk) {
-                if(!started)start();
+                if(!started || recordStream==null)start();
                 recordStream.setPointer(pk);
             }
 
             @Override
             public void restart() {
-                if(!started)start();
+                if(!started || recordStream==null)start();
                 recordStream.reset();
             }
 
@@ -111,7 +111,10 @@ public abstract class GenericTable extends Table{
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
-                if(record==null)return null;
+                if(record==null){
+                    unlock();
+                    return null;
+                }
                 return Map.entry(translatorApi.getPrimaryKey(record),translatorApi.convertToRowData(record,metaInfo));
             }
 
@@ -120,10 +123,8 @@ public abstract class GenericTable extends Table{
                 if(!started)start();
                 if(recordStream==null)return false;
                 boolean val = recordStream.hasNext();
-                if(!val){
-                    recordStream.close();
-                    recordStream = null;
-                }
+                if(!val)
+                    unlock();
                 return val;
             }
 
@@ -132,91 +133,29 @@ public abstract class GenericTable extends Table{
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
-                if(record==null)return null;
+                if(record==null){
+                    unlock();
+                    return null;
+                }
                 return translatorApi.convertToRowData(record,metaInfo);
             }
 
             @Override
-            protected void finalize() throws Throwable {
-                if(recordStream!=null)recordStream.close();
-                super.finalize();
+            public void unlock() {
+                if (recordStream==null)
+                    return;
+                recordStream.close();
+                recordStream = null;
             }
         };
     }
 
     @Override
     public RowIterator iterator() {
-        return new RowIterator() {
-            boolean started = false;
-            RecordStream recordStream;
-            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(null);
-
-            private void start(){
-                recordStream = manager.sequencialRead();
-                recordStream.open(false);
-                started=true;
-            }
-
-            @Override
-            public void setPointerPk(BigInteger pk) {
-                if(!started)start();
-                recordStream.setPointer(pk);
-            }
-
-            @Override
-            public void restart() {
-                if(!started)start();
-                recordStream.reset();
-            }
-
-            @Override
-            public Map.Entry<BigInteger,ComplexRowData> nextWithPk() {
-                if(recordStream==null)return null;
-                return new Map.Entry<BigInteger,ComplexRowData>() {
-                    Record record = recordStream.next();
-                    @Override
-                    public BigInteger getKey() {
-                        return translatorApi.getPrimaryKey(record);
-                    }
-
-                    @Override
-                    public ComplexRowData getValue() {
-                        return translatorApi.convertToRowData(record,metaInfo);
-                    }
-
-                    @Override
-                    public ComplexRowData setValue(ComplexRowData value) {
-                        return null;
-                    }
-                };
-            }
-
-            @Override
-            public boolean hasNext() {
-                if(!started)start();
-                if(recordStream==null)return false;
-                boolean val = recordStream.hasNext();
-                if(!val){
-                    recordStream.close();
-                    recordStream = null;
-                }
-                return val;
-            }
-
-            @Override
-            public ComplexRowData next() {
-                if(!started)start();
-                if(recordStream==null)return null;
-                Record record = recordStream.next();
-                if(record==null)return null;
-                return translatorApi.convertToRowData(record,metaInfo);
-            }
-
-            @Override
-            protected void finalize() throws Throwable {
-                if(recordStream!=null)recordStream.close();
-                super.finalize();
-            }
-        };
+        ArrayList<String> columns = new ArrayList<>();
+        for (Column c:this.getTranslator()) {
+            columns.add(c.getName());
+        }
+        return this.iterator(columns);
     }
 }

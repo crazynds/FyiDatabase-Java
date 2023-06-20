@@ -59,7 +59,7 @@ public class TestOperators {
         }
         //Fecha operador
         executor.close();
-        executor.clearTempFile();
+        executor.freeResources();
         System.out.println("Count: "+count);
     }
 

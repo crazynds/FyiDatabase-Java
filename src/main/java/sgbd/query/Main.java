@@ -34,12 +34,15 @@ public class Main {
         Operator scan1 = new TableScan(biostats);
         Operator scan2 = new TableScan(mlbplayers);
 
-        Operator cartesiano = new BlockNestedLoopJoin(scan2,scan1,(t1, t2) -> true);
+        Operator group = new GroupOperator(scan2,"mlbplayers","Team",List.of(
+                new CountAgregation()
+        ));
+
+        Operator exec = group;
 
 
-        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
-        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
-        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
+        TestOperators.testOperator(exec,15); // Executa select por 15 itens
+        TestOperators.testOperator(exec); // Executa select por 15 itens
 
         //Fecha as tables, não serão mais acessadas
 

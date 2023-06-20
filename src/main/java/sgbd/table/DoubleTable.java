@@ -273,9 +273,10 @@ public class DoubleTable extends Table{
             }
 
             @Override
-            protected void finalize() throws Throwable {
-                if(recordStream!=null)recordStream.close();
-                super.finalize();
+            public void unlock() {
+                if(recordStream==null)return;
+                recordStream.close();
+                recordStream = null;
             }
         };
     }

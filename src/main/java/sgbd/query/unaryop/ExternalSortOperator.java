@@ -88,6 +88,7 @@ public class ExternalSortOperator extends UnaryOperator {
 
 
         externalSortedTable.open();
+        operator.open();
         ArrayList<RowData> inserts = new ArrayList<>();
 
         long unique_val = 0;
@@ -171,13 +172,14 @@ public class ExternalSortOperator extends UnaryOperator {
     }
 
     @Override
-    public void clearTempFile() {
-        super.clearTempFile();
+    public void freeResources() {
+        super.freeResources();
         if(scan!=null) {
             try {
                 fileWriter.close();
             } catch (IOException e) {
             }
+            scan.freeResources();
             externalSortedTable.close();
             dataFile.delete();
             String path = externalSortedTable.getHeader().get(Header.FILE_PATH);

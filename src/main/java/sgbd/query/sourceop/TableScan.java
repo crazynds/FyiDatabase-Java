@@ -30,12 +30,15 @@ public class TableScan extends SourceOperator {
 
     @Override
     public void open() {
-        if(iterator==null)
-            if(columns!=null) {
+        if(iterator==null) {
+            if (columns != null) {
                 iterator = table.iterator(columns);
-            }else{
+            } else {
                 iterator = table.iterator();
             }
+        }else{
+            iterator.restart();
+        }
 
     }
 
@@ -55,7 +58,11 @@ public class TableScan extends SourceOperator {
 
     @Override
     public void close() {
-        iterator=null;
+    }
+
+    @Override
+    public void freeResources() {
+        iterator.unlock();
     }
 
     @Override
