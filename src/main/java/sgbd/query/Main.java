@@ -10,10 +10,7 @@ import sgbd.query.agregation.MinAgregation;
 import sgbd.query.binaryop.joins.BlockNestedLoopJoin;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
-import sgbd.query.unaryop.FilterColumnsOperator;
-import sgbd.query.unaryop.FilterOperator;
-import sgbd.query.unaryop.GroupOperator;
-import sgbd.query.unaryop.SelectColumnsOperator;
+import sgbd.query.unaryop.*;
 import sgbd.table.Table;
 import sgbd.util.statitcs.Util;
 
@@ -38,7 +35,17 @@ public class Main {
                 new CountAgregation()
         ));
 
-        Operator exec = group;
+        Operator limit = new LimitOperator(scan1,10);
+
+        Operator group2 = new GroupOperator(limit,"biostats","Sex",List.of(
+                new CountAgregation("biostats","Age"),
+                new CountAgregation("biostats","*"),
+                new CountAgregation("biostats"),
+                new CountAgregation("*"),
+                new CountAgregation("*")
+        ));
+
+        Operator exec = group2;
 
 
         TestOperators.testOperator(exec,15); // Executa select por 15 itens

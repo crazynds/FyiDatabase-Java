@@ -94,8 +94,7 @@ public class ExternalSortOperator extends UnaryOperator {
         long unique_val = 0;
         long startPos = 0;
         do{
-            if(t==null)
-                t = operator.next();
+            t = operator.next();
             String json = gson.toJson(t);
             RowData row = new RowData();
             row.setLong("__aux",unique_val++);

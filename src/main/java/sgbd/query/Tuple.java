@@ -38,6 +38,10 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
     }
 
     public void setContent(String asName,ComplexRowData data){
+        if(data==null){
+            sources.remove(asName);
+            return;
+        }
         ComplexRowData row = sources.get(asName);
         if(row!=null){
             for (Map.Entry<String, BData> column:

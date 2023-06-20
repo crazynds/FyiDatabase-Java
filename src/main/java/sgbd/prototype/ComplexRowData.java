@@ -18,7 +18,7 @@ public class ComplexRowData extends RowData{
     }
     protected ComplexRowData(ComplexRowData data){
         super(data);
-        metaData=new HashMap<String,Column>(data.metaData);
+        metaData=data.metaData;
     }
 
     public void makeMetaConstant(){
