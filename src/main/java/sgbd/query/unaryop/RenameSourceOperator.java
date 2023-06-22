@@ -19,10 +19,12 @@ public class RenameSourceOperator extends SimpleUnaryOperator{
 
     @Override
     public Tuple getNextTuple() {
+        if(!operator.hasNext())
+            return null;
         Tuple t = operator.next();
         ComplexRowData row = t.getContent(this.sourceSrc);
         t.setContent(this.sourceDst,row);
-        t.setContent(this.sourceSrc,row);
+        t.setContent(this.sourceSrc,null);
         return t;
     }
 

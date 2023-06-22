@@ -32,14 +32,7 @@ public class Main {
 
         Operator scan1 = new TableScan(biostats);
 
-        Operator sanitize = new SanitizationOperator(scan1,t -> {
-            ComplexRowData row = t.getContent("biostats");
-            t.setContent("biostats_2",row);
-            t.setContent("biostats",null);
-
-            return t; // aqui tu pode retornar uma tupla nova tambem
-            // return new Tuple();
-        });
+        Operator sanitize = new RenameSourceOperator(scan1,"biostats","biostats_2");
 
         Operator exec = sanitize;
 
