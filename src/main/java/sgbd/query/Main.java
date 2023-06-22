@@ -2,6 +2,7 @@ package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
+import sgbd.prototype.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.agregation.AvgAgregation;
 import sgbd.query.agregation.CountAgregation;
@@ -12,6 +13,7 @@ import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
 import sgbd.table.Table;
+import sgbd.util.interfaces.Conversor;
 import sgbd.util.statitcs.Util;
 
 import java.util.*;
@@ -29,23 +31,17 @@ public class Main {
         mlbplayers.open();
 
         Operator scan1 = new TableScan(biostats);
-        Operator scan2 = new TableScan(mlbplayers);
 
-        Operator group = new GroupOperator(scan2,"mlbplayers","Team",List.of(
-                new CountAgregation()
-        ));
+        Operator sanitize = new SanitizationOperator(scan1,t -> {
+            ComplexRowData row = t.getContent("biostats");
+            t.setContent("biostats_2",row);
+            t.setContent("biostats",null);
 
-        Operator limit = new LimitOperator(scan1,10);
+            return t; // aqui tu pode retornar uma tupla nova tambem
+            // return new Tuple();
+        });
 
-        Operator group2 = new GroupOperator(limit,"biostats","Sex",List.of(
-                new CountAgregation("biostats","Age"),
-                new CountAgregation("biostats","*"),
-                new CountAgregation("biostats"),
-                new CountAgregation("*"),
-                new CountAgregation("*")
-        ));
-
-        Operator exec = group2;
+        Operator exec = sanitize;
 
 
         TestOperators.testOperator(exec,15); // Executa select por 15 itens
