@@ -74,7 +74,7 @@ public class GroupOperator extends SimpleUnaryOperator {
     @Override
     public Map<String, List<String>> getContentInfo() {
         Map<String,List<String>> old = super.getContentInfo();
-        Map<String,List<String>> map = new HashMap<>();
+        Map<String,List<String>> map = new LinkedHashMap<>();
         map.put(source,new ArrayList<>());
         map.get(source).add(column);
 

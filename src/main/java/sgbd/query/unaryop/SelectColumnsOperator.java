@@ -4,10 +4,7 @@ import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
 import sgbd.query.Tuple;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SelectColumnsOperator extends UnaryOperator{
     private HashMap<String,String[]> srcColumns;
@@ -45,7 +42,7 @@ public class SelectColumnsOperator extends UnaryOperator{
     @Override
     public Map<String, List<String>> getContentInfo() {
         Map<String, List<String>> map = super.getContentInfo();
-        HashMap<String,List<String>> nMap = new HashMap<>();
+        LinkedHashMap<String,List<String>> nMap = new LinkedHashMap<>();
         for(Map.Entry<String,String[]> srcColumn:srcColumns.entrySet()){
             String src = srcColumn.getValue()[0];
             String column = srcColumn.getValue()[1];

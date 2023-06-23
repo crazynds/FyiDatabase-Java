@@ -6,10 +6,7 @@ import sgbd.query.Tuple;
 import sgbd.table.Table;
 import sgbd.table.components.RowIterator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TableScan extends SourceOperator {
 
@@ -67,7 +64,7 @@ public class TableScan extends SourceOperator {
 
     @Override
     public Map<String, List<String>> getContentInfo() {
-        HashMap<String,List<String>> map = new HashMap<>();
+        HashMap<String,List<String>> map = new LinkedHashMap<>();
         map.put(sourceName(),new ArrayList<>(columns));
         return map;
     }

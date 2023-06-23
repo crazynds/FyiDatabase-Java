@@ -117,7 +117,7 @@ public class UnionOperator extends SimpleBinaryOperator{
         if(leftColumns==null)
             return left.getContentInfo();
         Map<String, List<String>> lTable = left.getContentInfo();
-        Map<String, List<String>> current = new HashMap<>();
+        Map<String, List<String>> current = new LinkedHashMap<>();
         for (int x = 0; x < leftColumns.size(); x++) {
             if (current.get(leftColumns.get(x)[0]) == null)
                 current.put(leftColumns.get(x)[0], new ArrayList<>());
