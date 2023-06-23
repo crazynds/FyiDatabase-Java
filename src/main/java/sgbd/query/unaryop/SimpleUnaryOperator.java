@@ -1,7 +1,7 @@
 package sgbd.query.unaryop;
 
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 public abstract class SimpleUnaryOperator extends UnaryOperator{
 

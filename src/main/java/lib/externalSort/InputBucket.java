@@ -5,7 +5,7 @@
  */
 package lib.externalSort;
 
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 /**
  *

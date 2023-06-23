@@ -3,6 +3,7 @@ package sgbd.prototype;
 import java.util.*;
 
 import engine.exceptions.DataBaseException;
+import sgbd.prototype.column.Column;
 
 public class Prototype implements Iterable<Column>{
 	

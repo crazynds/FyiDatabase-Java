@@ -4,9 +4,7 @@ import engine.exceptions.DataBaseException;
 import engine.util.Util;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
-import sgbd.query.binaryop.BinaryOperator;
-import sgbd.query.binaryop.SimpleBinaryOperator;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.sourceop.PKTableScan;
 
 import java.math.BigInteger;

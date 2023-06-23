@@ -1,7 +1,5 @@
 package sgbd.prototype.query;
 
-import sgbd.prototype.Column;
-
 import java.util.*;
 
 public class OperatorSchema implements Iterable<Map.Entry<String,Fields>> {

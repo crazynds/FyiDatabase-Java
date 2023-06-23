@@ -1,10 +1,9 @@
-package sgbd.query;
+package sgbd.prototype.query;
 
 import sgbd.prototype.BData;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

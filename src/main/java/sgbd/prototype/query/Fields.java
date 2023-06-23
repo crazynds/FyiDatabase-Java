@@ -1,6 +1,6 @@
 package sgbd.prototype.query;
 
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 
 import java.util.HashMap;
 import java.util.Iterator;

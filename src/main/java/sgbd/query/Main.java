@@ -2,20 +2,10 @@ package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
-import sgbd.prototype.Column;
-import sgbd.prototype.ComplexRowData;
-import sgbd.query.agregation.AvgAgregation;
-import sgbd.query.agregation.CountAgregation;
-import sgbd.query.agregation.MaxAgregation;
-import sgbd.query.agregation.MinAgregation;
-import sgbd.query.binaryop.joins.BlockNestedLoopJoin;
 import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
-import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
 import sgbd.table.Table;
-import sgbd.util.interfaces.Conversor;
-import sgbd.util.statitcs.Util;
 
 import java.util.*;
 

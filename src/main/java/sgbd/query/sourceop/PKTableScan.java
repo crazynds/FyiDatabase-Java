@@ -1,9 +1,9 @@
 package sgbd.query.sourceop;
 
 import sgbd.info.Query;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.table.Table;
 
 import java.math.BigInteger;

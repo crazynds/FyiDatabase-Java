@@ -1,7 +1,7 @@
 package sgbd.query.binaryop.joins;
 
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.binaryop.UnionOperator;
 import sgbd.util.interfaces.ComparableFilter;
 

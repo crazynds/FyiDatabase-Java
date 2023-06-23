@@ -3,7 +3,7 @@ package sgbd.query.unaryop;
 import engine.util.Util;
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.agregation.AgregationOperation;
 
 import java.math.BigInteger;

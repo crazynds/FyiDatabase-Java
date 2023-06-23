@@ -1,13 +1,9 @@
 package sgbd.query.agregation;
 
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.Tuple;
-import sgbd.util.statitcs.Util;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Map;
+import sgbd.prototype.query.Tuple;
+import sgbd.util.global.Util;
 
 public class AvgAgregation extends AgregationOperation{
 

@@ -1,22 +1,19 @@
 package sgbd.table;
 
 import engine.exceptions.DataBaseException;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 import sgbd.util.classes.CSVRecognizer;
 import sgbd.util.classes.InvalidCsvException;
-import sgbd.util.statitcs.Util;
+import sgbd.util.global.Util;
 
-import java.io.*;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class CSVTable extends Table{
     private CSVRecognizer recognizer;

@@ -2,7 +2,7 @@ package sgbd.query.unaryop;
 
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 import java.util.List;
 import java.util.Map;

@@ -1,7 +1,8 @@
 package sgbd.query;
 
 import sgbd.prototype.ComplexRowData;
-import sgbd.util.statitcs.Util;
+import sgbd.prototype.query.Tuple;
+import sgbd.util.global.Util;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package sgbd.util.interfaces;
 
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 public interface Sanitization {
 

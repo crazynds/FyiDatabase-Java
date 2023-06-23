@@ -1,11 +1,10 @@
 package crazynds.fyidatabase.sgbd.query;
 
 import org.junit.Test;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
 import sgbd.query.Operator;
 import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
-import sgbd.query.binaryop.joins.MergeJoin;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.binaryop.joins.RightNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
@@ -15,7 +14,6 @@ import sgbd.table.components.Header;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import static org.junit.Assert.assertTrue;
 

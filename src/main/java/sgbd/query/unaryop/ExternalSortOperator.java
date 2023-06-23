@@ -2,17 +2,14 @@ package sgbd.query.unaryop;
 
 import com.google.gson.Gson;
 import engine.exceptions.DataBaseException;
-import engine.file.FileManager;
 import engine.util.Util;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.sourceop.TableScan;
-import sgbd.query.unaryop.UnaryOperator;
-import sgbd.table.SimpleTable;
 import sgbd.table.Table;
 import sgbd.table.components.Header;
 
@@ -22,7 +19,6 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ExternalSortOperator extends UnaryOperator {
 

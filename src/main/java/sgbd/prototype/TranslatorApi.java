@@ -6,7 +6,8 @@ import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.instances.GenericRecord;
-import sgbd.util.statitcs.UtilConversor;
+import sgbd.prototype.column.Column;
+import sgbd.util.global.UtilConversor;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

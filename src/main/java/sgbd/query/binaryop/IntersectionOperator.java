@@ -1,7 +1,7 @@
 package sgbd.query.binaryop;
 
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package sgbd.util.interfaces;
 
-import sgbd.prototype.Column;
-import sgbd.query.Tuple;
+import sgbd.prototype.column.Column;
+import sgbd.prototype.query.Tuple;
 
 public interface Conversor {
 

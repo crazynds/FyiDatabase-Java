@@ -2,9 +2,9 @@ package sgbd.query.binaryop;
 
 import engine.exceptions.DataBaseException;
 import sgbd.info.Query;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.unaryop.DistinctOperator;
 import sgbd.util.interfaces.ComparableFilter;
 

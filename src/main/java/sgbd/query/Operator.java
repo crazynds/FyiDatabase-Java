@@ -1,5 +1,6 @@
 package sgbd.query;
 
+import sgbd.prototype.query.Tuple;
 import sgbd.table.Table;
 
 import java.util.List;

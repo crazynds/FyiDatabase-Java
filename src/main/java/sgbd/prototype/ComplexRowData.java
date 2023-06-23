@@ -1,12 +1,14 @@
 package sgbd.prototype;
 
+import sgbd.prototype.column.Column;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ComplexRowData extends RowData{
 
-    private Map<String,Column> metaData;
+    private Map<String, Column> metaData;
 
     public ComplexRowData(){
         super();

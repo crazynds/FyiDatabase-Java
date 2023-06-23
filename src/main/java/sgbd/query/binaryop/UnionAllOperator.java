@@ -1,9 +1,7 @@
 package sgbd.query.binaryop;
 
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
-
-import java.util.ArrayList;
+import sgbd.prototype.query.Tuple;
 
 public class UnionAllOperator extends SimpleBinaryOperator{
 

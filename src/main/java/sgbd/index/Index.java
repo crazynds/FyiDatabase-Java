@@ -1,7 +1,7 @@
 package sgbd.index;
 
 import engine.exceptions.DataBaseException;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.prototype.TranslatorApi;
