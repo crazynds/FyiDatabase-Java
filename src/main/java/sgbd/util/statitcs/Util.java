@@ -36,6 +36,7 @@ public class Util {
     }
 
     public static String typeOfColumn(Column column){
+        if(column == null) return "null";
         if(column.isBoolean())return "boolean";
         if(column.isString())return "string";
         if(column.isLong())return "long";
