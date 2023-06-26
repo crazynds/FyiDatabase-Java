@@ -35,6 +35,10 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 	public void setData(String column,byte[] data) {
 		valid=false;
 		removeCheckSum(column);
+		if(data==null){
+			this.data.put(column,null);
+			return;
+		}
 		BData newData = new BData(data);
 		addToCheckSum(column,newData);
 		this.data.put(column, newData);
@@ -42,6 +46,10 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 	public void setBData(String column,BData newData) {
 		valid=false;
 		removeCheckSum(column);
+		if(newData==null){
+			this.data.put(column,null);
+			return;
+		}
 		addToCheckSum(column,newData);
 		this.data.put(column, newData);
 	}
