@@ -5,7 +5,7 @@
  */
 package lib.externalSort;
 
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;

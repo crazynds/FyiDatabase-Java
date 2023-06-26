@@ -1,11 +1,10 @@
 package sgbd.test;
 
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
 import sgbd.table.*;
 import sgbd.table.components.Header;
 
-import java.io.File;
 import java.util.HashMap;
 
 public class Main {

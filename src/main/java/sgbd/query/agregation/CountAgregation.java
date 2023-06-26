@@ -1,7 +1,7 @@
 package sgbd.query.agregation;
 
-import sgbd.prototype.Column;
-import sgbd.query.Tuple;
+import sgbd.prototype.column.Column;
+import sgbd.prototype.query.Tuple;
 
 public class CountAgregation extends AgregationOperation{
     public CountAgregation(String sourceSrc, String columnSrc, String sourceDst, String columnDst) {
@@ -10,6 +10,12 @@ public class CountAgregation extends AgregationOperation{
 
     public CountAgregation(String sourceSrc, String columnSrc) {
         super(sourceSrc, columnSrc);
+    }
+    public CountAgregation(String sourceSrc) {
+        super(sourceSrc, "*");
+    }
+    public CountAgregation() {
+        super("*", "*");
     }
 
     @Override

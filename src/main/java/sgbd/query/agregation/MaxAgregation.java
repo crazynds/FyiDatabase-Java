@@ -1,8 +1,8 @@
 package sgbd.query.agregation;
 
 import engine.util.Util;
-import sgbd.prototype.Column;
-import sgbd.query.Tuple;
+import sgbd.prototype.column.Column;
+import sgbd.prototype.query.Tuple;
 
 import java.math.BigInteger;
 

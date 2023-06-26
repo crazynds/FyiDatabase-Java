@@ -2,20 +2,10 @@ package sgbd.query;
 
 import engine.info.Parameters;
 import sgbd.info.Query;
-import sgbd.prototype.ComplexRowData;
-import sgbd.query.agregation.AvgAgregation;
-import sgbd.query.agregation.CountAgregation;
-import sgbd.query.agregation.MaxAgregation;
-import sgbd.query.agregation.MinAgregation;
-import sgbd.query.binaryop.joins.BlockNestedLoopJoin;
-import sgbd.query.binaryop.joins.NestedLoopJoin;
+import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
-import sgbd.query.unaryop.FilterColumnsOperator;
-import sgbd.query.unaryop.FilterOperator;
-import sgbd.query.unaryop.GroupOperator;
-import sgbd.query.unaryop.SelectColumnsOperator;
+import sgbd.query.unaryop.*;
 import sgbd.table.Table;
-import sgbd.util.statitcs.Util;
 
 import java.util.*;
 
@@ -23,23 +13,21 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Table tab1 = Table.loadFromHeader("biostats.head");
-        Table tab2 = Table.loadFromHeader("mlbplayers.head");
-        Table biostats = Table.loadFromHeader("biostats.head");
-        Table mlbplayers = Table.loadFromHeader("mlbplayers.head");
+        Table movie = Table.loadFromHeader("filme.head");
+        movie.open();
 
-        biostats.open();
-        mlbplayers.open();
+        Operator movie1 = new TableScan(movie);
+        Operator movie2 = new TableScan(movie);
 
-        Operator scan1 = new TableScan(biostats);
-        Operator scan2 = new TableScan(mlbplayers);
+        Operator rename = new RenameSourceOperator(movie2, "filme", "filme2");
 
-        Operator cartesiano = new BlockNestedLoopJoin(scan2,scan1,(t1, t2) -> true);
+        Operator leftJoin = new LeftNestedLoopJoin(movie1, rename, (t1, t2) -> {
+            return t1.getContent("filme").getInt("idFilme").equals(t2.getContent("filme2").getInt("idFilmeAnterior"));
+        });
 
+        Operator projection = new SelectColumnsOperator(leftJoin, List.of("filme.titulo","filme2.titulo"));
 
-        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
-        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
-        TestOperators.testOperator(cartesiano,15); // Executa select por 15 itens
+        TestOperators.testOperator(projection);
 
         //Fecha as tables, não serão mais acessadas
 

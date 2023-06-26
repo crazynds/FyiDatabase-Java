@@ -1,6 +1,7 @@
-package sgbd.util.statitcs;
+package sgbd.util.global;
 
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
+import sgbd.prototype.column.Metadata;
 
 import java.text.Normalizer;
 
@@ -35,13 +36,14 @@ public class Util {
         return "binary";
     }
 
-    public static String typeOfColumn(Column column){
-        if(column.isBoolean())return "boolean";
-        if(column.isString())return "string";
-        if(column.isLong())return "long";
-        if(column.isInt())return "int";
-        if(column.isFloat())return "float";
-        if(column.isDouble())return "double";
+    public static String typeOfColumn(Metadata meta){
+        if(meta == null) return "null";
+        if(meta.isBoolean())return "boolean";
+        if(meta.isString())return "string";
+        if(meta.isLong())return "long";
+        if(meta.isInt())return "int";
+        if(meta.isFloat())return "float";
+        if(meta.isDouble())return "double";
         return "binary";
     }
 }

@@ -27,7 +27,7 @@ public abstract class SourceOperator implements Operator {
     }
 
     @Override
-    public void clearTempFile(){
+    public void freeResources(){
 
     }
 

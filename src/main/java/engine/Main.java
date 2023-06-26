@@ -15,7 +15,7 @@ import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.manager.MemoryBTreeRecordManager;
 import engine.virtualization.record.manager.RecordManager;
-import sgbd.util.statitcs.UtilConversor;
+import sgbd.util.global.UtilConversor;
 
 public class Main {
 

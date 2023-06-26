@@ -1,7 +1,8 @@
 package sgbd.query;
 
 import sgbd.prototype.ComplexRowData;
-import sgbd.util.statitcs.Util;
+import sgbd.prototype.query.Tuple;
+import sgbd.util.global.Util;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,9 @@ public class TestOperators {
                         case "double":
                             str += content.getKey() + "." + col + "=" + row.getDouble(col)+"("+Util.typeOfColumn(row.getMeta(col))+")";
                             break;
+                        case "null":
+                            str += content.getKey() + "." + col + "= Null ("+Util.typeOfColumn(row.getMeta(col))+")";
+                            break;
                         case "string":
                         default:
                             str += content.getKey() + "." + col + "=" + row.getString(col)+"("+Util.typeOfColumn(row.getMeta(col))+")";
@@ -59,7 +63,7 @@ public class TestOperators {
         }
         //Fecha operador
         executor.close();
-        executor.clearTempFile();
+        executor.freeResources();
         System.out.println("Count: "+count);
     }
 

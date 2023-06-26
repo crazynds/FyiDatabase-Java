@@ -44,9 +44,9 @@ public abstract class BinaryOperator implements Operator {
     }
 
     @Override
-    public void clearTempFile() {
-        this.left.clearTempFile();
-        this.right.clearTempFile();
+    public void freeResources() {
+        this.left.freeResources();
+        this.right.freeResources();
     }
 
     public List<Table> getSources(){

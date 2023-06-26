@@ -2,10 +2,9 @@ package sgbd.query.unaryop;
 
 import sgbd.prototype.ComplexRowData;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 

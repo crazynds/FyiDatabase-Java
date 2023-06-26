@@ -7,7 +7,7 @@ package lib.externalSort;
 
 import engine.exceptions.DataBaseException;
 import sgbd.info.ExternalSort;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.util.classes.TupleComparator;
 
 import java.io.IOException;

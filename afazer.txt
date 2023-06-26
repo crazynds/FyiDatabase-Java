@@ -1,21 +1,22 @@
 
 
+Tabela dinamica -> {
+ - Criar storage para armazenar itens dinamicos
+}
+
+
 Tabela de indexes -> {
  - Arvore B+ para armazenamento de tabelas
  - Operadores que usam indexes
+ - Criar indice primario que não seja a primary key
+ - Criar um complete table que use um indice primario e tenha tabelas de indices adicionais
 }
 
 Locks e permissões de acesso -> {
  - MVCC
-}
-
-
-Testes de query -> {
- - TPC-H https://www.tpc.org/tpch/
-
+ - Remover todos os sitema de locks que existe hoje e refazer do zero.
 
 }
-
 
 Parquet estrutura:
 https://parquet.apache.org/documentation/latest/
@@ -24,34 +25,6 @@ https://parquet.apache.org/documentation/latest/
 PrestoDB:
 https://prestodb.io/docs/current/#
 
-Testar:{
 
-
- - Simple Table {
-  - Testar desempenho atual máximo -> Testado sem valores reais
-  - Consistencia de dados -> OK
-  - Query Builder
- }
-
-
- - Memory Table -> RecordManager ArvoreBTree memoria{
-  - Testar desempenho atual comparado com simple table -> Testado sem valores reais
-  - Consistencia de dados -> OK
-  - Query Builder
- }
-
- - Double Table -Implementar{
-  - Testar desempenho atual comparado com simple table e memory table
-  - Consistencia de dados
- }
-
-
- - Group Operator {
-  - Testar se está funcionando com o min e max, etc...
- }
-
-
-
-}
 
 

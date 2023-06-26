@@ -2,9 +2,9 @@ package sgbd.query.binaryop;
 
 import engine.exceptions.DataBaseException;
 import sgbd.info.Query;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.unaryop.DistinctOperator;
 import sgbd.util.interfaces.ComparableFilter;
 
@@ -116,14 +116,14 @@ public class UnionOperator extends SimpleBinaryOperator{
     public Map<String, List<String>> getContentInfo() {
         if(leftColumns==null)
             return left.getContentInfo();
-        Map<String, List<String>> lTable = left.getContentInfo();
-        Map<String, List<String>> current = new HashMap<>();
-        for (int x = 0; x < leftColumns.size(); x++) {
-            if (current.get(leftColumns.get(x)[0]) == null)
-                current.put(leftColumns.get(x)[0], new ArrayList<>());
-        }
+        //Map<String, List<String>> lTable = left.getContentInfo();
+        Map<String, List<String>> current = new LinkedHashMap<>();
         for (int x = 0; x < leftColumns.size(); x++) {
             List<String> arr = current.get(leftColumns.get(x)[0]);
+            if (arr == null) {
+                arr = new ArrayList<>();
+                current.put(leftColumns.get(x)[0],arr);
+            }
             arr.add(leftColumns.get(x)[1]);
         }
         return current;

@@ -1,6 +1,6 @@
 package sgbd.query.agregation;
 
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
 import java.util.Map;
 

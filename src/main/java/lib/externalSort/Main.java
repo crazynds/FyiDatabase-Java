@@ -7,7 +7,7 @@ package lib.externalSort;
 
 
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.sourceop.TableScan;
 import sgbd.table.Table;
 import sgbd.util.classes.TupleComparator;

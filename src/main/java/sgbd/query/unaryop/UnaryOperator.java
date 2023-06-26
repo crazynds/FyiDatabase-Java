@@ -45,7 +45,7 @@ public abstract class UnaryOperator implements Operator {
     }
 
     @Override
-    public void clearTempFile(){
-        operator.clearTempFile();
+    public void freeResources(){
+        operator.freeResources();
     }
 }

@@ -1,12 +1,14 @@
 package sgbd.prototype;
 
+import sgbd.prototype.column.Column;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ComplexRowData extends RowData{
 
-    private Map<String,Column> metaData;
+    private Map<String, Column> metaData;
 
     public ComplexRowData(){
         super();
@@ -18,7 +20,7 @@ public class ComplexRowData extends RowData{
     }
     protected ComplexRowData(ComplexRowData data){
         super(data);
-        metaData=new HashMap<String,Column>(data.metaData);
+        metaData=data.metaData;
     }
 
     public void makeMetaConstant(){

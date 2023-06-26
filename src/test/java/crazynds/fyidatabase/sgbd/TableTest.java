@@ -1,7 +1,7 @@
 package crazynds.fyidatabase.sgbd;
 
 import org.junit.Test;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
 import sgbd.table.Table;
 import sgbd.table.components.Header;

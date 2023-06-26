@@ -1,15 +1,12 @@
 package sgbd.query.sourceop;
 
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.table.Table;
 import sgbd.table.components.RowIterator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TableScan extends SourceOperator {
 
@@ -30,12 +27,15 @@ public class TableScan extends SourceOperator {
 
     @Override
     public void open() {
-        if(iterator==null)
-            if(columns!=null) {
+        if(iterator==null) {
+            if (columns != null) {
                 iterator = table.iterator(columns);
-            }else{
+            } else {
                 iterator = table.iterator();
             }
+        }else{
+            iterator.restart();
+        }
 
     }
 
@@ -55,12 +55,16 @@ public class TableScan extends SourceOperator {
 
     @Override
     public void close() {
-        iterator=null;
+    }
+
+    @Override
+    public void freeResources() {
+        iterator.unlock();
     }
 
     @Override
     public Map<String, List<String>> getContentInfo() {
-        HashMap<String,List<String>> map = new HashMap<>();
+        HashMap<String,List<String>> map = new LinkedHashMap<>();
         map.put(sourceName(),new ArrayList<>(columns));
         return map;
     }

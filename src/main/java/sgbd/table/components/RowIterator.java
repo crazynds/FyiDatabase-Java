@@ -12,6 +12,8 @@ public interface RowIterator extends Iterator<ComplexRowData> {
     public void setPointerPk(BigInteger pk);
     public void restart();
 
+    public void unlock();
+
     public Map.Entry<BigInteger, ComplexRowData> nextWithPk();
 
 }

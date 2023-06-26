@@ -1,16 +1,13 @@
 package sgbd.query.sourceop;
 
 import sgbd.info.Query;
-import sgbd.prototype.Column;
+import sgbd.prototype.column.Column;
 import sgbd.prototype.ComplexRowData;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.table.Table;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PKTableScan extends SourceOperator{
 
@@ -69,7 +66,7 @@ public class PKTableScan extends SourceOperator{
 
     @Override
     public Map<String, List<String>> getContentInfo() {
-        HashMap<String,List<String>> map = new HashMap<>();
+        HashMap<String,List<String>> map = new LinkedHashMap<>();
         map.put(sourceName(),columns);
         return map;
     }

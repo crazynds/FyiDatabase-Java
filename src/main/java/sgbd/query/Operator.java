@@ -1,5 +1,6 @@
 package sgbd.query;
 
+import sgbd.prototype.query.Tuple;
 import sgbd.table.Table;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface Operator {
     public Tuple next();
     public boolean hasNext();
     public void close();
-    public void clearTempFile();
+    public void freeResources();
 
     public List<Table> getSources();
     public Map<String,List<String>> getContentInfo();

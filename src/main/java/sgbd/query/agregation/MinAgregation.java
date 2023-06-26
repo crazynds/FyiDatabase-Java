@@ -1,9 +1,8 @@
 package sgbd.query.agregation;
 
 import engine.util.Util;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class MinAgregation extends MaxAgregation{

@@ -8,6 +8,7 @@ import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.RecordManager;
 import sgbd.prototype.*;
+import sgbd.prototype.column.Column;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 
@@ -273,9 +274,10 @@ public class DoubleTable extends Table{
             }
 
             @Override
-            protected void finalize() throws Throwable {
-                if(recordStream!=null)recordStream.close();
-                super.finalize();
+            public void unlock() {
+                if(recordStream==null)return;
+                recordStream.close();
+                recordStream = null;
             }
         };
     }

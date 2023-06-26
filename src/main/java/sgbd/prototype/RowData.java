@@ -1,6 +1,6 @@
 package sgbd.prototype;
 
-import sgbd.util.statitcs.UtilConversor;
+import sgbd.util.global.UtilConversor;
 
 import java.util.Arrays;
 import java.util.HashMap;

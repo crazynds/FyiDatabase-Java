@@ -1,8 +1,8 @@
 package sgbd.util.classes;
 
 import sgbd.prototype.BData;
-import sgbd.prototype.Column;
-import sgbd.util.statitcs.Util;
+import sgbd.prototype.column.Column;
+import sgbd.util.global.Util;
 
 public class AnonymousDataType {
 

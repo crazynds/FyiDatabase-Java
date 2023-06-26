@@ -8,7 +8,7 @@ package lib.externalSort;
 
 import engine.exceptions.DataBaseException;
 import sgbd.query.Operator;
-import sgbd.query.Tuple;
+import sgbd.prototype.query.Tuple;
 import sgbd.query.unaryop.UnaryOperator;
 import sgbd.util.classes.ResourceName;
 import sgbd.util.classes.TupleComparator;

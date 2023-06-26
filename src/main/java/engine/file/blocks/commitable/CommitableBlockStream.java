@@ -2,7 +2,9 @@ package engine.file.blocks.commitable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 import engine.exceptions.DataBaseException;
 import engine.file.streams.WriteByteStream;
@@ -42,6 +44,9 @@ public class CommitableBlockStream implements WriteByteStream {
 		for(int x=0;x<len && pos+x<blockSize;x++){
 			buffer[(int)pos+x] = (short) data[offset+x];
 		}
+		//System.arraycopy(data,offset,buffer,(int)pos, (int)((len<blockSize-pos)?len:(blockSize-pos)));
+
+
 		//changes.addLast(bw);
 		if(pos+len>blockSize)return (int) (blockSize-pos);
 		else return len;

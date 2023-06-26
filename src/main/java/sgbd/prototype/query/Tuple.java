@@ -1,10 +1,9 @@
-package sgbd.query;
+package sgbd.prototype.query;
 
 import sgbd.prototype.BData;
 import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -38,6 +37,10 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
     }
 
     public void setContent(String asName,ComplexRowData data){
+        if(data==null){
+            sources.remove(asName);
+            return;
+        }
         ComplexRowData row = sources.get(asName);
         if(row!=null){
             for (Map.Entry<String, BData> column:
