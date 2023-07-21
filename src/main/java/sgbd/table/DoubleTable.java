@@ -21,7 +21,7 @@ import java.util.Map;
 public class DoubleTable extends Table{
 
     /*
-        Primeira tabela vai armazenar as primary keys e seus respectivos indexes de posi��o
+        Primeira tabela vai armazenar as primary keys e seus respectivos indexes de posição
         Ja a segunda tabela vai armazenar os dados brutos sequencialmente na ordem que foram inseridos
 
         Economiza o rearanjo de dados pois somente a tabela index vai ter o re arranjo enquanto a tabela data sera sempre sequencial
