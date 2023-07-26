@@ -166,7 +166,7 @@ public class CSVTable extends Table{
                 if(data==null)return null;
                 currentIt = currentIt.add(BigInteger.ONE);
 
-                String[] columns = csvLines.next();
+                String[] columns = recognizer.getColumnNames();
                 ComplexRowData rowData = new ComplexRowData();
                 for (Column c:
                         getHeader().getPrototype()) {
