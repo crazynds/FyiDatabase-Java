@@ -1,5 +1,6 @@
 package sgbd.query.sourceop;
 
+import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
 import sgbd.table.Table;
 
@@ -14,6 +15,11 @@ public abstract class SourceOperator implements Operator {
         this.asName= table.getTableName();
     }
 
+
+    @Override
+    public void lookup(BooleanExpression expression) {
+        // do nothing
+    }
 
     public void asName(String name){
         asName=name;

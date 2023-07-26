@@ -1,5 +1,6 @@
 package sgbd.query.unaryop;
 
+import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
 import sgbd.table.Table;
 
@@ -9,6 +10,12 @@ import java.util.Map;
 public abstract class UnaryOperator implements Operator {
 
     protected Operator operator;
+
+    @Override
+    public void lookup(BooleanExpression expression) {
+        // do nothing
+
+    }
 
     public UnaryOperator(Operator op){
         setOperator(op);

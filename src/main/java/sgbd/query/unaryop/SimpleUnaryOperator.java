@@ -1,5 +1,6 @@
 package sgbd.query.unaryop;
 
+import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 

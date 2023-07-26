@@ -68,7 +68,7 @@ public class Header {
 
     public String getTablePath(){
         String filePath = this.get(Header.FILE_PATH);
-        if(this.path!=null || filePath!=null){
+        if(this.path!=null && filePath!=null){
             filePath = new File(new File(this.path).getAbsolutePath()).getParentFile() + "/" + filePath;
         }
         if(filePath == null){

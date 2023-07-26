@@ -1,5 +1,6 @@
 package sgbd.query.binaryop;
 
+import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
 import sgbd.table.Table;
 
@@ -14,6 +15,11 @@ public abstract class BinaryOperator implements Operator {
     public BinaryOperator(Operator left, Operator right){
         this.left=left;
         this.right=right;
+    }
+
+    @Override
+    public void lookup(BooleanExpression expression) {
+        // do nothing
     }
 
     public Operator getLeftOperator(){

@@ -12,9 +12,9 @@ public class IntField extends Field {
         if(Util.typeOfColumn(col)!="int")throw new DataBaseException("IntField->Constructor","IntField needs to be int");
     }
 
-
     @Override
     public int compareTo(Field f) {
+        if(f.isString())return f.compareTo(this);
         if(!f.isInt())return 0;
         return data.getInt().compareTo(f.data.getInt());
     }
