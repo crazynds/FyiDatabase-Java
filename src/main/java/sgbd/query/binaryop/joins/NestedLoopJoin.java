@@ -14,22 +14,22 @@ import java.util.Comparator;
 public class NestedLoopJoin extends SimpleBinaryOperator {
     protected Tuple currentLeftTuple=null;
     protected BooleanExpression expression;
-    protected ComparableFilter<Tuple> comparable;
+    protected ComparableFilter<Tuple> comparator;
 
     public NestedLoopJoin(Operator left, Operator right) {
         super(left, right);
         this.expression = null;
-        this.comparable = null;
+        this.comparator = null;
     }
     public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
         super(left, right);
         this.expression = expression;
-        this.comparable = null;
+        this.comparator = null;
     }
     public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparable) {
         super(left, right);
         this.expression = null;
-        this.comparable = comparable;
+        this.comparator = comparable;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
                 //if(expression==null || expression.solve() == Result.TRUE){
                 //    return new Tuple(currentLeftTuple,rightTuple);
                 //}
-                if(comparable==null || comparable.match(currentLeftTuple,rightTuple)){
+                if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
                     return new Tuple(currentLeftTuple,rightTuple);
                 }
             }
