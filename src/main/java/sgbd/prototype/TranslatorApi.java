@@ -7,6 +7,7 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.instances.GenericRecord;
 import sgbd.prototype.column.Column;
+import sgbd.prototype.query.fields.Field;
 import sgbd.util.global.UtilConversor;
 
 import java.math.BigInteger;
@@ -150,8 +151,8 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         rw.setValid();
     }
 
-    public synchronized ComplexRowData convertToRowData(Record r, Map<String,Column> meta){
-        ComplexRowData row = new ComplexRowData(meta);
+    public synchronized RowData convertToRowData(Record r, Map<String,Column> meta){
+        RowData row = new RowData();
         byte[] data = r.getData();
         byte[] header = headerBuffer;
         System.arraycopy(data,0,header,0,this.headerSize);
@@ -178,13 +179,13 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
                 offset += 4;
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
-                    row.setData(c.getName(), arr);
+                    row.setField(c.getName(), Field.createField(c,new BData(arr)), c);
                 }
                 offset += size;
             } else {
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
-                    row.setData(c.getName(), arr);
+                    row.setField(c.getName(), Field.createField(c,new BData(arr)), c);
                 }
                 offset += c.getSize();
             }

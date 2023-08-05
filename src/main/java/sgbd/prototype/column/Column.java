@@ -1,6 +1,7 @@
 package sgbd.prototype.column;
 
 import engine.exceptions.DataBaseException;
+import sgbd.prototype.metadata.Metadata;
 
 public class Column extends Metadata {
 

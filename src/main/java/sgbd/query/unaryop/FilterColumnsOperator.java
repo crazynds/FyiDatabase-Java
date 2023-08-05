@@ -1,6 +1,6 @@
 package sgbd.query.unaryop;
 
-import sgbd.prototype.ComplexRowData;
+import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 
@@ -40,7 +40,7 @@ public class FilterColumnsOperator extends UnaryOperator{
         for(String[] srcColumn:srcColumns){
             String src = srcColumn[0];
             String column = srcColumn[1];
-            ComplexRowData row = t.getContent(src);
+            RowData row = t.getContent(src);
             t.getContent(src).unset(column);
         }
         return t;

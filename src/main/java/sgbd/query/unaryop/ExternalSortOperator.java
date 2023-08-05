@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import engine.exceptions.DataBaseException;
 import engine.util.Util;
 import sgbd.prototype.column.Column;
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.query.Operator;
@@ -20,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class ExternalSortOperator extends UnaryOperator {
 
     private static final String TABLE_NAME = "__externalSortedTable__";
@@ -60,7 +60,7 @@ public class ExternalSortOperator extends UnaryOperator {
 
         Prototype pt = new Prototype();
         Tuple t = operator.next();
-        Column c = t.getContent(source).getMeta(column);
+        Column c = t.getContent(source).getMetadata(column);
         pt.addColumn("__aux",8,Column.PRIMARY_KEY);
         pt.addColumn("sort",c.getSize(),
                 (c.isShift8Size()?Column.LSHIFT_8_SIZE_COLUMN:Column.NONE)|
@@ -134,7 +134,7 @@ public class ExternalSortOperator extends UnaryOperator {
             return null;
 
         Tuple t = scan.next();
-        ComplexRowData row = t.getContent(TABLE_NAME);
+        RowData row = t.getContent(TABLE_NAME);
         long pos = row.getLong("reference");
         int size = row.getInt("size");
 

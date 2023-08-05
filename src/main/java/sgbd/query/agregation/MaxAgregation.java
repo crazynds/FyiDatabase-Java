@@ -1,13 +1,17 @@
 package sgbd.query.agregation;
 
 import engine.util.Util;
+import sgbd.prototype.BData;
 import sgbd.prototype.column.Column;
+import sgbd.prototype.column.LongColumn;
+import sgbd.prototype.metadata.LongMetadata;
 import sgbd.prototype.query.Tuple;
+import sgbd.prototype.query.fields.Field;
 
 import java.math.BigInteger;
 
 public class MaxAgregation extends AgregationOperation{
-    protected BigInteger number;
+    protected Field value;
 
     protected Column meta;
     protected boolean fisrt = false;
@@ -27,29 +31,30 @@ public class MaxAgregation extends AgregationOperation{
     }
     @Override
     public void initialize(Tuple acumulator) {
-        number = BigInteger.ZERO;
+        value = null;
         meta = null;
         fisrt = true;
     }
 
     @Override
     public void process(Tuple acumulator, Tuple newData) {
-        byte[] arr = newData.getContent(sourceSrc).getData(columnSrc);
-        if(arr==null)return;
-        if(meta==null)meta = newData.getContent(sourceSrc).getMeta(columnSrc);
-        BigInteger check = Util.convertByteArrayToNumber(arr);
+        Field f = newData.getContent(sourceSrc).getField(columnSrc);
+        if(f==null)return;
+        if(meta==null)meta = newData.getContent(sourceSrc).getMetadata(columnSrc);
         if(fisrt) {
-            number = check;
+            value = f;
             fisrt = false;
-        }else if(number.compareTo(check)<0)number = check;
+        }else if(value.compareTo(f)<0){
+            value = f;
+        }
     }
 
     @Override
     public void finalize(Tuple acumulator) {
-        byte[] arr = Util.convertNumberToByteArray(number,4);
         if(meta==null) {
-            meta = new Column("__",(short)4,Column.SIGNED_INTEGER_COLUMN);
+            acumulator.getContent(sourceDst).setField(columnDst, value);
+        }else{
+            acumulator.getContent(sourceDst).setField(columnDst, value,meta);
         }
-        acumulator.getContent(sourceDst).setData(columnDst, arr,meta);
     }
 }

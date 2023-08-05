@@ -5,17 +5,13 @@ import java.math.BigInteger;
 import java.util.List;
 
 import engine.exceptions.DataBaseException;
-import engine.file.FileManager;
-import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import sgbd.index.Index;
-import sgbd.prototype.ComplexRowData;
-import sgbd.prototype.Prototype;
 import sgbd.prototype.TranslatorApi;
 import sgbd.prototype.RowData;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 
-public abstract class Table implements Iterable<ComplexRowData>{
+public abstract class Table implements Iterable<RowData>{
 
 	protected TranslatorApi translatorApi;
 
@@ -110,8 +106,8 @@ public abstract class Table implements Iterable<ComplexRowData>{
 	 */
 	public abstract BigInteger insert(RowData r);
 	public abstract void insert(List<RowData> r);
-	public abstract ComplexRowData find(BigInteger pk);
-	public abstract ComplexRowData find(BigInteger pk, List<String> colunas);
+	public abstract RowData find(BigInteger pk);
+	public abstract RowData find(BigInteger pk, List<String> colunas);
 	//public abstract List<RowData> find(Query);
 	/*
 		Aceita apenas update para dados já existentes, se não encontrar gera um erro

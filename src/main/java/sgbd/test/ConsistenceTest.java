@@ -1,6 +1,5 @@
 package sgbd.test;
 
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.table.Table;
 import sgbd.table.components.RowIterator;
@@ -63,7 +62,7 @@ public class ConsistenceTest {
             valid = true;
             RowData row = generetaRowData();
             BigInteger pk = table.getTranslator().getPrimaryKey(row);
-            ComplexRowData toCompare = table.find(pk);
+            RowData toCompare = table.find(pk);
             if(invalidos.containsKey(pk)){
                 System.out.println("Inconsistencia anterior justificada por substitui��o de id");
                 invalidos.remove(pk);
@@ -103,7 +102,7 @@ public class ConsistenceTest {
              invalidos.entrySet()) {
             RowData row = dat.getValue();
             BigInteger pk = dat.getKey();
-            ComplexRowData toCompare = table.find(pk);
+            RowData toCompare = table.find(pk);
             valid = true;
             if(toCompare==null){
                 valid = false;
@@ -147,7 +146,7 @@ public class ConsistenceTest {
 
     public void printAllData(){
         for (RowIterator it = this.table.iterator(); it.hasNext(); ) {
-            ComplexRowData row = it.next();
+            RowData row = it.next();
             printRowData(row);
         }
     }

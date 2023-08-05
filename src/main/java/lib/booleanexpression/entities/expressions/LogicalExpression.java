@@ -1,7 +1,7 @@
 package lib.booleanexpression.entities.expressions;
 
 import enums.Result;
-import enums.LogicalOperator;
+import lib.booleanexpression.enums.LogicalOperator;
 
 import java.util.*;
 
@@ -51,7 +51,6 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
             if(Objects.equals(atomicResult, anticipatedResult)) return anticipatedResult;
             if(Objects.equals(atomicResult, Result.NOT_READY)) hasNotReadyVariables = true;
-
         }
 
 

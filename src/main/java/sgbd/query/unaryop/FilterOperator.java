@@ -5,6 +5,7 @@ import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.util.interfaces.Filter;
 
+@Deprecated
 public class FilterOperator extends SimpleUnaryOperator {
 
     private Filter<Tuple> tupleFilter;

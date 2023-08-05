@@ -4,7 +4,6 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.manager.RecordManager;
 import sgbd.prototype.column.Column;
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
@@ -57,12 +56,12 @@ public abstract class GenericTable extends Table{
     }
 
     @Override
-    public ComplexRowData find(BigInteger pk, List<String> colunas) {
+    public RowData find(BigInteger pk, List<String> colunas) {
         Record r =this.manager.read(pk);
         return translatorApi.convertToRowData(r,translatorApi.generateMetaInfo(colunas));
     }
     @Override
-    public ComplexRowData find(BigInteger pk) {
+    public RowData find(BigInteger pk) {
         return this.find(pk,null);
     }
 
@@ -106,7 +105,7 @@ public abstract class GenericTable extends Table{
             }
 
             @Override
-            public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
+            public Map.Entry<BigInteger, RowData> nextWithPk() {
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
@@ -128,7 +127,7 @@ public abstract class GenericTable extends Table{
             }
 
             @Override
-            public ComplexRowData next() {
+            public RowData next() {
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();

@@ -3,6 +3,7 @@ package sgbd.query.binaryop;
 import engine.exceptions.DataBaseException;
 import sgbd.info.Query;
 import sgbd.prototype.column.Column;
+import sgbd.prototype.query.fields.Field;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.query.unaryop.DistinctOperator;
@@ -39,8 +40,8 @@ public class UnionOperator extends SimpleBinaryOperator{
             for(int x=0;x< this.leftColumns.size();x++){
                 String a[] = this.leftColumns.get(x);
                 String b[] = this.rightColumns.get(x);
-                byte[] dataA = t1.getContent(a[0]).getData(a[1]);
-                byte[] dataB = t2.getContent(b[0]).getData(b[1]);
+                byte[] dataA = t1.getContent(a[0]).getField(a[1]).getBData().getData();
+                byte[] dataB = t2.getContent(b[0]).getField(b[1]).getBData().getData();
                 if(Arrays.compare(dataA,dataB)!=0)return false;
             }
             return true;
@@ -87,18 +88,18 @@ public class UnionOperator extends SimpleBinaryOperator{
             Tuple n = new Tuple();
             for (int x=0;x< leftColumns.size();x++) {
                 String[] pt = leftColumns.get(x);
-                byte[] data;
+                Field data;
                 Column meta;
                 if(isRight){
                     String[] pt2 = rightColumns.get(x);
-                    data = t.getContent(pt2[0]).getData(pt2[1]);
-                    meta = t.getContent(pt2[0]).getMeta(pt2[1]);
+                    data = t.getContent(pt2[0]).getField(pt2[1]);
+                    meta = t.getContent(pt2[0]).getMetadata(pt2[1]);
                 }else{
-                    data = t.getContent(pt[0]).getData(pt[1]);
-                    meta = t.getContent(pt[0]).getMeta(pt[1]);
+                    data = t.getContent(pt[0]).getField(pt[1]);
+                    meta = t.getContent(pt[0]).getMetadata(pt[1]);
                 }
                 if(meta!=null || data!=null)
-                    n.getContent(pt[0]).setData(pt[1],data,meta);
+                    n.getContent(pt[0]).setField(pt[1],data,meta);
             }
             t = n;
         }

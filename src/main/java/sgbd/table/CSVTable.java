@@ -2,8 +2,8 @@ package sgbd.table;
 
 import engine.exceptions.DataBaseException;
 import sgbd.prototype.column.Column;
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
+import sgbd.prototype.query.fields.NullField;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 import sgbd.util.classes.CSVRecognizer;
@@ -67,18 +67,18 @@ public class CSVTable extends Table{
     }
 
     @Override
-    public ComplexRowData find(BigInteger pk) {
+    public RowData find(BigInteger pk) {
         for (RowIterator it = this.iterator(); it.hasNext(); ) {
-            Map.Entry<BigInteger, ComplexRowData> row = it.nextWithPk();
+            Map.Entry<BigInteger, RowData> row = it.nextWithPk();
             if(row.getKey().compareTo(pk) == 0)return row.getValue();
         }
         return null;
     }
 
     @Override
-    public ComplexRowData find(BigInteger pk, List<String> columns) {
+    public RowData find(BigInteger pk, List<String> columns) {
         for (RowIterator it = this.iterator(columns); it.hasNext(); ) {
-            Map.Entry<BigInteger, ComplexRowData> row = it.nextWithPk();
+            Map.Entry<BigInteger, RowData> row = it.nextWithPk();
             if(row.getKey().compareTo(pk) == 0)return row.getValue();
         }
         return null;
@@ -115,8 +115,8 @@ public class CSVTable extends Table{
             }
 
             @Override
-            public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
-                Map.Entry<BigInteger, ComplexRowData> comp = sub.nextWithPk();
+            public Map.Entry<BigInteger, RowData> nextWithPk() {
+                Map.Entry<BigInteger, RowData> comp = sub.nextWithPk();
                 if(comp==null)
                     return null;
                 return Map.entry(comp.getKey(),translatorApi.convertToRowData(translatorApi.convertToRecord(comp.getValue()),metaInfo));
@@ -128,7 +128,7 @@ public class CSVTable extends Table{
             }
 
             @Override
-            public ComplexRowData next() {
+            public RowData next() {
                 return nextWithPk().getValue();
             }
         };
@@ -161,13 +161,13 @@ public class CSVTable extends Table{
             }
 
             @Override
-            public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
+            public Map.Entry<BigInteger, RowData> nextWithPk() {
                 String[] data = csvLines.next();
                 if(data==null)return null;
                 currentIt = currentIt.add(BigInteger.ONE);
 
                 String[] columns = recognizer.getColumnNames();
-                ComplexRowData rowData = new ComplexRowData();
+                RowData rowData = new RowData();
                 for (Column c:
                         getHeader().getPrototype()) {
                     if(c.getName().compareTo(CSVTable.pkName)==0){
@@ -179,7 +179,7 @@ public class CSVTable extends Table{
                         if(c.getName().compareToIgnoreCase(columnName) != 0)continue;
                         String val = data[x];
                         if(val == null || val.isEmpty() || val.strip().isEmpty()){
-                            rowData.setData(c.getName(),null,c);
+                            rowData.setField(c.getName(),new NullField(c),c);
                             continue;
                         }
 
@@ -216,8 +216,8 @@ public class CSVTable extends Table{
             }
 
             @Override
-            public ComplexRowData next() {
-                Map.Entry<BigInteger, ComplexRowData> e = this.nextWithPk();
+            public RowData next() {
+                Map.Entry<BigInteger, RowData> e = this.nextWithPk();
                 if(e==null)return null;
                 return e.getValue();
             }

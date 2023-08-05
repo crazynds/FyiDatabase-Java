@@ -1,19 +1,20 @@
 package sgbd.query.sourceop;
 
 import sgbd.info.Query;
+import sgbd.prototype.RowData;
 import sgbd.prototype.column.Column;
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.query.Tuple;
 import sgbd.table.Table;
 
 import java.math.BigInteger;
 import java.util.*;
 
+@Deprecated
 public class PKTableScan extends SourceOperator{
 
     private List<String> columns;
     private BigInteger pk;
-    private ComplexRowData row;
+    private RowData row;
 
     public PKTableScan(Table table, BigInteger pk) {
         super(table);

@@ -2,6 +2,7 @@ package sgbd.query.agregation;
 
 import engine.util.Util;
 import sgbd.prototype.query.Tuple;
+import sgbd.prototype.query.fields.Field;
 
 import java.math.BigInteger;
 
@@ -27,14 +28,15 @@ public class MinAgregation extends MaxAgregation{
 
     @Override
     public void process(Tuple acumulator, Tuple newData) {
-        byte[] arr = newData.getContent(sourceSrc).getData(columnSrc);
-        if(arr==null)return;
-        if(meta==null)meta = newData.getContent(sourceSrc).getMeta(columnSrc);
-        BigInteger check = Util.convertByteArrayToNumber(arr);
+        Field f = newData.getContent(sourceSrc).getField(columnSrc);
+        if(f==null)return;
+        if(meta==null)meta = newData.getContent(sourceSrc).getMetadata(columnSrc);
         if(fisrt) {
-            number = check;
+            value = f;
             fisrt = false;
-        }else if(number.compareTo(check)>0)number = check;
+        }else if(value.compareTo(f)>0){
+            value = f;
+        }
     }
 
 }

@@ -21,11 +21,13 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
         this.expression = null;
         this.comparator = null;
     }
-    public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
-        super(left, right);
-        this.expression = expression;
-        this.comparator = null;
-    }
+//    public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
+//        super(left, right);
+//        this.expression = expression;
+//        this.comparator = null;
+//    }
+
+    @Deprecated
     public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparable) {
         super(left, right);
         this.expression = null;

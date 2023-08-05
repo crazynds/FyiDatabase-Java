@@ -1,6 +1,6 @@
 package sgbd.query.unaryop;
 
-import sgbd.prototype.ComplexRowData;
+import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 
@@ -22,7 +22,7 @@ public class RenameSourceOperator extends SimpleUnaryOperator{
         if(!operator.hasNext())
             return null;
         Tuple t = operator.next();
-        ComplexRowData row = t.getContent(this.sourceSrc);
+        RowData row = t.getContent(this.sourceSrc);
         t.setContent(this.sourceDst,row);
         t.setContent(this.sourceSrc,null);
         return t;
