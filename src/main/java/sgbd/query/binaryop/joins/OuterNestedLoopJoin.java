@@ -7,10 +7,9 @@ import sgbd.util.interfaces.ComparableFilter;
 
 public class OuterNestedLoopJoin extends UnionOperator {
 
+    @Deprecated
     public OuterNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
         super(new LeftNestedLoopJoin(left,right,comparator), new RightNestedLoopJoin(left,right,comparator));
     }
-    public OuterNestedLoopJoin(Operator left, Operator right) {
-        super(new LeftNestedLoopJoin(left,right), new RightNestedLoopJoin(left,right));
-    }
+
 }

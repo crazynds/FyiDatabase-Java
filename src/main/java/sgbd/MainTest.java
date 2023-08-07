@@ -51,7 +51,7 @@ public class MainTest {
             for (Column c : p2) {
                 System.out.println("Nome: " + c.getName() + " Type: " + (c.isDinamicSize() ? "Dinamic" : "Static") + " Size: " + c.getSize());
             }
-            Iterator<ComplexRowData> i = tableCidades.iterator();
+            Iterator<RowData> i = tableCidades.iterator();
             int x = 1;
             while (i.hasNext()) {
                 RowData r = i.next();
@@ -98,7 +98,7 @@ public class MainTest {
                 System.out.println("Nome: " + c.getName() + " Type: " + (c.isDinamicSize() ? "Dinamic" : "Static") + " Size: " + c.getSize());
             }
 
-            Iterator<ComplexRowData> i = tableUsers.iterator();
+            Iterator<RowData> i = tableUsers.iterator();
             int x = 1;
             while (i.hasNext()) {
                 RowData r = i.next();

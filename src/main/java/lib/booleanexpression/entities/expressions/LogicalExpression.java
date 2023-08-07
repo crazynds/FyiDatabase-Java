@@ -1,8 +1,11 @@
 package lib.booleanexpression.entities.expressions;
 
 import lib.booleanexpression.enums.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 public class LogicalExpression extends BooleanExpression implements Iterable<BooleanExpression> {
 
@@ -50,7 +53,6 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
             if(Objects.equals(atomicResult, anticipatedResult)) return anticipatedResult;
             if(Objects.equals(atomicResult, Result.NOT_READY)) hasNotReadyVariables = true;
-
         }
 
 

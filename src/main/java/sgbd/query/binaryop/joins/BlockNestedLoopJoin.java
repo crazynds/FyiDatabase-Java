@@ -19,6 +19,7 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
     private final int maxBufferedTuples = 10;
 
 
+    @Deprecated
     public BlockNestedLoopJoin(Operator left, Operator right,ComparableFilter<Tuple> comparator) {
         super(left, right,comparator);
     }

@@ -11,13 +11,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RightNestedLoopJoin extends LeftNestedLoopJoin{
+
+    @Deprecated
     public RightNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
         super(right, left, (t1, t2) -> comparator.match(t2,t1)); // apenas inverte os operadores
     }
-    public RightNestedLoopJoin(Operator left, Operator right) {
-        super(right, left); // apenas inverte os operadores
-    }
-
 
     public List<Table> getSources(){
         List<Table> rTable = right.getSources();

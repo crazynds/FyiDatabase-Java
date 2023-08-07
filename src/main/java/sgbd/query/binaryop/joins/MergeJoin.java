@@ -20,16 +20,8 @@ public class MergeJoin extends SimpleBinaryOperator {
 
     public MergeJoin(Operator left, Operator right, ResourceName leftRes, ResourceName rightRes) {
         super(
-            new SortOperator(left,(o1, o2) -> {
-                BigInteger int1 = Util.convertByteArrayToNumber(o1.getContent(leftRes.getSource()).getData(leftRes.getColumn()));
-                BigInteger int2 = Util.convertByteArrayToNumber(o2.getContent(leftRes.getSource()).getData(leftRes.getColumn()));
-                return int1.compareTo(int2);
-            }),
-            new SortOperator(right,(o1, o2) -> {
-                BigInteger int1 = Util.convertByteArrayToNumber(o1.getContent(rightRes.getSource()).getData(rightRes.getColumn()));
-                BigInteger int2 = Util.convertByteArrayToNumber(o2.getContent(rightRes.getSource()).getData(rightRes.getColumn()));
-                return int1.compareTo(int2);
-            })
+            new SortOperator(left,leftRes),
+            new SortOperator(right,rightRes)
         );
         this.leftSource=leftRes.getSource();
         this.leftData=leftRes.getColumn();

@@ -1,7 +1,7 @@
 package sgbd.query.unaryop;
 
 import engine.util.Util;
-import sgbd.prototype.ComplexRowData;
+import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.query.agregation.AgregationOperation;
@@ -44,8 +44,8 @@ public class GroupOperator extends SimpleUnaryOperator {
             if(actualTuple ==null){
                 // Cria a tupla
                 actualTuple = new Tuple();
-                ComplexRowData rowGroup = new ComplexRowData();
-                rowGroup.setData(column,lastTupleLoaded.getContent(source).getData(column),lastTupleLoaded.getContent(source).getMeta(column));
+                RowData rowGroup = new RowData();
+                rowGroup.setField(column,lastTupleLoaded.getContent(source).getField(column),lastTupleLoaded.getContent(source).getMetadata(column));
                 // Seta nela o dado inicial
                 actualTuple.setContent(source,rowGroup);
                 groupName = Util.convertByteArrayToNumber(lastTupleLoaded.getContent(source).getData(column));

@@ -2,7 +2,7 @@ package sgbd.query.binaryop.joins;
 
 import engine.exceptions.DataBaseException;
 import engine.util.Util;
-import sgbd.prototype.ComplexRowData;
+import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.query.sourceop.PKTableScan;
@@ -10,6 +10,8 @@ import sgbd.query.sourceop.PKTableScan;
 import java.math.BigInteger;
 import java.util.Map;
 
+
+@Deprecated
 public class FKNestedLoopJoin extends NestedLoopJoin {
 
     protected String source,foreignKey;
@@ -46,7 +48,7 @@ public class FKNestedLoopJoin extends NestedLoopJoin {
             tableScan.open();
             if(tableScan.hasNext()){
                 Tuple rightTuple = tableScan.next();
-                for (Map.Entry<String, ComplexRowData> entry:
+                for (Map.Entry<String, RowData> entry:
                      rightTuple) {
                     leftTuple.setContent(entry.getKey(), entry.getValue());
                 }

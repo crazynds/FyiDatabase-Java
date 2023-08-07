@@ -53,8 +53,8 @@ public class OrderTest {
         Operator scan1 = new TableScan(usersTable);
         Operator scan2 = new TableScan(cidadeTable);
 
-        Operator join1 = new LeftNestedLoopJoin(scan1,scan2);
-        Operator join2 = new RightNestedLoopJoin(scan1,scan2);
+        Operator join1 = new LeftNestedLoopJoin(scan1,scan2, null);
+        Operator join2 = new RightNestedLoopJoin(scan1,scan2, null);
         Operator join3 = new NestedLoopJoin(scan1,scan2);
 
         ArrayList<String> arr = new ArrayList<>();

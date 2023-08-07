@@ -1,6 +1,8 @@
 bin/
 .idea/
 .classpath
+.project
+.settings
 target
 *.dat
 *.temp

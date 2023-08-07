@@ -1,4 +1,4 @@
-package sgbd.prototype.column;
+package sgbd.prototype.metadata;
 
 public class Metadata {
 
@@ -21,8 +21,8 @@ public class Metadata {
 
     public static final short BOOLEAN = (1<<7);
 
-    private short size;
-    private short flags;
+    private final short size;
+    private final short flags;
 
     public Metadata(short size,short flags){
         this.size = size;
@@ -61,18 +61,11 @@ public class Metadata {
         return (flags&PRIMARY_KEY)!=0;
     }
 
-
     public boolean isInt(){
-        return (!isString() && (flags&FLOATING_POINT)==0 && !isDinamicSize()) || (flags&SIGNED_INTEGER_COLUMN)!=0;
-    }
-    public boolean isLong(){
-        return this.isInt() && size==8;
-    }
-    public boolean isDouble(){
-        return (flags&FLOATING_POINT)!=0 && size==8;
+        return !isString() && (flags&FLOATING_POINT)==0 && !isDinamicSize();
     }
     public boolean isFloat(){
-        return (flags&FLOATING_POINT)!=0 && size==4;
+        return (flags&FLOATING_POINT)!=0;
     }
     public boolean isString(){
         return (flags&STRING)!=0;
@@ -80,5 +73,4 @@ public class Metadata {
     public boolean isBoolean(){
         return (flags&BOOLEAN)!=0;
     }
-
 }

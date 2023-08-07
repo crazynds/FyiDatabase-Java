@@ -1,123 +1,163 @@
 package sgbd.prototype;
 
+import com.sun.source.tree.Tree;
+import engine.util.Util;
+import sgbd.prototype.column.Column;
+import sgbd.prototype.column.IntegerColumn;
+import sgbd.prototype.metadata.*;
+import sgbd.prototype.query.fields.BinaryField;
+import sgbd.prototype.query.fields.BooleanField;
+import sgbd.prototype.query.fields.DoubleField;
+import sgbd.prototype.query.fields.Field;
 import sgbd.util.global.UtilConversor;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
-public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<RowData> {
-	private Map<String,BData> data;
+public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<RowData> {
+	private Map<String, Field> data;
+	private Map<String, Column> metadata;
 	private byte checkSum = 0;
 
 	public RowData() {
-		data=new HashMap<String, BData>();
+		data=new TreeMap<>();
+		metadata=new HashMap<>();
 	}
 	protected RowData(RowData cloneData) {
-		data=new HashMap<String, BData>(cloneData.data);
+		data=new TreeMap<>(cloneData.data);
+		metadata=new HashMap<>(cloneData.metadata);
 	}
-
-	private void removeCheckSum(String column){
-		BData arr = data.get(column);
-		if(arr != null && arr.length()>0){
-			checkSum ^= arr.getData()[0];
-		}
-	}
-
-	private void addToCheckSum(String column,BData data){
-		if(data!= null && data.length()>0){
+	private void applyChecksum(BData data){
+		if(data != null && data.length()>0){
 			checkSum ^= data.getData()[0];
 		}
 	}
 
-
-	public void setData(String column,byte[] data) {
-		valid=false;
-		removeCheckSum(column);
-		if(data==null){
-			this.data.put(column,null);
-			return;
+	public void setField(String column,Field field){
+		valid = false;
+		Field currentField = this.data.get(column);
+		if(currentField != null){
+			applyChecksum(currentField.getBData());
 		}
-		BData newData = new BData(data);
-		addToCheckSum(column,newData);
-		this.data.put(column, newData);
+		if(field == null)return;
+		this.data.put(column,field);
+		applyChecksum(field.getBData());
 	}
-	public void setBData(String column,BData newData) {
-		valid=false;
-		removeCheckSum(column);
-		if(newData==null){
-			this.data.put(column,null);
-			return;
-		}
-		addToCheckSum(column,newData);
-		this.data.put(column, newData);
+	public void setField(String column,Field field,Column metadata){
+		setField(column,field);
+		setMetadata(column,metadata);
+	}
+	public void setData(String column,byte[] data){
+		BData bdata = new BData(data);
+		this.setField(column, new BinaryField(new Metadata((short) (data.length>>8 + 1),Metadata.LSHIFT_8_SIZE_COLUMN),bdata));
 	}
 	public void setInt(String column,int data) {
-		this.setData(column, UtilConversor.intToByteArray(data));
+		BData bdata = new BData(UtilConversor.intToByteArray(data));
+		this.setField(column, Field.createField(new IntegerMetadata(),bdata));
 	}
 	public void setLong(String column,long data) {
-		this.setData(column, UtilConversor.longToByteArray(data));
+		BData bdata = new BData(UtilConversor.longToByteArray(data));
+		this.setField(column, Field.createField(new LongMetadata(),bdata));
 	}
 	public void setString(String column,String data) {
-		this.setData(column, UtilConversor.stringToByteArray(data));
+		BData bdata = new BData(UtilConversor.stringToByteArray(data));
+		this.setField(column, Field.createField(new StringMetadata((short)(data.length()+1)),bdata));
 	}
 	public void setFloat(String column,float data) {
-		this.setData(column, UtilConversor.floatToByteArray(data));
+		BData bdata = new BData(UtilConversor.floatToByteArray(data));
+		this.setField(column, Field.createField(new FloatMetadata(),bdata));
 	}
 	public void setDouble(String column,double data) {
-		this.setData(column, UtilConversor.doubleToByteArray(data));
+		BData bdata = new BData(UtilConversor.doubleToByteArray(data));
+		this.setField(column, Field.createField(new DoubleMetadata(),bdata));
 	}
 	public void setBoolean(String column,boolean data) {
-		this.setData(column, new byte[]{(byte) (data ? 1 : 0)});
-	}
-	public byte[] unset(String column){
-		valid=false;
-		removeCheckSum(column);
-		if(!this.data.containsKey(column))
-			return null;
-		return this.data.remove(column).getData();
+		BData bdata = new BData(new byte[]{(byte) (data ? 1 : 0)});
+		this.setField(column, Field.createField(new BooleanMetadata(),bdata));
 	}
 
+	public void setInt(String column, int data, Column meta) {
+		BData bdata = new BData(UtilConversor.intToByteArray(data));
+		this.setField(column, Field.createField(meta,bdata));
+		this.setMetadata(column,meta);
+	}
+	public void setLong(String column,Long data,Column meta) {
+		BData bdata = new BData(UtilConversor.longToByteArray(data));
+		this.setField(column, Field.createField(meta,bdata));
+		this.setMetadata(column,meta);
+	}
+	public void setString(String column,String data,Column meta) {
+		BData bdata = new BData(UtilConversor.stringToByteArray(data));
+		this.setField(column, Field.createField(meta,bdata));
+		this.setMetadata(column,meta);
+	}
+	public void setFloat(String column,float data,Column meta) {
+		BData bdata = new BData(UtilConversor.floatToByteArray(data));
+		this.setField(column, Field.createField(meta,bdata));
+		this.setMetadata(column,meta);
+	}
+	public void setDouble(String column,double data,Column meta) {
+		BData bdata = new BData(UtilConversor.doubleToByteArray(data));
+		this.setField(column, Field.createField(meta,bdata));
+		this.setMetadata(column,meta);
+	}
+	public void setBoolean(String column,boolean data,Column meta) {
+		BData bdata = new BData(new byte[]{(byte) (data ? 1 : 0)});
+		this.setField(column, Field.createField(meta,bdata));
+		this.setMetadata(column,meta);
+	}
+
+	public Field unset(String column){
+		Field f = this.data.get(column);
+		setField(column,null);
+		setMetadata(column,null);
+		return f;
+	}
+
+	public Column getMetadata(String column){
+		return metadata.get(column);
+	}
+
+	public void setMetadata(String column,Column meta) {
+		this.metadata.put(column,meta);
+	}
+
+	public Field getField(String column) {
+		return this.data.get(column);
+	}
 	public byte[] getData(String column) {
-		BData data = this.data.get(column);
+		if(!this.data.containsKey(column))return null;
+		BData data = this.data.get(column).getBData();
 		if(data==null)return null;
 		return data.getData();
 	}
 	public BData getBData(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
+		if(!this.data.containsKey(column))return null;
+		BData data = this.data.get(column).getBData();
 		return data;
 	}
 	public Integer getInt(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
-		return data.getInt();
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getInt();
 	}
 	public Long getLong(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
-		return data.getLong();
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getLong();
 	}
 	public Float getFloat(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
-		return data.getFloat();
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getFloat();
 	}
 	public Double getDouble(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
-		return data.getDouble();
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getDouble();
 	}
 	public String getString(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
-		return data.getString();
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getString();
 	}
 	public Boolean getBoolean(String column) {
-		BData data = this.data.get(column);
-		if(data==null)return null;
-		return data.getBoolean();
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getBoolean();
 	}
 	
 	public int size() {
@@ -134,7 +174,7 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 	}
 
 	@Override
-	public Iterator<Map.Entry<String, BData>> iterator() {
+	public Iterator<Map.Entry<String, Field>> iterator() {
 		return data.entrySet().iterator();
 	}
 
@@ -144,12 +184,15 @@ public class RowData implements Iterable<Map.Entry<String,BData>>,Comparable<Row
 		if(val!=0)return val;
 		val = data.size() - r.data.size();
 		if(val!=0)return val;
-		for (Map.Entry<String, BData> entry:
+		for (Map.Entry<String, Field> entry:
 			 this) {
-			byte[] arr = r.getData(entry.getKey());
-			val = Arrays.compare(arr,entry.getValue().getData());
+			Field f = r.getField(entry.getKey());
+			val = entry.getValue().compareTo(f);
 			if(val!= 0)return val;
 		}
 		return val;
+	}
+	public RowData clone(){
+		return new RowData(this);
 	}
 }

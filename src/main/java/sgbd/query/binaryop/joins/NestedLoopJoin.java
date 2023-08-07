@@ -1,15 +1,16 @@
 package sgbd.query.binaryop.joins;
 
+<<<<<<< HEAD
 import lib.booleanexpression.enums.*;
 import lib.booleanexpression.entities.expressions.AtomicExpression;
+=======
+>>>>>>> 796327d7f84435b846366ee517f373a47b7a23dc
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.info.Query;
-import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
+import sgbd.query.Operator;
 import sgbd.query.binaryop.SimpleBinaryOperator;
 import sgbd.util.interfaces.ComparableFilter;
-
-import java.util.Comparator;
 
 public class NestedLoopJoin extends SimpleBinaryOperator {
     protected Tuple currentLeftTuple=null;
@@ -21,11 +22,13 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
         this.expression = null;
         this.comparator = null;
     }
-    public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
-        super(left, right);
-        this.expression = expression;
-        this.comparator = null;
-    }
+//    public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
+//        super(left, right);
+//        this.expression = expression;
+//        this.comparator = null;
+//    }
+
+    @Deprecated
     public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparable) {
         super(left, right);
         this.expression = null;

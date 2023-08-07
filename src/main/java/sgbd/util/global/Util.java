@@ -1,7 +1,6 @@
 package sgbd.util.global;
 
-import sgbd.prototype.column.Column;
-import sgbd.prototype.column.Metadata;
+import sgbd.prototype.metadata.Metadata;
 
 import java.text.Normalizer;
 
@@ -40,10 +39,10 @@ public class Util {
         if(meta == null) return "null";
         if(meta.isBoolean())return "boolean";
         if(meta.isString())return "string";
-        if(meta.isLong())return "long";
-        if(meta.isInt())return "int";
-        if(meta.isFloat())return "float";
-        if(meta.isDouble())return "double";
+        if(meta.isInt() && meta.getSize()==8)return "long";
+        if(meta.isInt() && meta.getSize()==4)return "int";
+        if(meta.isFloat() && meta.getSize()==8)return "double";
+        if(meta.isFloat() && meta.getSize()==4)return "float";
         return "binary";
     }
 }

@@ -1,6 +1,6 @@
 package sgbd.query.unaryop;
 
-import sgbd.prototype.ComplexRowData;
+import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 
@@ -15,6 +15,7 @@ public class SelectColumnsOperator extends UnaryOperator{
         for (String s:
                 srcColumns) {
             String[] vals = s.split("\\.");
+            if(vals.length<2)continue;
             String[] v = {vals[0],vals[1]};
             this.srcColumns.put(s,v);
         }
@@ -28,8 +29,8 @@ public class SelectColumnsOperator extends UnaryOperator{
         for(Map.Entry<String,String[]> srcColumn:srcColumns.entrySet()){
             String src = srcColumn.getValue()[0];
             String column = srcColumn.getValue()[1];
-            ComplexRowData row = t.getContent(src);
-            newT.getContent(src).setBData(column,row.getBData(column),row.getMeta(column));
+            RowData row = t.getContent(src);
+            newT.getContent(src).setField(column,row.getField(column),row.getMetadata(column));
         }
         return newT;
     }

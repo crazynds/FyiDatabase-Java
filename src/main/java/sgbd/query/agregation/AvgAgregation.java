@@ -1,7 +1,7 @@
 package sgbd.query.agregation;
 
+import sgbd.prototype.RowData;
 import sgbd.prototype.column.Column;
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.query.Tuple;
 import sgbd.util.global.Util;
 
@@ -27,17 +27,17 @@ public class AvgAgregation extends AgregationOperation{
 
     @Override
     public void initialize(Tuple accumulator) {
-        ComplexRowData row = accumulator.getContent(uniqueSourceName);
+        RowData row = accumulator.getContent(uniqueSourceName);
         row.setDouble("sum",0);
         row.setLong("qtd",0);
     }
 
     @Override
     public void process(Tuple accumulator, Tuple newData){
-        ComplexRowData row = accumulator.getContent(uniqueSourceName);
+        RowData row = accumulator.getContent(uniqueSourceName);
         double sum = row.getDouble("sum");
         long qtd = row.getLong("qtd");
-        Column meta = newData.getContent(sourceSrc).getMeta(columnSrc);
+        Column meta = newData.getContent(sourceSrc).getMetadata(columnSrc);
         if(meta==null)return;
         switch (Util.typeOfColumn(meta)){
             case "int":
@@ -65,7 +65,7 @@ public class AvgAgregation extends AgregationOperation{
 
     @Override
     public void finalize(Tuple accumulator) {
-        ComplexRowData row = accumulator.getContent(uniqueSourceName);
+        RowData row = accumulator.getContent(uniqueSourceName);
         double sum = row.getDouble("sum");
         long qtd = row.getLong("qtd");
         double result = (qtd>0)?(sum / qtd):0;

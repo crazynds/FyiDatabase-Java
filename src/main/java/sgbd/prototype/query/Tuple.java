@@ -1,23 +1,23 @@
 package sgbd.prototype.query;
 
 import sgbd.prototype.BData;
-import sgbd.prototype.ComplexRowData;
 import sgbd.prototype.RowData;
+import sgbd.prototype.query.fields.Field;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Comparable<Tuple>{
+public class Tuple implements Iterable<Map.Entry<String, RowData>>,Comparable<Tuple>{
 
-    private static ComplexRowData emptyRowData = new ComplexRowData();
+    private static RowData emptyRowData = new RowData();
 
     // users -> dados da linha
     // cidades -> dados da linha
     // users.id
     // cidades.id
     // users2.id
-    private HashMap<String, ComplexRowData> sources;
+    private HashMap<String, RowData> sources;
 
     public Tuple(){
         sources = new HashMap<>();
@@ -26,26 +26,26 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
 
     public Tuple(Tuple left, Tuple right){
         sources = new HashMap<>();
-        for (Map.Entry<String, ComplexRowData> entry:
+        for (Map.Entry<String, RowData> entry:
                 left) {
             this.setContent(entry.getKey(),entry.getValue().clone());
         }
-        for (Map.Entry<String, ComplexRowData> entry:
+        for (Map.Entry<String, RowData> entry:
                 right) {
             this.setContent(entry.getKey(),entry.getValue().clone());
         }
     }
 
-    public void setContent(String asName,ComplexRowData data){
+    public void setContent(String asName,RowData data){
         if(data==null){
             sources.remove(asName);
             return;
         }
-        ComplexRowData row = sources.get(asName);
+        RowData row = sources.get(asName);
         if(row!=null){
-            for (Map.Entry<String, BData> column:
+            for (Map.Entry<String, Field> column:
                     data) {
-                row.setBData(column.getKey(), column.getValue(),row.getMeta(column.getKey()));
+                row.setField(column.getKey(), column.getValue(),row.getMetadata(column.getKey()));
             }
         }else{
             sources.put(asName,data);
@@ -53,7 +53,7 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
     }
 
     public int compareTo(Tuple t){
-        for(Map.Entry<String,ComplexRowData> rowData: this){
+        for(Map.Entry<String,RowData> rowData: this){
             RowData row = t.getContent(rowData.getKey());
             int val = row.compareTo(rowData.getValue());
             if(val!=0)return val;
@@ -61,10 +61,10 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
         return 0;
     }
 
-    public ComplexRowData getContent(String name){
-        ComplexRowData rd=sources.get(name);
+    public RowData getContent(String name){
+        RowData rd=sources.get(name);
         if(rd == null){
-            rd=new ComplexRowData();
+            rd=new RowData();
             sources.put(name,rd);
         }
         return rd;
@@ -72,7 +72,7 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
 
     public Tuple clone(){
         Tuple t = new Tuple();
-        for (Map.Entry<String, ComplexRowData> source:
+        for (Map.Entry<String, RowData> source:
              sources.entrySet()) {
             t.setContent(source.getKey(),source.getValue().clone());
         }
@@ -84,17 +84,17 @@ public class Tuple implements Iterable<Map.Entry<String,ComplexRowData>>,Compara
     }
 
     @Override
-    public Iterator<Map.Entry<String, ComplexRowData>> iterator() {
+    public Iterator<Map.Entry<String, RowData>> iterator() {
         return sources.entrySet().iterator();
     }
 
     public int byteSize(){
         int size = 0;
-        for (Map.Entry<String,ComplexRowData> row:
+        for (Map.Entry<String,RowData> row:
             sources.entrySet()) {
-            for (Map.Entry<String,BData> data:
+            for (Map.Entry<String,Field> data:
                  row.getValue()) {
-                size+=data.getValue().length();
+                size+=data.getValue().getBData().length();
             }
         }
         return size;

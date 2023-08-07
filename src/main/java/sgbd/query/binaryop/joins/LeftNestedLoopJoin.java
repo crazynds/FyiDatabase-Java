@@ -8,11 +8,10 @@ import sgbd.util.interfaces.ComparableFilter;
 public class LeftNestedLoopJoin extends NestedLoopJoin{
 
     protected int qtdFinded = 0;
+
+    @Deprecated
     public LeftNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
         super(left, right, comparator);
-    }
-    public LeftNestedLoopJoin(Operator left, Operator right) {
-        super(left, right);
     }
 
     @Override

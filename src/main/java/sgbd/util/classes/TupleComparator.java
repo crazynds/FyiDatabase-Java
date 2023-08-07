@@ -30,7 +30,7 @@ public class TupleComparator implements Comparator<Tuple>{
     @Override
     public int compare(Tuple t1, Tuple t2) {
         if(resource==null)return t1.compareTo(t2);
-        Column column = t1.getContent(resource.getSource()).getMeta(resource.getColumn());
+        Column column = t1.getContent(resource.getSource()).getMetadata(resource.getColumn());
         switch (Util.typeOfColumn(column)){
             case "int":
                 Integer i1 = t1.getContent(resource.getSource()).getInt(resource.getColumn());

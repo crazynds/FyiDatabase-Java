@@ -9,6 +9,8 @@ import engine.virtualization.record.manager.FixedRecordManager;
 import engine.virtualization.record.manager.RecordManager;
 import sgbd.prototype.*;
 import sgbd.prototype.column.Column;
+import sgbd.prototype.metadata.Metadata;
+import sgbd.prototype.query.fields.Field;
 import sgbd.table.components.Header;
 import sgbd.table.components.RowIterator;
 
@@ -106,7 +108,7 @@ public class DoubleTable extends Table{
             dataRow.setLong("_ id _",maxIdData++);
         this.dataTranslator.validateRowData(dataRow);
         if(dataRow.getData("_ ref _")==null)
-            indexRow.setData("_ ref _",dataRow.getData("_ id _"));
+            indexRow.setLong("_ ref _",dataRow.getLong("_ id _"));
         this.indexTranslator.validateRowData(indexRow);
     }
 
@@ -119,9 +121,9 @@ public class DoubleTable extends Table{
         for (Column c:
                 startedPrototype) {
             if (c.isPrimaryKey()) {
-                index.setData(c.getName(),r.getData(c.getName()));
+                index.setField(c.getName(),r.getField(c.getName()));
             } else {
-                data.setData(c.getName(),r.getData(c.getName()));
+                data.setField(c.getName(),r.getField(c.getName()));
             }
         }
         this.prepare(index,data);
@@ -141,9 +143,9 @@ public class DoubleTable extends Table{
             for (Column c:
                     startedPrototype) {
                 if (c.isPrimaryKey()) {
-                    index.setData(c.getName(),r.getData(c.getName()));
+                    index.setField(c.getName(),r.getField(c.getName()));
                 } else {
-                    data.setData(c.getName(),r.getData(c.getName()));
+                    data.setField(c.getName(),r.getField(c.getName()));
                 }
             }
             this.prepare(index,data);
@@ -154,43 +156,43 @@ public class DoubleTable extends Table{
         this.index.write(indexList);
     }
 
-    private ComplexRowData mountRowData(Record indexRecord,Map<String,Column> metaInfo){
-        ComplexRowData rowComplex = new ComplexRowData();
-        ComplexRowData row = this.indexTranslator.convertToRowData(indexRecord,metaInfo);
+    private RowData mountRowData(Record indexRecord,Map<String,Column> metaInfo){
+        RowData rowComplex = new RowData();
+        RowData row = this.indexTranslator.convertToRowData(indexRecord,metaInfo);
 
-        BigInteger ref = null;
+        Long ref = null;
 
-        for(Map.Entry<String,BData> data:row){
+        for(Map.Entry<String,Field> data:row){
             if(data.getKey() == "_ ref _") {
-                ref = data.getValue().getBigInteger();
+                ref = data.getValue().getLong();
             }else{
                 if(metaInfo.containsKey(data.getKey()))
-                    rowComplex.setBData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
+                    rowComplex.setField(data.getKey(), data.getValue(),row.getMetadata(data.getKey()));
             }
         }
         if(ref==null)throw new DataBaseException("DoubleTable->mountRowData","Referencia nao encontrada para a montagem do dado");
-        Record dataRecord = this.data.read(ref);
+        Record dataRecord = this.data.read(BigInteger.valueOf(ref));
 
         row = this.dataTranslator.convertToRowData(dataRecord,metaInfo);
-        for(Map.Entry<String,BData> data:row){
+        for(Map.Entry<String,Field> data:row){
             if(data.getKey()=="_ id _"){
                 //ignore;
             }else{
                 if(metaInfo.containsKey(data.getKey()))
-                    rowComplex.setBData(data.getKey(), data.getValue(), row.getMeta(data.getKey()));
+                    rowComplex.setField(data.getKey(), data.getValue(), row.getMetadata(data.getKey()));
             }
         }
         return rowComplex;
     }
 
     @Override
-    public ComplexRowData find(BigInteger pk) {
+    public RowData find(BigInteger pk) {
         Record record = index.read(pk);
         return this.mountRowData(record,this.translatorApi.generateMetaInfo(null));
     }
 
     @Override
-    public ComplexRowData find(BigInteger pk, List<String> colunas) {
+    public RowData find(BigInteger pk, List<String> colunas) {
         Record record = index.read(pk);
         return this.mountRowData(record,this.translatorApi.generateMetaInfo(colunas));
     }
@@ -205,7 +207,7 @@ public class DoubleTable extends Table{
         Record recordIndex = index.read(pk);
         RowData row = this.indexTranslator.convertToRowData(recordIndex, this.indexTranslator.generateMetaInfo(Arrays.asList("_ ref _")));
         Record recordData = data.read(Util.convertByteArrayToNumber(row.getData("_ ref _")));
-        ComplexRowData rowData = this.mountRowData(recordIndex,null);
+        RowData rowData = this.mountRowData(recordIndex,null);
         this.indexTranslator.setActiveRecord(recordIndex,false);
         this.indexTranslator.setActiveRecord(recordData,false);
         index.write(recordIndex);
@@ -244,7 +246,7 @@ public class DoubleTable extends Table{
             }
 
             @Override
-            public Map.Entry<BigInteger, ComplexRowData> nextWithPk() {
+            public Map.Entry<BigInteger, RowData> nextWithPk() {
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
@@ -265,7 +267,7 @@ public class DoubleTable extends Table{
             }
 
             @Override
-            public ComplexRowData next() {
+            public RowData next() {
                 if(!started)start();
                 if(recordStream==null)return null;
                 Record record = recordStream.next();
