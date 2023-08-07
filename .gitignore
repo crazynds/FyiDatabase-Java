@@ -6,3 +6,5 @@ target
 *.temp
 *.head
 *.csv
+.project
+.settings
