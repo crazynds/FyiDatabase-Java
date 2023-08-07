@@ -1,14 +1,14 @@
 package lib.booleanexpression.entities.expressions;
 
-import enums.Result;
-import lib.booleanexpression.entities.elements.Variable;
-import lib.booleanexpression.entities.elements.Element;
-import enums.RelationalOperator;
-import lib.booleanexpression.entities.elements.Value;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import lib.booleanexpression.entities.elements.Element;
+import lib.booleanexpression.entities.elements.Value;
+import lib.booleanexpression.entities.elements.Variable;
+import lib.booleanexpression.enums.RelationalOperator;
+import lib.booleanexpression.enums.Result;
 
 public class AtomicExpression extends BooleanExpression{
 

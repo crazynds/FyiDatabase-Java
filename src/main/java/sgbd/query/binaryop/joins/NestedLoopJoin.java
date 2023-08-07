@@ -1,15 +1,11 @@
 package sgbd.query.binaryop.joins;
 
-import enums.Result;
-import lib.booleanexpression.entities.expressions.AtomicExpression;
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.info.Query;
-import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
+import sgbd.query.Operator;
 import sgbd.query.binaryop.SimpleBinaryOperator;
 import sgbd.util.interfaces.ComparableFilter;
-
-import java.util.Comparator;
 
 public class NestedLoopJoin extends SimpleBinaryOperator {
     protected Tuple currentLeftTuple=null;

@@ -1,9 +1,13 @@
 package lib.booleanexpression.entities.expressions;
 
-import enums.Result;
-import lib.booleanexpression.enums.LogicalOperator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
-import java.util.*;
+import lib.booleanexpression.enums.LogicalOperator;
+import lib.booleanexpression.enums.Result;
 
 public class LogicalExpression extends BooleanExpression implements Iterable<BooleanExpression> {
 

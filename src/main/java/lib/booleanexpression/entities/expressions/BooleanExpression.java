@@ -1,9 +1,13 @@
 package lib.booleanexpression.entities.expressions;
 
-import lib.booleanexpression.entities.elements.Variable;
-import enums.Result;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
-import java.util.*;
+import lib.booleanexpression.entities.elements.Variable;
+import lib.booleanexpression.enums.Result;
 
 public abstract class BooleanExpression {
 
