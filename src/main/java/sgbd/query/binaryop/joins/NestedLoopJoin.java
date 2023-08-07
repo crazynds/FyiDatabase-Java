@@ -1,6 +1,6 @@
 package sgbd.query.binaryop.joins;
 
-import enums.Result;
+import lib.booleanexpression.enums.*;
 import lib.booleanexpression.entities.expressions.AtomicExpression;
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.info.Query;

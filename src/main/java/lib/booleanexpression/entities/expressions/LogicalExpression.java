@@ -1,7 +1,6 @@
 package lib.booleanexpression.entities.expressions;
 
-import enums.Result;
-import enums.LogicalOperator;
+import lib.booleanexpression.enums.*;
 
 import java.util.*;
 

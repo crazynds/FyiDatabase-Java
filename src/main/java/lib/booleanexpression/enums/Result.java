@@ -1,4 +1,4 @@
-package enums;
+package lib.booleanexpression.enums;
 
 public enum Result {
     TRUE,

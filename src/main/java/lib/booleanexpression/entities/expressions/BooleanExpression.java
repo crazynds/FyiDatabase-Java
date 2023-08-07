@@ -1,7 +1,7 @@
 package lib.booleanexpression.entities.expressions;
 
 import lib.booleanexpression.entities.elements.Variable;
-import enums.Result;
+import lib.booleanexpression.enums.*;
 
 import java.util.*;
 
