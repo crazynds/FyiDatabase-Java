@@ -1,12 +1,12 @@
-package entities.constructor;
-
-import entities.expressions.BooleanExpression;
-import entities.expressions.LogicalExpression;
-import enums.LogicalOperator;
+package lib.booleanexpression.entities.constructor;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+
+import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.entities.expressions.LogicalExpression;
+import lib.booleanexpression.enums.LogicalOperator;
 
 public class ExpressionConstructor {
 

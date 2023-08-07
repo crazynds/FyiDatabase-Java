@@ -1,4 +1,4 @@
-package entities.constructor;
+package lib.booleanexpression.entities.constructor;
 
 public abstract class CallbackExpressionConstructor {
 

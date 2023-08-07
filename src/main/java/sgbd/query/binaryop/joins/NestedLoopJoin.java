@@ -1,10 +1,5 @@
 package sgbd.query.binaryop.joins;
 
-<<<<<<< HEAD
-import lib.booleanexpression.enums.*;
-import lib.booleanexpression.entities.expressions.AtomicExpression;
-=======
->>>>>>> 796327d7f84435b846366ee517f373a47b7a23dc
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.info.Query;
 import sgbd.prototype.query.Tuple;
