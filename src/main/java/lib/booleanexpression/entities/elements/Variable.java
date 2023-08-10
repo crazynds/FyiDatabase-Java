@@ -2,31 +2,21 @@ package lib.booleanexpression.entities.elements;
 
 public class Variable extends Element{
 
-    private final String columnName;
-    private final String columnSource;
+    private final String name;
 
-    public Variable(String columnSource,String columnName){
+    public Variable(String name){
 
-        this.columnName = columnName;
-        this.columnSource = columnSource;
-
+    	this.name = name;
+    	
     }
 
-    public String getColumnName(){
-        return columnName;
-    }
-
-    public String getColumnSource(){
-        return columnSource;
-    }
-
-    public String getSourceAndColumn(){
-        return columnSource+"."+columnName;
+    public String getName(){
+        return name;
     }
 
     @Override
     public String toString(){
-        return getSourceAndColumn();
+        return getName();
     }
 
 }
