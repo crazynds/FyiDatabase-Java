@@ -9,6 +9,8 @@ import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.enums.RelationalOperator;
 import lib.booleanexpression.enums.Result;
+import sgbd.prototype.query.Tuple;
+import sgbd.prototype.query.fields.Field;
 
 public class AtomicExpression extends BooleanExpression{
 
@@ -41,85 +43,37 @@ public class AtomicExpression extends BooleanExpression{
         return secondElement instanceof Variable;
     }
 
-    public boolean hasColumn(){
-        return isFirstElementAColumn() || isSecondElementAColumn();
-    }
-
-    public List<Variable> getAllColumns(){
-
-        if(!hasColumn()) return List.of();
-
-        List<Variable> allVariables = new ArrayList<>();
-
-        if(isFirstElementAColumn())
-            allVariables.add((Variable) firstElement);
-
-        if(isSecondElementAColumn())
-            allVariables.add((Variable) secondElement);
-
-        return allVariables;
-
-    }
-
-    public List<Variable> getMandatoryVariables() {
-
-        if(!hasColumn()) return List.of();
-
-        List<Variable> mandatoryVariables = new ArrayList<>();
-
-        if(isFirstElementAColumn())
-            mandatoryVariables.add((Variable) firstElement);
-
-        if(isSecondElementAColumn())
-            mandatoryVariables.add((Variable) secondElement);
-
-        return mandatoryVariables;
-
-    }
-
-    public Result solve(){
+    public Result solve(Tuple t){
         AtomicExpression expression = this;
-        if(expression.hasColumn()){
-            if(expression.isFirstElementAColumn() && !columnHasValue((Variable) expression.getFirstElement()))
-                return Result.NOT_READY;
-            if(expression.isSecondElementAColumn() && !columnHasValue((Variable) expression.getSecondElement()))
-                return Result.NOT_READY;
+        Field obj1 = null,obj2 = null;
+        if(firstElement instanceof Variable firstVar){
+            String[] names = firstVar.getName().split(" ");
+            obj1 = t.getField(names);
+        }else{
+            // Como saber o tipo do field estático???
+        }
+        if(secondElement instanceof Variable secondVar){
+            String[] names = secondVar.getName().split(" ");
+            obj2 = t.getField(names);
+
+        }else{
+            // Como saber o tipo do field estático???
         }
 
-        Object obj1 = expression.isFirstElementAColumn() ? columns.get(expression.getFirstElement()) :
-                ((Value)expression.getFirstElement()).getValue();
+        if(obj1==null || obj2==null)return Result.NOT_READY;
 
-        Object obj2 = expression.isSecondElementAColumn() ? columns.get(expression.getSecondElement()) :
-                ((Value)expression.getSecondElement()).getValue();
+        int compareResult = obj1.compareTo(obj2);
 
-        if(!Objects.equals(obj1.getClass(), obj2.getClass())) return Result.FALSE;
-
-
-        if (obj1 instanceof Comparable) {
-            int compareResult = ((Comparable) obj1).compareTo(obj2);
-
-            return switch (expression.getRelationalOperator()) {
-                case LESS_THAN -> Result.evaluate(compareResult < 0);
-                case GREATER_THAN -> Result.evaluate(compareResult > 0);
-                case GREATER_THAN_OR_EQUAL -> Result.evaluate(compareResult >= 0);
-                case LESS_THAN_OR_EQUAL -> Result.evaluate(compareResult <= 0);
-                case EQUAL -> Result.evaluate(compareResult == 0);
-                case NOT_EQUAL -> Result.evaluate(compareResult != 0);
-                case IS -> Result.evaluate(true);
-                case IS_NOT -> Result.evaluate(false);
-            };
-        } else {
-            throw new UnsupportedOperationException("Objects are not comparable");
-        }
-
-    }
-
-    public Element getFirstElement() {
-        return firstElement;
-    }
-
-    public Element getSecondElement() {
-        return secondElement;
+        return switch (expression.getRelationalOperator()) {
+            case LESS_THAN -> Result.evaluate(compareResult < 0);
+            case GREATER_THAN -> Result.evaluate(compareResult > 0);
+            case GREATER_THAN_OR_EQUAL -> Result.evaluate(compareResult >= 0);
+            case LESS_THAN_OR_EQUAL -> Result.evaluate(compareResult <= 0);
+            case EQUAL -> Result.evaluate(compareResult == 0);
+            case NOT_EQUAL -> Result.evaluate(compareResult != 0);
+            case IS -> Result.evaluate(true);
+            case IS_NOT -> Result.evaluate(false);
+        };
     }
 
     public RelationalOperator getRelationalOperator() {

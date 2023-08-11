@@ -1,6 +1,8 @@
 package lib.booleanexpression.entities.expressions;
 
 import lib.booleanexpression.enums.*;
+import sgbd.prototype.query.Tuple;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,7 +43,7 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
         this(logicalOperator, booleanValue, List.of(expressions));
     }
 
-    public Result solve(){
+    public Result solve(Tuple t){
         LogicalOperator operator = this.getLogicalOperator();
         Result anticipatedResult = Objects.equals(operator, LogicalOperator.OR) ? Result.TRUE : Result.FALSE;
 
@@ -49,12 +51,12 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
         for(BooleanExpression expression : this.getExpressions()) {
 
-            Result atomicResult = expression.solve();
+            Result atomicResult = expression.solve(t);
+            if(expression.isFalse())atomicResult = atomicResult.invert();
 
             if(Objects.equals(atomicResult, anticipatedResult)) return anticipatedResult;
             if(Objects.equals(atomicResult, Result.NOT_READY)) hasNotReadyVariables = true;
         }
-
 
         return hasNotReadyVariables ? Result.NOT_READY : (anticipatedResult.val() ? Result.TRUE : Result.FALSE);
 
@@ -70,22 +72,6 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
     public boolean isOr() {
         return LogicalOperator.OR.equals(logicalOperator);
-    }
-
-    public boolean hasAtomicExp() {
-        return expressions.stream().anyMatch(x -> x instanceof AtomicExpression);
-    }
-
-    public boolean hasColumn(){
-        for(BooleanExpression exp : expressions){
-
-            if(exp instanceof AtomicExpression atomic && atomic.hasColumn()) return true;
-
-            if(exp instanceof LogicalExpression log && log.hasColumn()) return true;
-
-        }
-
-        return false;
     }
 
     public List<BooleanExpression> getExpressions(){

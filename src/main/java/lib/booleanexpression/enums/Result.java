@@ -8,6 +8,11 @@ public enum Result {
     public boolean val(){
         return (this == TRUE);
     }
+    public Result invert(){
+        if(this==NOT_READY)return this;
+        if(this==TRUE)return Result.FALSE;
+        return Result.TRUE;
+    }
     public static Result evaluate(Boolean condition){
 
         if(condition) return TRUE;

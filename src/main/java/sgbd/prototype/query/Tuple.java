@@ -3,6 +3,7 @@ package sgbd.prototype.query;
 import sgbd.prototype.BData;
 import sgbd.prototype.RowData;
 import sgbd.prototype.query.fields.Field;
+import sgbd.prototype.query.fields.NullField;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,11 +29,11 @@ public class Tuple implements Iterable<Map.Entry<String, RowData>>,Comparable<Tu
         sources = new HashMap<>();
         for (Map.Entry<String, RowData> entry:
                 left) {
-            this.setContent(entry.getKey(),entry.getValue().clone());
+            this.setContent(entry.getKey(),entry.getValue());
         }
         for (Map.Entry<String, RowData> entry:
                 right) {
-            this.setContent(entry.getKey(),entry.getValue().clone());
+            this.setContent(entry.getKey(),entry.getValue());
         }
     }
 
@@ -48,8 +49,22 @@ public class Tuple implements Iterable<Map.Entry<String, RowData>>,Comparable<Tu
                 row.setField(column.getKey(), column.getValue(),row.getMetadata(column.getKey()));
             }
         }else{
-            sources.put(asName,data);
+            sources.put(asName,data.clone());
         }
+    }
+
+    public Field getField(String[] splited){
+        if(splited.length==1)
+            for (Map.Entry<String,RowData> row:
+                 sources.entrySet()) {
+                Field f = row.getValue().getField(splited[0]);
+                if(f!=null)return f;
+            }
+        else{
+            Field f = sources.get(splited[0]).getField(splited[1]);
+            if(f!=null)return f;
+        }
+        return NullField.generic;
     }
 
     public int compareTo(Tuple t){
