@@ -50,14 +50,14 @@ public class AtomicExpression extends BooleanExpression{
             String[] names = firstVar.getName().split(" ");
             obj1 = t.getField(names);
         }else{
-            // Como saber o tipo do field estático???
+            obj1 = ((Value)firstElement).getField();
         }
         if(secondElement instanceof Variable secondVar){
             String[] names = secondVar.getName().split(" ");
             obj2 = t.getField(names);
 
         }else{
-            // Como saber o tipo do field estático???
+            obj2 = ((Value)secondElement).getField();
         }
 
         if(obj1==null || obj2==null)return Result.NOT_READY;

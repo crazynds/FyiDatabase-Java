@@ -2,6 +2,7 @@ package sgbd;
 
 import sgbd.prototype.*;
 import sgbd.prototype.column.Column;
+import sgbd.prototype.column.StringColumn;
 import sgbd.table.Table;
 import sgbd.table.components.Header;
 
@@ -16,7 +17,7 @@ public class MainTest {
 
         Prototype p2 = new Prototype();
         p2.addColumn("id",4, Column.PRIMARY_KEY);
-        p2.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
+        p2.addColumn(new StringColumn("nome",(short)255));
 
         Table tableCidades = Table.openTable(new Header(p2,name),true);
         tableCidades.open();

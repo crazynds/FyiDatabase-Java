@@ -1,23 +1,25 @@
 package lib.booleanexpression.entities.elements;
 
+import sgbd.prototype.query.fields.Field;
+
 import java.util.Objects;
 
 public class Value extends Element{
 
-    private final Object value;
+    private final Field value;
 
-    public Value(Object value){
+    public Value(Field f){
 
-        this.value = value;
+        this.value = f;
 
     }
 
-    public Object getValue() {
+    public Field getField() {
         return value;
     }
 
     @Override
     public String toString() {
-        return Objects.toString(value);
+        return value.toString();
     }
 }

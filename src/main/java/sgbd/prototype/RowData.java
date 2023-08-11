@@ -52,11 +52,11 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 	}
 	public void setInt(String column,int data) {
 		BData bdata = new BData(UtilConversor.intToByteArray(data));
-		this.setField(column, Field.createField(new IntegerMetadata(),bdata));
+		this.setField(column, Field.createField(IntegerMetadata.generic,bdata));
 	}
 	public void setLong(String column,long data) {
 		BData bdata = new BData(UtilConversor.longToByteArray(data));
-		this.setField(column, Field.createField(new LongMetadata(),bdata));
+		this.setField(column, Field.createField(LongMetadata.generic,bdata));
 	}
 	public void setString(String column,String data) {
 		BData bdata = new BData(UtilConversor.stringToByteArray(data));
@@ -64,15 +64,15 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 	}
 	public void setFloat(String column,float data) {
 		BData bdata = new BData(UtilConversor.floatToByteArray(data));
-		this.setField(column, Field.createField(new FloatMetadata(),bdata));
+		this.setField(column, Field.createField(FloatMetadata.generic,bdata));
 	}
 	public void setDouble(String column,double data) {
 		BData bdata = new BData(UtilConversor.doubleToByteArray(data));
-		this.setField(column, Field.createField(new DoubleMetadata(),bdata));
+		this.setField(column, Field.createField(DoubleMetadata.generic,bdata));
 	}
 	public void setBoolean(String column,boolean data) {
 		BData bdata = new BData(new byte[]{(byte) (data ? 1 : 0)});
-		this.setField(column, Field.createField(new BooleanMetadata(),bdata));
+		this.setField(column, Field.createField(BooleanMetadata.generic,bdata));
 	}
 
 	public void setInt(String column, int data, Column meta) {

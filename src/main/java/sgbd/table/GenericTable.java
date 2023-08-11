@@ -49,6 +49,7 @@ public abstract class GenericTable extends Table{
         for (RowData row: r){
             translatorApi.validateRowData(row);
             Record record = translatorApi.convertToRecord(row);
+
             list.add(record);
         }
         this.manager.write(list);

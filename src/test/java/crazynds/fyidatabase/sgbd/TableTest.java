@@ -3,6 +3,9 @@ package crazynds.fyidatabase.sgbd;
 import org.junit.Test;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
+import sgbd.prototype.column.FloatColumn;
+import sgbd.prototype.column.IntegerColumn;
+import sgbd.prototype.column.StringColumn;
 import sgbd.table.Table;
 import sgbd.table.components.Header;
 import sgbd.test.ConsistenceTest;
@@ -16,13 +19,13 @@ public class TableTest {
     protected void testConsistence(String tableType){
         HashMap<String,String> mapa = new HashMap<>();
         Prototype p1 = new Prototype();
-        p1.addColumn("id",4, Column.PRIMARY_KEY);
+        p1.addColumn(new IntegerColumn("id", true));
         mapa.put("id","int");
-        p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
+        p1.addColumn(new StringColumn("nome",(short)255));
         mapa.put("nome","string");
-        p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
+        p1.addColumn(new IntegerColumn("idade",false,true));
         mapa.put("idade","int");
-        p1.addColumn("salario",4,Column.FLOATING_POINT);
+        p1.addColumn(new FloatColumn("salario"));
         mapa.put("salario","float");
         Header h = new Header(p1,"users");
         h.set(Header.TABLE_TYPE,tableType);

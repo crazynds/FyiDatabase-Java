@@ -1,5 +1,6 @@
 package sgbd.query.binaryop.joins;
 
+import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
@@ -22,6 +23,10 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
     @Deprecated
     public BlockNestedLoopJoin(Operator left, Operator right,ComparableFilter<Tuple> comparator) {
         super(left, right,comparator);
+    }
+
+    public BlockNestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
+        super(left, right,expression);
     }
 
     public BlockNestedLoopJoin(Operator left, Operator right) {
@@ -73,10 +78,8 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
             }
             if(bufferedLeftTuples.size()>indexLeftTuple) {
                 leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
-                Query.COMPARE_JOIN++;
-                if(comparator==null || comparator.match(leftTuple,rightTuple)) {
-                    return new Tuple(leftTuple,rightTuple);
-                }
+                t = checkReturn(currentLeftTuple,rightTuple);
+                if(t!=null)return t;
             }else{
                 rightTuple= null;
             }

@@ -1,8 +1,13 @@
 package crazynds.fyidatabase.sgbd.query;
 
+import lib.booleanexpression.entities.elements.Value;
+import lib.booleanexpression.entities.expressions.AtomicExpression;
+import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.enums.RelationalOperator;
 import org.junit.Test;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
+import sgbd.prototype.query.fields.NullField;
 import sgbd.query.Operator;
 import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
@@ -53,8 +58,8 @@ public class OrderTest {
         Operator scan1 = new TableScan(usersTable);
         Operator scan2 = new TableScan(cidadeTable);
 
-        Operator join1 = new LeftNestedLoopJoin(scan1,scan2, null);
-        Operator join2 = new RightNestedLoopJoin(scan1,scan2, null);
+        Operator join1 = new LeftNestedLoopJoin(scan1,scan2, new AtomicExpression(new Value(NullField.generic),new Value(NullField.generic), RelationalOperator.EQUAL));
+        Operator join2 = new RightNestedLoopJoin(scan1,scan2, new AtomicExpression(new Value(NullField.generic),new Value(NullField.generic), RelationalOperator.EQUAL));
         Operator join3 = new NestedLoopJoin(scan1,scan2);
 
         ArrayList<String> arr = new ArrayList<>();

@@ -17,11 +17,12 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
         this.expression = null;
         this.comparator = null;
     }
-//    public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
-//        super(left, right);
-//        this.expression = expression;
-//        this.comparator = null;
-//    }
+
+    public NestedLoopJoin(Operator left, Operator right, BooleanExpression expression) {
+        super(left, right);
+        this.expression = expression;
+        this.comparator = null;
+    }
 
     @Deprecated
     public NestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparable) {
@@ -49,16 +50,26 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
             while(right.hasNext()){
                 Tuple rightTuple = right.next();
                 //Faz a comparação do join
-                Query.COMPARE_JOIN++;
-                //if(expression==null || expression.solve() == Result.TRUE){
-                //    return new Tuple(currentLeftTuple,rightTuple);
-                //}
-                if(comparator==null || comparator.match(currentLeftTuple,rightTuple)){
-                    return new Tuple(currentLeftTuple,rightTuple);
-                }
+                Tuple t = checkReturn(currentLeftTuple,rightTuple);
+                if(t!=null)return t;
             }
             right.close();
             currentLeftTuple=null;
+        }
+        return null;
+    }
+
+    public Tuple checkReturn(Tuple left, Tuple right){
+        Query.COMPARE_JOIN ++;
+        Tuple custom = new Tuple(left,right);
+        if(expression==null){
+            if(expression.solve(custom).val())
+                return custom;
+        }else if(comparator==null){
+            if(comparator.match(left,right))
+                return custom;
+        }else{
+            return custom;
         }
         return null;
     }
