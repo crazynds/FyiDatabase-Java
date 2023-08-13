@@ -1,13 +1,18 @@
 package sgbd.prototype.query.fields;
 
 import sgbd.prototype.BData;
+import sgbd.prototype.metadata.BooleanMetadata;
 import sgbd.prototype.metadata.Metadata;
+import sgbd.prototype.metadata.StringMetadata;
 
 public class BooleanField extends Field<Boolean>{
     public BooleanField(Metadata metadata, BData data) {
         super(metadata, data);
     }
 
+    public BooleanField(boolean value) {
+        super(BooleanMetadata.generic,value);
+    }
     @Override
     protected Boolean constructData() {
         return data.getBoolean();

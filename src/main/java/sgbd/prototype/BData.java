@@ -8,6 +8,9 @@ import java.math.BigInteger;
 public class BData {
     private byte[] data;
 
+    public BData(){
+        this.data = new byte[0];
+    }
     public BData(byte[] data){
         this.data = data;
     }

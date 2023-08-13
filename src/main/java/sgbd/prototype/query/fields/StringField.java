@@ -1,12 +1,18 @@
 package sgbd.prototype.query.fields;
 
 import sgbd.prototype.BData;
+import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
+import sgbd.prototype.metadata.StringMetadata;
 import sgbd.util.global.Util;
 
 public class StringField extends Field<String>{
     public StringField(Metadata metadata, BData data) {
         super(metadata, data);
+    }
+
+    public StringField(String str) {
+        super(new StringMetadata((short)str.length()), str);
     }
 
     @Override

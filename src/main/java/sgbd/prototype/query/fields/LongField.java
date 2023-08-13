@@ -1,6 +1,8 @@
 package sgbd.prototype.query.fields;
 
 import sgbd.prototype.BData;
+import sgbd.prototype.metadata.FloatMetadata;
+import sgbd.prototype.metadata.LongMetadata;
 import sgbd.prototype.metadata.Metadata;
 
 public class LongField extends Field<Long>{
@@ -8,6 +10,9 @@ public class LongField extends Field<Long>{
         super(metadata, data);
     }
 
+    public LongField(long value) {
+        super(LongMetadata.generic, value);
+    }
     @Override
     protected Long constructData() {
         return data.getLong();

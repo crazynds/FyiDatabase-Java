@@ -47,14 +47,12 @@ public class AtomicExpression extends BooleanExpression{
         AtomicExpression expression = this;
         Field obj1 = null,obj2 = null;
         if(firstElement instanceof Variable firstVar){
-            String[] names = firstVar.getName().split(" ");
-            obj1 = t.getField(names);
+            obj1 = t.getField(firstVar.getNames());
         }else{
             obj1 = ((Value)firstElement).getField();
         }
         if(secondElement instanceof Variable secondVar){
-            String[] names = secondVar.getName().split(" ");
-            obj2 = t.getField(names);
+            obj2 = t.getField(secondVar.getNames());
 
         }else{
             obj2 = ((Value)secondElement).getField();

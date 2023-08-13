@@ -60,7 +60,7 @@ public class Tuple implements Iterable<Map.Entry<String, RowData>>,Comparable<Tu
                 Field f = row.getValue().getField(splited[0]);
                 if(f!=null)return f;
             }
-        else{
+        else if(splited.length>1){
             Field f = sources.get(splited[0]).getField(splited[1]);
             if(f!=null)return f;
         }

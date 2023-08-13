@@ -2,6 +2,7 @@ package sgbd.prototype.query.fields;
 
 import engine.exceptions.DataBaseException;
 import sgbd.prototype.BData;
+import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
 import sgbd.util.global.Util;
 
@@ -10,6 +11,9 @@ public class IntegerField extends Field<Integer> {
     public IntegerField(Metadata col, BData data) {
         super(col, data);
         if(Util.typeOfColumn(col)!="int")throw new DataBaseException("IntField->Constructor","IntField needs to be int");
+    }
+    public IntegerField(int value) {
+        super(IntegerMetadata.generic, value);
     }
 
     @Override

@@ -1,13 +1,17 @@
 package sgbd.prototype.query.fields;
 
 import sgbd.prototype.BData;
+import sgbd.prototype.metadata.BooleanMetadata;
+import sgbd.prototype.metadata.DoubleMetadata;
 import sgbd.prototype.metadata.Metadata;
 
 public class DoubleField extends Field<Double>{
     public DoubleField(Metadata metadata, BData data) {
         super(metadata, data);
     }
-
+    public DoubleField(double value) {
+        super(DoubleMetadata.generic,value);
+    }
     @Override
     protected Double constructData() {
         return data.getDouble();

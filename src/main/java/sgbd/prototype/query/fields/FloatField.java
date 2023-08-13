@@ -1,13 +1,19 @@
 package sgbd.prototype.query.fields;
 
 import sgbd.prototype.BData;
+import sgbd.prototype.metadata.FloatMetadata;
+import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
 
 public class FloatField extends Field<Float>{
+    private Integer value = null;
     public FloatField(Metadata metadata, BData data) {
         super(metadata, data);
     }
 
+    public FloatField(float value) {
+        super(FloatMetadata.generic, value);
+    }
     @Override
     protected Float constructData() {
         return data.getFloat();

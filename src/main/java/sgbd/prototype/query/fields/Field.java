@@ -18,6 +18,12 @@ public abstract class Field<T> implements Comparable<Field>{
         //this.bufferedData = constructData();
     }
 
+    protected Field(Metadata metadata,T value){
+        this.bufferedData = value;
+        this.metadata = metadata;
+        this.data = null;
+    }
+
     public static Field createField(Metadata metadata,BData data){
         switch (Util.typeOfColumn(metadata)){
             case "boolean":

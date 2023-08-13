@@ -1,11 +1,20 @@
 package sgbd.query;
 
 import engine.info.Parameters;
+import lib.booleanexpression.entities.elements.Value;
+import lib.booleanexpression.entities.elements.Variable;
+import lib.booleanexpression.entities.expressions.AtomicExpression;
+import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.enums.RelationalOperator;
 import sgbd.info.Query;
+import sgbd.prototype.BData;
+import sgbd.prototype.metadata.IntegerMetadata;
+import sgbd.prototype.query.fields.IntegerField;
 import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
 import sgbd.table.Table;
+import sgbd.util.global.UtilConversor;
 
 import java.util.*;
 
@@ -19,15 +28,16 @@ public class Main {
         Operator movie1 = new TableScan(movie);
         Operator movie2 = new TableScan(movie);
 
-        Operator rename = new RenameSourceOperator(movie2, "filme", "filme2");
 
-        Operator leftJoin = new LeftNestedLoopJoin(movie1, rename, (t1, t2) -> {
-            return t1.getContent("filme").getInt("idFilme").equals(t2.getContent("filme2").getInt("idFilmeAnterior"));
-        });
+        BooleanExpression b = new AtomicExpression(
+                new Variable("filme.idFilme"),
+                new Value(new IntegerField(10)),
+                RelationalOperator.GREATER_THAN_OR_EQUAL);
 
-        Operator projection = new SelectColumnsOperator(leftJoin, List.of("filme.titulo","filme2.titulo"));
+        Operator filterOperator = new FilterOperator(movie1,b);
 
-        TestOperators.testOperator(projection);
+
+        TestOperators.testOperator(filterOperator);
 
         //Fecha as tables, não serão mais acessadas
 
