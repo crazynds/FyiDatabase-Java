@@ -58,7 +58,7 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
             if(Objects.equals(atomicResult, Result.NOT_READY)) hasNotReadyVariables = true;
         }
 
-        return hasNotReadyVariables ? Result.NOT_READY : (anticipatedResult.val() ? Result.TRUE : Result.FALSE);
+        return hasNotReadyVariables ? Result.NOT_READY : (anticipatedResult.val() ? Result.FALSE : Result.TRUE);
 
     }
 

@@ -5,6 +5,8 @@ import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.entities.expressions.AtomicExpression;
 import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.entities.expressions.LogicalExpression;
+import lib.booleanexpression.enums.LogicalOperator;
 import lib.booleanexpression.enums.RelationalOperator;
 import sgbd.info.Query;
 import sgbd.prototype.BData;
@@ -29,10 +31,16 @@ public class Main {
         Operator movie2 = new TableScan(movie);
 
 
-        BooleanExpression b = new AtomicExpression(
+        BooleanExpression b1 = new AtomicExpression(
                 new Variable("filme.idFilme"),
                 new Value(new IntegerField(10)),
                 RelationalOperator.GREATER_THAN_OR_EQUAL);
+        BooleanExpression b2 = new AtomicExpression(
+                new Variable("filme.idFilme"),
+                new Value(new IntegerField(4)),
+                RelationalOperator.LESS_THAN);
+
+        BooleanExpression b = new LogicalExpression(LogicalOperator.OR,b1,b2);
 
         Operator filterOperator = new FilterOperator(movie1,b);
 
