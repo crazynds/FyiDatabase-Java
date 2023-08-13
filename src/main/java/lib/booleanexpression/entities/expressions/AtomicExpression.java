@@ -77,7 +77,15 @@ public class AtomicExpression extends BooleanExpression{
     public RelationalOperator getRelationalOperator() {
         return relationalOperator;
     }
+    
+    public Element getFirstElement() {
+    	return firstElement;
+    }
 
+    public Element getSecondElement() {
+    	return secondElement;
+    }
+    
     @Override
     public String toString(){
 
