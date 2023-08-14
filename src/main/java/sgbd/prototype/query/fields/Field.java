@@ -80,4 +80,11 @@ public abstract class Field<T> implements Comparable<Field>{
 
     public abstract int compareTo(Field f);
 
+    public long bufferByteSize(){
+        if(data!=null){
+            return data.length();
+        }
+        return 0;
+    }
+
 }

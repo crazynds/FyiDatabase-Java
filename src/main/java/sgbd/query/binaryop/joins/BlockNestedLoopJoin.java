@@ -12,11 +12,11 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
 
     private ArrayList<Tuple> bufferedLeftTuples=new ArrayList<>();
     private int indexLeftTuple;
-    private int currentBufferedLeft = 0;
+    private long currentBufferedLeft = 0;
 
     private Tuple rightTuple=null;
 
-    private final int bufferSize = 4096;
+    private final long bufferSize = 4096;
     private final int maxBufferedTuples = 10;
 
 
@@ -50,8 +50,9 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
         Tuple leftTuple,t = null;
 
         //Bufferiza o left
-        while(bufferSize > currentBufferedLeft && left.hasNext()
+        while(bufferSize > currentBufferedLeft
                 && bufferedLeftTuples.size()<maxBufferedTuples
+                && left.hasNext()
         ){
             leftTuple = left.next();
             bufferedLeftTuples.add(leftTuple);
@@ -76,13 +77,12 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
                     return getNextTuple();
                 }
             }
-            if(bufferedLeftTuples.size()>indexLeftTuple) {
+            while(bufferedLeftTuples.size()>indexLeftTuple) {
                 leftTuple = bufferedLeftTuples.get(indexLeftTuple++);
-                t = checkReturn(currentLeftTuple,rightTuple);
+                t = checkReturn(leftTuple,rightTuple);
                 if(t!=null)return t;
-            }else{
-                rightTuple= null;
             }
+            rightTuple= null;
         }
         return null;
     }

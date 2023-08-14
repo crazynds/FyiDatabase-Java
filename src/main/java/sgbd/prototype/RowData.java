@@ -17,6 +17,7 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 	private Map<String, Field> data;
 	private Map<String, Column> metadata;
 	private byte checkSum = 0;
+	private long byteSize = 0;
 
 	public RowData() {
 		data=new TreeMap<>();
@@ -25,6 +26,7 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 	protected RowData(RowData cloneData) {
 		data=new TreeMap<>(cloneData.data);
 		metadata=new HashMap<>(cloneData.metadata);
+		byteSize = cloneData.byteSize;
 	}
 	private void applyChecksum(BData data){
 		if(data != null && data.length()>0){
@@ -37,10 +39,12 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 		Field currentField = this.data.get(column);
 		if(currentField != null){
 			applyChecksum(currentField.getBData());
+			byteSize -= currentField.bufferByteSize();
 		}
 		if(field == null)return;
 		this.data.put(column,field);
 		applyChecksum(field.getBData());
+		byteSize += field.bufferByteSize();
 	}
 	public void setField(String column,Field field,Column metadata){
 		setField(column,field);
@@ -159,9 +163,13 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 		if(!this.data.containsKey(column))return null;
 		return this.data.get(column).getBoolean();
 	}
-	
+
 	public int size() {
 		return this.data.size();
+	}
+
+	public long getByteSize() {
+		return this.byteSize;
 	}
 
 	private boolean valid = false;

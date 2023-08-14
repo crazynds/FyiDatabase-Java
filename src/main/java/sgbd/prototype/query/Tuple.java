@@ -103,14 +103,12 @@ public class Tuple implements Iterable<Map.Entry<String, RowData>>,Comparable<Tu
         return sources.entrySet().iterator();
     }
 
-    public int byteSize(){
-        int size = 0;
+    public long byteSize(){
+        long size = 0;
         for (Map.Entry<String,RowData> row:
             sources.entrySet()) {
-            for (Map.Entry<String,Field> data:
-                 row.getValue()) {
-                size+=data.getValue().getBData().length();
-            }
+
+            size += row.getValue().getByteSize();
         }
         return size;
     }
