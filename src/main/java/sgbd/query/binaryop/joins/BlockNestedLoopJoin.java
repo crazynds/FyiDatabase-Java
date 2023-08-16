@@ -67,7 +67,7 @@ public class BlockNestedLoopJoin extends NestedLoopJoin{
                 }else{
                     right.close();
                     right.open();
-                    if(right.hasNext()==false){
+                    if(!right.hasNext()){
                         rightTuple = null;
                         return null;
                     }

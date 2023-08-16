@@ -62,10 +62,10 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
     public Tuple checkReturn(Tuple left, Tuple right){
         Query.COMPARE_JOIN ++;
         Tuple custom = new Tuple(left,right);
-        if(expression==null){
+        if(expression!=null){
             if(expression.solve(custom).val())
                 return custom;
-        }else if(comparator==null){
+        }else if(comparator!=null){
             if(comparator.match(left,right))
                 return custom;
         }else{
