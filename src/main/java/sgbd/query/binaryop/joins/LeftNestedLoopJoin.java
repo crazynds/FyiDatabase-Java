@@ -8,7 +8,7 @@ import sgbd.util.interfaces.ComparableFilter;
 
 public class LeftNestedLoopJoin extends NestedLoopJoin{
 
-    protected int qtdFinded = 0;
+    protected boolean findAnyMatch = false;
 
     @Deprecated
     public LeftNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
@@ -22,7 +22,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
     @Override
     public void open() {
         super.open();
-        qtdFinded = 0;
+        findAnyMatch = false;
     }
 
     @Override
@@ -32,17 +32,20 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
             if(currentLeftTuple==null){
                 currentLeftTuple = left.next();
                 right.open();
-                qtdFinded = 0;
+                findAnyMatch = false;
             }
             //Loopa pelo operador direito
             while(right.hasNext()){
                 Tuple rightTuple = right.next();
                 //Faz a comparação do join
                 Tuple t =checkReturn(currentLeftTuple,rightTuple);
-                if(t!=null)return t;
+                if(t!=null){
+                    findAnyMatch |= true;
+                    return t;
+                }
             }
             right.close();
-            if(qtdFinded==0){
+            if(!findAnyMatch){
                 Tuple t = currentLeftTuple;
                 currentLeftTuple = null;
                 return t;
