@@ -66,43 +66,12 @@ public class CSVTable extends Table{
         throw new DataBaseException("CSVTable","This type of table (CSVTable) is not writable");
     }
 
-    @Override
-    public RowData find(BigInteger pk) {
-        for (RowIterator it = this.iterator(); it.hasNext(); ) {
-            Map.Entry<BigInteger, RowData> row = it.nextWithPk();
-            if(row.getKey().compareTo(pk) == 0)return row.getValue();
-        }
-        return null;
-    }
-
-    @Override
-    public RowData find(BigInteger pk, List<String> columns) {
-        for (RowIterator it = this.iterator(columns); it.hasNext(); ) {
-            Map.Entry<BigInteger, RowData> row = it.nextWithPk();
-            if(row.getKey().compareTo(pk) == 0)return row.getValue();
-        }
-        return null;
-    }
-
-    @Override
-    public RowData update(BigInteger pk, RowData r) {
-        throw new DataBaseException("CSVTable","This type of table (CSVTable) is not writable");
-    }
-
-    @Override
-    public RowData delete(BigInteger pk) {
-        throw new DataBaseException("CSVTable","This type of table (CSVTable) is not writable");
-    }
 
     @Override
     public RowIterator iterator(List<String> columns) {
         return new RowIterator() {
             RowIterator sub = iterator();
             Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
-            @Override
-            public void setPointerPk(BigInteger pk) {
-                sub.setPointerPk(pk);
-            }
 
             @Override
             public void restart() {
@@ -143,14 +112,6 @@ public class CSVTable extends Table{
             String[] headers = recognizer.getColumnNames();
 
             @Override
-            public void setPointerPk(BigInteger pk) {
-                if(pk.compareTo(currentIt) < 0) this.restart();
-                if(pk.compareTo(currentIt) < 0) throw new DataBaseException("CSVTable->iterator->setPointerPk","PK informada é menor que a menor primary key alcançavel");
-                while(pk.compareTo(currentIt)>0 && hasNext())
-                    next();
-            }
-
-            @Override
             public void unlock() {
             }
 
@@ -178,7 +139,7 @@ public class CSVTable extends Table{
                         String columnName = columns[x];
                         if(c.getName().compareToIgnoreCase(columnName) != 0)continue;
                         String val = data[x];
-                        if(val == null || val.isEmpty() || val.strip().isEmpty()){
+                        if(val == null || val.compareToIgnoreCase("null")==0 || val.isEmpty() || val.strip().isEmpty()){
                             rowData.setField(c.getName(),new NullField(c),c);
                             continue;
                         }

@@ -67,7 +67,7 @@ public class CSVRecognizer implements Iterable<String[]>{
                         while (tuple.size() > columnsNameArray.length)
                             tuple.remove(tuple.size() - 1);
                         while (tuple.size() < columnsNameArray.length)
-                            tuple.add("null");
+                            tuple.add(null);
                         buffer = tuple;
                         return buffer;
                     }
