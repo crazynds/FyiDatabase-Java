@@ -23,8 +23,18 @@ public class CSVTable extends Table{
     private static final String pkName = "__IDX__";
 
     private static Header prepareStuff(Header header){
+        for (Column c:header.getPrototype()) {
+            if(c.getName().compareTo(pkName)==0)return header;
+        }
         header.getPrototype().addColumn(CSVTable.pkName,8,Column.PRIMARY_KEY);
         return header;
+    }
+
+    public CSVTable(Header header) {
+        super(prepareStuff(header));
+        this.beginIndex = Integer.parseInt(header.get("beginIndex"));
+        this.separator = header.get("separator").charAt(0);
+        this.stringDelimiter = header.get("beginIndex").charAt(0);
     }
     public CSVTable(Header header,char separator, char stringDelimiter, int beginIndex) {
         super(prepareStuff(header));
