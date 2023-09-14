@@ -2,17 +2,17 @@ package sgbd.query.sourceop;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
-import sgbd.table.Table;
+import sgbd.source.Source;
 
 import java.util.List;
 
 public abstract class SourceOperator implements Operator {
 
-    protected Table table;
+    protected Source source;
     protected String asName;
-    public SourceOperator(Table table){
-        this.table = table;
-        this.asName= table.getTableName();
+    public SourceOperator(Source source){
+        this.source = source;
+        this.asName= source.getSourceName();
     }
 
 
@@ -28,8 +28,8 @@ public abstract class SourceOperator implements Operator {
         return asName;
     }
 
-    public List<Table> getSources(){
-        return List.of(table);
+    public List<Source> getSources(){
+        return List.of(source);
     }
 
     @Override

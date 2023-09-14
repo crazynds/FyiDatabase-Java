@@ -9,8 +9,8 @@ import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.query.sourceop.TableScan;
-import sgbd.table.Table;
-import sgbd.table.components.Header;
+import sgbd.source.table.Table;
+import sgbd.source.components.Header;
 
 import java.io.File;
 import java.io.IOException;

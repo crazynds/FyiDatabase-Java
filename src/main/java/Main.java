@@ -1,4 +1,4 @@
-import sgbd.table.Table;
+import sgbd.source.table.Table;
 import sgbd.util.classes.CSVRecognizer;
 import sgbd.util.classes.InvalidCsvException;
 

@@ -3,8 +3,8 @@ package sgbd;
 import sgbd.prototype.*;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.column.StringColumn;
-import sgbd.table.Table;
-import sgbd.table.components.Header;
+import sgbd.source.table.Table;
+import sgbd.source.components.Header;
 
 import java.io.IOException;
 import java.util.Iterator;

@@ -16,10 +16,18 @@ public class Prototype implements Iterable<Column>{
 	private boolean stat;
 	
 	private int headerSize = 0;
-	
+
 	public Prototype() {
 		columns = new ArrayList<Column>();
 		stat =true;
+	}
+	public Prototype(Prototype prot) {
+		columns = new ArrayList<Column>();
+		stat =prot.stat;
+		for (Column c:
+			 prot) {
+			addColumn(c.getName(),c.getSize(),c.getFlags());
+		}
 	}
 
 	public void addColumn(Column c) {
@@ -28,14 +36,14 @@ public class Prototype implements Iterable<Column>{
 		columns.add(c);
 		if(c.isDinamicSize())stat=false;
 	}
-	public void addColumn(String name,short size,byte flags)  {
+	public void addColumn(String name,short size,short flags)  {
 		Column c= new Column(name, size, flags);
 		columns.add(c);
 		if(c.isDinamicSize())stat=false;
 	}
 
 	public void addColumn(String name, int size, int flag)  {
-		addColumn(name, (short)size,(byte)flag);
+		addColumn(name, (short)size,(short)flag);
 	}
 	
 	public boolean isStatic() {

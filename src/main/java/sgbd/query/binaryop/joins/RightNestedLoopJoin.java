@@ -3,7 +3,7 @@ package sgbd.query.binaryop.joins;
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
-import sgbd.table.Table;
+import sgbd.source.Source;
 import sgbd.util.interfaces.ComparableFilter;
 
 import java.util.List;
@@ -22,9 +22,9 @@ public class RightNestedLoopJoin extends LeftNestedLoopJoin{
         super(right, left, expression); // apenas inverte os operadores
     }
 
-    public List<Table> getSources(){
-        List<Table> rTable = right.getSources();
-        List<Table> lTable = left.getSources();
+    public List<Source> getSources(){
+        List<Source> rTable = right.getSources();
+        List<Source> lTable = left.getSources();
         return Stream.concat(rTable.stream(),lTable.stream()).collect(Collectors.toList());
     }
     @Override

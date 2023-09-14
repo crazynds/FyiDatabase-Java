@@ -1,0 +1,77 @@
+package sgbd.source.table;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+
+import engine.exceptions.DataBaseException;
+import sgbd.prototype.RowData;
+import sgbd.source.Source;
+import sgbd.source.components.Header;
+import sgbd.source.components.RowIterator;
+import sgbd.source.index.Index;
+
+public abstract class Table extends Source<Long> {
+
+	protected Index<Long> primaryIndex;
+
+	public Table(Header header)  {
+		super(header);
+	}
+
+	public static Table openTable(Header header){
+		return SimpleTable.openTable(header,false);
+	}
+	public static Table openTable(Header header, boolean clear){
+		header.setBool("clear",clear);
+		if(header.get(Header.TABLE_TYPE)==null)return new SimpleTable(header);
+		switch (header.get(Header.TABLE_TYPE)){
+			case "MemoryTable":
+				return new MemoryTable(header);
+			case "CSVTable":
+				return new CSVTable(header);
+			case "SimpleTable":
+			default:
+				return new SimpleTable(header);
+		}
+	}
+	public static Table loadFromHeader(String headerPath){
+		Header header;
+		try {
+			header = Header.load(headerPath);
+		}catch (IOException ex){
+			throw new DataBaseException("Table->saveHeader",ex.getMessage());
+		}
+		return openTable(header);
+	}
+
+	public Index<BigInteger> createIndex(List<String> columns){
+		return null;
+	}
+	public Index<Long> getPrimaryIndex(){
+		return primaryIndex;
+	}
+
+	/*
+		Retorna nome da table
+	 */
+	public String getSourceName(){
+		return header.get(Header.TABLE_NAME);
+	}
+
+	/*
+		Aceita apenas novos inserts, verifica chave primaria
+	 */
+	public abstract BigInteger insert(RowData r);
+	public abstract void insert(List<RowData> r);
+
+	@Override
+	public RowData findByRef(Long reference) {
+		RowIterator<Long> it = iterator(null,reference);
+		if(it.hasNext()){
+			RowData row = it.next();
+			if(it.getRefKey() == reference)return row;
+		}
+		return null;
+	}
+}

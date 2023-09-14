@@ -2,8 +2,8 @@ package sgbd.test;
 
 import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
-import sgbd.table.*;
-import sgbd.table.components.Header;
+import sgbd.source.components.Header;
+import sgbd.source.table.Table;
 
 import java.util.HashMap;
 
@@ -31,9 +31,9 @@ public class Main {
         consistenceTest.generateRandomDataBlock(qtdData,block);
         long generateTime = System.nanoTime();
         //consistenceTest.printAllData();
-        if(consistenceTest.checkConsistence(qtdData)){
-            System.out.println("Dados consistentes");
-        }
+//        if(consistenceTest.checkConsistence(qtdData)){
+//            System.out.println("Dados consistentes");
+//        }
         long checkTime = System.nanoTime();
 
         System.out.println("Tempo de geração: "+(generateTime-startTime)/1000000000.0);

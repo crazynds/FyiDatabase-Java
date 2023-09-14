@@ -2,7 +2,7 @@ package sgbd.query.unaryop;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
-import sgbd.table.Table;
+import sgbd.source.Source;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ public abstract class UnaryOperator implements Operator {
     }
 
 
-    public List<Table> getSources(){
+    public List<Source> getSources(){
         return operator.getSources();
     }
 

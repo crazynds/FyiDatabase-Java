@@ -1,11 +1,9 @@
 package sgbd.test;
 
 import sgbd.prototype.RowData;
-import sgbd.table.Table;
-import sgbd.table.components.RowIterator;
+import sgbd.source.table.Table;
 import sgbd.util.global.Faker;
 
-import java.math.BigInteger;
 import java.util.*;
 
 public class ConsistenceTest {
@@ -48,108 +46,108 @@ public class ConsistenceTest {
             this.table.insert(list);
         //System.out.println("["+qtdData+"/"+qtdData+"] Todas as entradas geradas");
     }
-    public boolean checkConsistence(int qtdData){
-        Random r = new Random(this.seed);
-        Faker.replaceRandom(r);
-        TreeMap<BigInteger,RowData> invalidos = new TreeMap<>();
-        boolean valid = true;
-        long valids = 0;
-        int ia,ib;
-        String sa,sb;
-        float fa,fb;
-        String columnName="";
-        for(int x=0;x<qtdData;x++){
-            valid = true;
-            RowData row = generetaRowData();
-            BigInteger pk = table.getTranslator().getPrimaryKey(row);
-            RowData toCompare = table.find(pk);
-            if(invalidos.containsKey(pk)){
-                System.out.println("Inconsistencia anterior justificada por substitui��o de id");
-                invalidos.remove(pk);
-                valids++;
-            }
-            if(toCompare==null){
-                invalidos.put(pk,row);
-                valid=false;
-            }else for(Map.Entry<String,String> column:columnTypes.entrySet()) {
-                columnName = column.getKey();
-                String columnType = column.getValue();
-                switch (columnType){
-                    case "small":
-                    case "int":
-                        ia = row.getInt(columnName);
-                        ib = toCompare.getInt(columnName);
-                        if(ia!=ib)valid= false;
-                        break;
-                    case "string":
-                        sa = row.getString(columnName);
-                        sb =toCompare.getString(columnName);
-                        if(sa.compareTo(sb)!=0)valid= false;
-                        break;
-                    case "float":
-                        fa = row.getFloat(columnName);
-                        fb =toCompare.getFloat(columnName);
-                        if(fa!=fb)valid= false;
-                        break;
-                }
-                if(!valid)break;
-            }
-            if(valid==false){
-                invalidos.put(pk,row);
-            }else valids++;
-        }
-        for (Map.Entry<BigInteger,RowData> dat:
-             invalidos.entrySet()) {
-            RowData row = dat.getValue();
-            BigInteger pk = dat.getKey();
-            RowData toCompare = table.find(pk);
-            valid = true;
-            if(toCompare==null){
-                valid = false;
-                System.out.println("Inconsistencia encontrada (Item não encontrado)");
-            }else for(Map.Entry<String,String> column:columnTypes.entrySet()) {
-                columnName = column.getKey();
-                String columnType = column.getValue();
-                switch (columnType){
-                    case "small":
-                    case "int":
-                        ia = row.getInt(columnName);
-                        ib = toCompare.getInt(columnName);
-                        if(ia!=ib)valid= false;
-                        break;
-                    case "string":
-                        sa = row.getString(columnName);
-                        sb =toCompare.getString(columnName);
-                        if(sa.compareTo(sb)!=0)valid= false;
-                        break;
-                    case "float":
-                        fa = row.getFloat(columnName);
-                        fb =toCompare.getFloat(columnName);
-                        if(fa!=fb)valid= false;
-                        break;
-                }
-                if(!valid){
-                    System.out.println("Inconsistencia encontrada na coluna "+columnName);
-                    break;
-                }
-            }
-            if(!valid){
-                printRowData(row);
-                if(toCompare!=null)
-                    printRowData(toCompare);
-            }
-        }
-        //System.out.println("["+valids+"/"+qtdData+"] "+((float)valids/qtdData)*100.0+"% de records v�lidos verificados!");
-
-        return invalidos.isEmpty();
-    }
-
-    public void printAllData(){
-        for (RowIterator it = this.table.iterator(); it.hasNext(); ) {
-            RowData row = it.next();
-            printRowData(row);
-        }
-    }
+//    public boolean checkConsistence(int qtdData){
+//        Random r = new Random(this.seed);
+//        Faker.replaceRandom(r);
+//        TreeMap<BigInteger,RowData> invalidos = new TreeMap<>();
+//        boolean valid = true;
+//        long valids = 0;
+//        int ia,ib;
+//        String sa,sb;
+//        float fa,fb;
+//        String columnName="";
+//        for(int x=0;x<qtdData;x++){
+//            valid = true;
+//            RowData row = generetaRowData();
+//            BigInteger pk = table.getTranslator().getPrimaryKey(row);
+//            RowData toCompare = table.find(pk);
+//            if(invalidos.containsKey(pk)){
+//                System.out.println("Inconsistencia anterior justificada por substitui��o de id");
+//                invalidos.remove(pk);
+//                valids++;
+//            }
+//            if(toCompare==null){
+//                invalidos.put(pk,row);
+//                valid=false;
+//            }else for(Map.Entry<String,String> column:columnTypes.entrySet()) {
+//                columnName = column.getKey();
+//                String columnType = column.getValue();
+//                switch (columnType){
+//                    case "small":
+//                    case "int":
+//                        ia = row.getInt(columnName);
+//                        ib = toCompare.getInt(columnName);
+//                        if(ia!=ib)valid= false;
+//                        break;
+//                    case "string":
+//                        sa = row.getString(columnName);
+//                        sb =toCompare.getString(columnName);
+//                        if(sa.compareTo(sb)!=0)valid= false;
+//                        break;
+//                    case "float":
+//                        fa = row.getFloat(columnName);
+//                        fb =toCompare.getFloat(columnName);
+//                        if(fa!=fb)valid= false;
+//                        break;
+//                }
+//                if(!valid)break;
+//            }
+//            if(valid==false){
+//                invalidos.put(pk,row);
+//            }else valids++;
+//        }
+//        for (Map.Entry<BigInteger,RowData> dat:
+//             invalidos.entrySet()) {
+//            RowData row = dat.getValue();
+//            BigInteger pk = dat.getKey();
+//            RowData toCompare = table.find(pk);
+//            valid = true;
+//            if(toCompare==null){
+//                valid = false;
+//                System.out.println("Inconsistencia encontrada (Item não encontrado)");
+//            }else for(Map.Entry<String,String> column:columnTypes.entrySet()) {
+//                columnName = column.getKey();
+//                String columnType = column.getValue();
+//                switch (columnType){
+//                    case "small":
+//                    case "int":
+//                        ia = row.getInt(columnName);
+//                        ib = toCompare.getInt(columnName);
+//                        if(ia!=ib)valid= false;
+//                        break;
+//                    case "string":
+//                        sa = row.getString(columnName);
+//                        sb =toCompare.getString(columnName);
+//                        if(sa.compareTo(sb)!=0)valid= false;
+//                        break;
+//                    case "float":
+//                        fa = row.getFloat(columnName);
+//                        fb =toCompare.getFloat(columnName);
+//                        if(fa!=fb)valid= false;
+//                        break;
+//                }
+//                if(!valid){
+//                    System.out.println("Inconsistencia encontrada na coluna "+columnName);
+//                    break;
+//                }
+//            }
+//            if(!valid){
+//                printRowData(row);
+//                if(toCompare!=null)
+//                    printRowData(toCompare);
+//            }
+//        }
+//        //System.out.println("["+valids+"/"+qtdData+"] "+((float)valids/qtdData)*100.0+"% de records v�lidos verificados!");
+//
+//        return invalidos.isEmpty();
+//    }
+//
+//    public void printAllData(){
+//        for (RowIterator it = this.table.iterator(); it.hasNext(); ) {
+//            RowData row = it.next();
+//            printRowData(row);
+//        }
+//    }
 
     private void printRowData(RowData row){
         System.out.print("{ ");

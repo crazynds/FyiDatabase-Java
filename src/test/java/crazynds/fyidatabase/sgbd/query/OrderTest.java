@@ -2,7 +2,6 @@ package crazynds.fyidatabase.sgbd.query;
 
 import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.expressions.AtomicExpression;
-import lib.booleanexpression.entities.expressions.BooleanExpression;
 import lib.booleanexpression.enums.RelationalOperator;
 import org.junit.Test;
 import sgbd.prototype.column.Column;
@@ -13,8 +12,8 @@ import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.binaryop.joins.RightNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
-import sgbd.table.Table;
-import sgbd.table.components.Header;
+import sgbd.source.table.Table;
+import sgbd.source.components.Header;
 
 import java.util.ArrayList;
 import java.util.List;

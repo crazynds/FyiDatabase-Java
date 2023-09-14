@@ -56,13 +56,13 @@ public abstract class RecordManager{
 	 */
 	public abstract Record read(BigInteger pk);
 	public abstract void read(BigInteger pk,byte[] buffer);
-	
+
 	/*
 	 * Essa função tem como objetivo procurar algum record que tenha a chave primaria correspondente
 	 * e atualiza-la com as informações do record correspondente.
 	 * Caso néo encontre ela deve ser adicionada a lista
 	 */
-	public abstract void write(Record r) ;
+	public abstract void write(Record r);
 	public abstract void write(List<Record> list) ;
 	
 	/*

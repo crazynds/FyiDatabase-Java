@@ -9,16 +9,10 @@ import lib.booleanexpression.entities.expressions.LogicalExpression;
 import lib.booleanexpression.enums.LogicalOperator;
 import lib.booleanexpression.enums.RelationalOperator;
 import sgbd.info.Query;
-import sgbd.prototype.BData;
-import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.query.fields.IntegerField;
-import sgbd.query.binaryop.joins.LeftNestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
-import sgbd.table.Table;
-import sgbd.util.global.UtilConversor;
-
-import java.util.*;
+import sgbd.source.table.Table;
 
 public class Main {
 

@@ -2,7 +2,7 @@ package sgbd.query;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.prototype.query.Tuple;
-import sgbd.table.Table;
+import sgbd.source.Source;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,7 @@ public interface Operator {
     public void close();
     public void freeResources();
 
-    public List<Table> getSources();
+    public List<Source> getSources();
     public Map<String,List<String>> getContentInfo();
 
 

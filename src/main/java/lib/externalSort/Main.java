@@ -9,7 +9,7 @@ package lib.externalSort;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.query.sourceop.TableScan;
-import sgbd.table.Table;
+import sgbd.source.table.Table;
 import sgbd.util.classes.TupleComparator;
 
 import java.util.logging.Level;

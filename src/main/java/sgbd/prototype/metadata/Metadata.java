@@ -20,6 +20,7 @@ public class Metadata {
     public static final short FLOATING_POINT = (1<<6);
 
     public static final short BOOLEAN = (1<<7);
+    public static final short IGNORE_COLUMN = (1<<8);
 
     private final short size;
     private final short flags;
@@ -72,5 +73,8 @@ public class Metadata {
     }
     public boolean isBoolean(){
         return (flags&BOOLEAN)!=0;
+    }
+    public boolean ignore(){
+        return (flags&IGNORE_COLUMN)!=0;
     }
 }

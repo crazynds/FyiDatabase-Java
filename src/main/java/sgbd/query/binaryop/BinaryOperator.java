@@ -2,7 +2,7 @@ package sgbd.query.binaryop;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
 import sgbd.query.Operator;
-import sgbd.table.Table;
+import sgbd.source.Source;
 
 import java.util.List;
 import java.util.Map;
@@ -55,9 +55,9 @@ public abstract class BinaryOperator implements Operator {
         this.right.freeResources();
     }
 
-    public List<Table> getSources(){
-        List<Table> lTable = left.getSources();
-        List<Table> rTable = right.getSources();
+    public List<Source> getSources(){
+        List<Source> lTable = left.getSources();
+        List<Source> rTable = right.getSources();
         return Stream.concat(lTable.stream(),rTable.stream()).collect(Collectors.toList());
     }
 

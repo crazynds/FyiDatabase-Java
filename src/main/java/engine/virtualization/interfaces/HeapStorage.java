@@ -202,4 +202,9 @@ public class HeapStorage implements ByteStream{
 		return increase;
 	}
 
+
+	public FileManager getFileManager(){
+		return origin;
+	}
+
 }
