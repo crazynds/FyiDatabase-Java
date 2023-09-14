@@ -29,7 +29,7 @@ public class Main {
 
         tab.open();
         Faker.replaceRandom(new Random(1000));
-        for(int x=1;x<=10;x++){
+        for(int x=1;x<=1000;x++){
             RowData row = new RowData();
             row.setInt("id",Faker.integer(1000,2000));
             row.setString("nome",Faker.firstName());

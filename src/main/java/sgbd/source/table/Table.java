@@ -70,7 +70,8 @@ public abstract class Table extends Source<Long> {
 		RowIterator<Long> it = iterator(null,reference);
 		if(it.hasNext()){
 			RowData row = it.next();
-			if(it.getRefKey() == reference)return row;
+			Long ref = it.getRefKey();
+			if(ref.compareTo(reference) == 0)return row;
 		}
 		return null;
 	}
