@@ -1,5 +1,7 @@
 package sgbd.util.classes;
 
+import engine.info.Parameters;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +50,7 @@ public class CSVRecognizer implements Iterable<String[]>{
                     // set beginIndex and ignore header
                     for (int i = 1; i < beginIndex + 1; i++)
                         br.readLine();
+
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {
@@ -57,7 +60,9 @@ public class CSVRecognizer implements Iterable<String[]>{
 
             private List<String> loadBuffer() throws IOException, InvalidCsvException {
                 if(buffer!=null)return buffer;
+                long current = System.currentTimeMillis();
                 String line = br.readLine();
+                Parameters.IO_READ_TIME += System.currentTimeMillis() - current;
                 while (line != null) {
                     if (!line.isBlank() || !line.isEmpty()) {
                         List<String> tuple = new ArrayList<>();
@@ -71,7 +76,9 @@ public class CSVRecognizer implements Iterable<String[]>{
                         buffer = tuple;
                         return buffer;
                     }
+                    current = System.currentTimeMillis();
                     line = br.readLine();
+                    Parameters.IO_READ_TIME += System.currentTimeMillis() - current;
                 }
                 return null;
             }
@@ -107,59 +114,6 @@ public class CSVRecognizer implements Iterable<String[]>{
     public String[] getColumnNames(){
         return columnsNameArray;
     }
-
-//    public static void importCsv(String path, char separator, char stringDelimiter, int beginIndex) throws InvalidCsvException {
-//        List<List<String>> dataList = new ArrayList<>();
-//        List<String> columnsNameList = new ArrayList<>();
-//
-//        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//            for (int i = 1; i < beginIndex; i++)
-//                br.readLine();
-//
-//            String line = br.readLine();
-//
-//            isLineNull(line, "O csv não possui nenhuma informação");
-//
-//            recognizeItems(line, columnsNameList, stringDelimiter, separator);
-//
-//            isColumnEmpty(columnsNameList, "O csv deve possuir nome para todas as colunas");
-//
-//            line = br.readLine();
-//
-//            isLineNull(line, "O csv possui apenas uma linha");
-//
-//            int size = columnsNameList.size();
-//
-//            while (line != null) {
-//
-//                if (!line.isBlank() || !line.isEmpty()) {
-//
-//                    List<String> tuple = new ArrayList<>();
-//
-//                    recognizeItems(line, tuple, stringDelimiter, separator);
-//
-//                    while (tuple.size() > size)
-//                        tuple.remove(tuple.size() - 1);
-//
-//                    while (tuple.size() < size)
-//                        tuple.add("null");
-//
-//                    dataList.add(tuple);
-//
-//                }
-//                line = br.readLine();
-//
-//            }
-//
-//        } catch (IOException e) {
-//
-//        }
-//
-//        String[][] dataArray = dataList.stream().map(line -> line.toArray(new String[0])).toArray(String[][]::new);
-//
-//        //return new CsvData(dataList, columnsNameList, dataArray, columnsNameArray);
-//    }
-
     private static void recognizeItems(String line, List<String> tuple, char stringDelimiter, char separator) throws InvalidCsvException {
 
         boolean stringDelimiterFound = false;
