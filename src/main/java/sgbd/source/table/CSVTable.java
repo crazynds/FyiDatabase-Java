@@ -26,7 +26,7 @@ public class CSVTable extends Table {
         for (Column c:header.getPrototype()) {
             if(c.getName().compareTo(pkName)==0)return header;
         }
-        header.getPrototype().addColumn(CSVTable.pkName,8,Column.PRIMARY_KEY);
+        header.getPrototype().addColumn(CSVTable.pkName,8,Column.PRIMARY_KEY|Column.IGNORE_COLUMN);
         return header;
     }
 

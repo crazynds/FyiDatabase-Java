@@ -45,9 +45,6 @@ public abstract class Table extends Source<Long> {
 		return openTable(header);
 	}
 
-	public Index<BigInteger> createIndex(List<String> columns){
-		return null;
-	}
 	public Index<Long> getPrimaryIndex(){
 		return primaryIndex;
 	}

@@ -27,13 +27,13 @@ public class Main {
         int qtdData=1000000;
         int block = 10000;
         long startTime = System.nanoTime();
-        //consistenceTest.generateRandomData(qtdData);
+        consistenceTest.generateRandomData(qtdData);
         consistenceTest.generateRandomDataBlock(qtdData,block);
         long generateTime = System.nanoTime();
-        //consistenceTest.printAllData();
-//        if(consistenceTest.checkConsistence(qtdData)){
-//            System.out.println("Dados consistentes");
-//        }
+        consistenceTest.printAllData();
+        if(consistenceTest.checkConsistence(qtdData)){
+            System.out.println("Dados consistentes");
+        }
         long checkTime = System.nanoTime();
 
         System.out.println("Tempo de geração: "+(generateTime-startTime)/1000000000.0);

@@ -36,7 +36,8 @@ public class MemoryIndex<T> extends Index<T>{
 //        while(it.hasNext()){
 //            it.remove();
 //        }
-        storage.remove(key);
+        if(storage.get(key)!=null)
+            storage.remove(key);
     }
 
     @Override

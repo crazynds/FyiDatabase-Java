@@ -95,7 +95,7 @@ public class Leaf<T extends Comparable<T>,M> extends Node<T,M>{
 
     @Override
     public boolean hasMinimun() {
-        return itens.length>= BPlusTree.ORDER/2;
+        return qtd>= BPlusTree.ORDER/2;
     }
 
     @Override

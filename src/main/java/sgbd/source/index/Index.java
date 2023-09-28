@@ -16,7 +16,6 @@ public abstract class Index<T> extends Source<BigInteger> {
 
     protected Source<T> src;
     protected boolean uniqueIndex;
-    private long lastUniqueKey;
 
     private static final String UNIQUE_COLUMN_NAME = "_ UNIQUE_CONT _";
 
