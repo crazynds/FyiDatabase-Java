@@ -2,10 +2,10 @@ package engine.storage.sorted;
 
 import engine.storage.common.AnonymousStorageRecord;
 import engine.virtualization.record.RecordInfoExtractor;
+import lib.BigKey;
 
-import java.math.BigInteger;
 
-public abstract class SortedAnonymousStorageRecord extends PkStorageRecord<BigInteger> {
+public abstract class SortedAnonymousStorageRecord extends PkStorageRecord<BigKey> {
 
     protected RecordInfoExtractor extractor;
 

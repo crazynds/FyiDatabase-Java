@@ -1,21 +1,22 @@
 package engine.virtualization.record.instances;
 
-import java.math.BigInteger;
+
+import lib.BigKey;
 
 public class GenericRecordPK extends GenericRecord{
 
-    private BigInteger pk;
+    private BigKey pk;
 
-    public GenericRecordPK(BigInteger pk, byte[] data) {
+    public GenericRecordPK(BigKey pk, byte[] data) {
         this(pk,data,data.length);
     }
 
-    public GenericRecordPK(BigInteger pk,byte[] data, int size) {
+    public GenericRecordPK(BigKey pk,byte[] data, int size) {
         super(data, size);
     }
 
     @Override
-    public BigInteger primaryKey() {
+    public BigKey primaryKey() {
         return this.pk;
     }
 }

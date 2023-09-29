@@ -1,14 +1,15 @@
 package engine.virtualization.record;
 
 import engine.file.streams.ReadByteStream;
+import lib.BigKey;
 
-import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
 
 public interface RecordInfoExtractor {
 
-    public BigInteger getPrimaryKey(ByteBuffer rbs);
-    public BigInteger getPrimaryKey(ReadByteStream rbs);
+    public BigKey getPrimaryKey(ByteBuffer rbs);
+    public BigKey getPrimaryKey(ReadByteStream rbs);
 
     public boolean isActiveRecord(ByteBuffer rbs);
     public boolean isActiveRecord(ReadByteStream rbs);

@@ -1,5 +1,7 @@
 package engine.util;
 
+import lib.BigKey;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -42,6 +44,16 @@ public class Util {
     		aux[x]=arr[x];
     	}
     	return aux;
+	}
+	public static synchronized BigKey convertByteArrayToBigKey(byte[] arr) {
+		return new BigKey(arr);
+	}
+	public static synchronized BigKey convertByteBufferToBigKey(ByteBuffer buff) {
+		return new BigKey(buff.array());
+	}
+
+	public static byte[] convertBigKeyToByteArray(BigKey number,int size) {
+		return number.getData();
 	}
 	public static byte[] convertLongToByteArray(long num,int size) {
 		ByteBuffer buff = ByteBuffer.allocate(8);

@@ -5,9 +5,10 @@ import engine.file.blocks.ReadableBlock;
 import engine.file.streams.ReferenceReadByteStream;
 import engine.file.streams.WriteByteStream;
 import engine.util.Util;
+import lib.BigKey;
 import lib.btree.BPlusTreeInsertionException;
 
-import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,11 +16,11 @@ import java.util.TreeMap;
 
 public class Leaf extends Node{
 
-    private int sizeOfEntry,sizeOfPk;
+    private final int sizeOfEntry,sizeOfPk;
 
-    private int itens,maxItens;
-    private int nextLeaf;
-    private TreeMap<BigInteger, Map.Entry<Integer,ByteBuffer>> mapPosition;
+    private final int maxItens;
+    private int itens,nextLeaf;
+    private final TreeMap<BigKey, Map.Entry<Integer,ByteBuffer>> mapPosition;
 
     private boolean changed;
 
@@ -48,7 +49,7 @@ public class Leaf extends Node{
 
         int position = (int)wbs.getPointer();
         ByteBuffer bufferAux = ByteBuffer.allocate(sizeOfEntry);
-        for(Map.Entry<BigInteger,Map.Entry<Integer,ByteBuffer>> entry:mapPosition.entrySet()){
+        for(Map.Entry<BigKey,Map.Entry<Integer,ByteBuffer>> entry:mapPosition.entrySet()){
             Map.Entry<Integer,ByteBuffer> value = entry.getValue();
             if(value.getValue()!=null || value.getKey()!=position){
                 ByteBuffer buff;
@@ -79,7 +80,7 @@ public class Leaf extends Node{
         for(int x=0;x<itens;x++){
             mapPosition.put(
                     getRecordInterface().getPrimaryKey(ref),
-                    Node.<Integer,ByteBuffer>makeEntry((int)ref.getOffset(),(ByteBuffer) null)
+                    Node.makeEntry((int)ref.getOffset(), null)
             );
             ref.setOffset(ref.getOffset()+sizeOfEntry);
         }
@@ -87,7 +88,7 @@ public class Leaf extends Node{
     }
 
     @Override
-    public void insert(BigInteger t, ByteBuffer m) {
+    public void insert(BigKey t, ByteBuffer m) {
         if(mapPosition.containsKey(t)){
             // Se contem um com essa key faz o replace
             Map.Entry<Integer,ByteBuffer> entry=  mapPosition.get(t);
@@ -113,7 +114,7 @@ public class Leaf extends Node{
 
 
     @Override
-    public ByteBuffer get(BigInteger t) {
+    public ByteBuffer get(BigKey t) {
         Map.Entry<Integer,ByteBuffer> entry = mapPosition.get(t);
         if(entry==null)return null;
 
@@ -123,7 +124,7 @@ public class Leaf extends Node{
     }
 
     @Override
-    public ByteBuffer remove(BigInteger t) {
+    public ByteBuffer remove(BigKey t) {
         Map.Entry<Integer,ByteBuffer> entry = mapPosition.remove(t);
         if(entry==null)return null;
         itens--;
@@ -144,7 +145,7 @@ public class Leaf extends Node{
         int savedQtd = itens;
 
         for(int x=itens/2;x<savedQtd;x++){
-            Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>> aux = mapPosition.pollLastEntry();
+            Map.Entry<BigKey, Map.Entry<Integer,ByteBuffer>> aux = mapPosition.pollLastEntry();
             if(aux.getValue().getValue()!=null){
                 right.insert(aux.getKey(),aux.getValue().getValue());
             }else{
@@ -176,7 +177,7 @@ public class Leaf extends Node{
         if(leaf.nextLeaf == block){
             leaf.setNextLeaf(getNextLeaf());
         }
-        for (Map.Entry<BigInteger, ByteBuffer> e:
+        for (Map.Entry<BigKey, ByteBuffer> e:
              this) {
             leaf.insert(e.getKey(),e.getValue());
         }
@@ -185,7 +186,7 @@ public class Leaf extends Node{
 
     @Override
     public void print(int tabs) {
-        for(Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>> e:mapPosition.entrySet()){
+        for(Map.Entry<BigKey, Map.Entry<Integer,ByteBuffer>> e:mapPosition.entrySet()){
             for(int x=0;x<tabs;x++)System.out.print("\t");
             System.out.println("PK: "+e.getKey()+" | Bloco: "+block+" | Pos: "+e.getValue().getKey());
         }
@@ -202,12 +203,12 @@ public class Leaf extends Node{
     }
 
     @Override
-    public BigInteger min() {
+    public BigKey min() {
         return mapPosition.firstKey();
     }
 
     @Override
-    public BigInteger max() {
+    public BigKey max() {
         return mapPosition.lastKey();
     }
 
@@ -217,39 +218,39 @@ public class Leaf extends Node{
     }
 
     @Override
-    public Leaf leafFrom(BigInteger key) {
+    public Leaf leafFrom(BigKey key) {
         return this;
     }
 
     @Override
-    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator(BigInteger pk) {
-        return new Iterator<Map.Entry<BigInteger, ByteBuffer>>() {
+    public Iterator<Map.Entry<BigKey, ByteBuffer>> iterator(BigKey pk) {
+        return new Iterator<Map.Entry<BigKey, ByteBuffer>>() {
 
-            Iterator<Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>>> it = mapPosition.tailMap(pk).entrySet().iterator();
+            Iterator<Map.Entry<BigKey, Map.Entry<Integer,ByteBuffer>>> it = mapPosition.tailMap(pk).entrySet().iterator();
             @Override
             public boolean hasNext() {
                 return it.hasNext();
             }
 
             @Override
-            public Map.Entry<BigInteger, ByteBuffer> next() {
-                Map.Entry<BigInteger, Map.Entry<Integer,ByteBuffer>> e = it.next();
+            public Map.Entry<BigKey, ByteBuffer> next() {
+                Map.Entry<BigKey, Map.Entry<Integer,ByteBuffer>> e = it.next();
                 if(e==null)return null;
-                BigInteger pk = e.getKey();
+                BigKey pk = e.getKey();
                 ByteBuffer buff = e.getValue().getValue();
                 if(buff==null){
                     ReadableBlock readable = getStream().getBlockReadByteStream(block);
                     buff = readable.read(e.getValue().getKey(),sizeOfEntry);
                 }
-                return Node.<BigInteger,ByteBuffer>makeEntry(pk,buff);
+                return Node.<BigKey,ByteBuffer>makeEntry(pk,buff);
             }
         };
     }
 
     @Override
-    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator() {
+    public Iterator<Map.Entry<BigKey, ByteBuffer>> iterator() {
         if(this.mapPosition.size()==0){
-            return this.iterator(BigInteger.ZERO);
+            return this.iterator(new BigKey(new byte[]{0,0,0,0}));
         }
         return this.iterator(this.mapPosition.firstKey());
     }

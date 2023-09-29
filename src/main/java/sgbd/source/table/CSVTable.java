@@ -1,6 +1,7 @@
 package sgbd.source.table;
 
 import engine.exceptions.DataBaseException;
+import lib.BigKey;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.RowData;
 import sgbd.prototype.query.fields.NullField;
@@ -10,7 +11,7 @@ import sgbd.util.classes.CSVRecognizer;
 import sgbd.util.classes.InvalidCsvException;
 import sgbd.util.global.Util;
 
-import java.math.BigInteger;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class CSVTable extends Table {
 
 
     @Override
-    public BigInteger insert(RowData r) {
+    public BigKey insert(RowData r) {
         throw new DataBaseException("CSVTable","This type of table (CSVTable) is not writable");
     }
 
@@ -84,8 +85,8 @@ public class CSVTable extends Table {
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, Long lowerbound) {
-        return new RowIterator() {
+    protected RowIterator<Long> iterator(List<String> columns, Long lowerbound) {
+        return new RowIterator<Long>() {
             RowIterator<Long> sub = iterator();
             Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
@@ -122,10 +123,10 @@ public class CSVTable extends Table {
     }
 
     @Override
-    public RowIterator iterator() {
-        return new RowIterator() {
+    public RowIterator<Long> iterator() {
+        return new RowIterator<Long>() {
 
-            BigInteger currentIt = BigInteger.ZERO;
+            long currentIt = 0L;
             Iterator<String[]> csvLines = recognizer.iterator();
             String[] headers = recognizer.getColumnNames();
 
@@ -135,12 +136,12 @@ public class CSVTable extends Table {
 
             @Override
             public Long getRefKey() {
-                return currentIt.longValue();
+                return currentIt;
             }
 
             @Override
             public void restart() {
-                currentIt = BigInteger.ZERO;
+                currentIt = 0L;
                 csvLines = recognizer.iterator();
             }
 
@@ -153,14 +154,14 @@ public class CSVTable extends Table {
             public RowData next() {
                 String[] data = csvLines.next();
                 if(data==null)return null;
-                currentIt = currentIt.add(BigInteger.ONE);
+                currentIt += 1;
 
                 String[] columns = recognizer.getColumnNames();
                 RowData rowData = new RowData();
                 for (Column c:
                         getHeader().getPrototype()) {
                     if(c.getName().compareTo(CSVTable.pkName)==0){
-                        rowData.setLong(c.getName(),currentIt.longValue(),c);
+                        rowData.setLong(c.getName(),currentIt,c);
                         continue;
                     }
                     for (int x=0;x<columns.length;x++) {

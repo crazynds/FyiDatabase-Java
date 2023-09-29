@@ -2,8 +2,8 @@ package engine.virtualization.record.storage;
 
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordStream;
+import lib.BigKey;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public interface RecordStorageController {
@@ -48,7 +48,7 @@ public interface RecordStorageController {
 	 * Faz uma busca de um dado pela primary key utilizando o melhor algoritmo daquela
 	 * estrutura
 	 */
-	public boolean search(BigInteger pk, byte[] buffer);
+	public boolean search(BigKey pk, byte[] buffer);
 
 	/*
 	 * Retorna um objeto para efetuar a leitura sequencial

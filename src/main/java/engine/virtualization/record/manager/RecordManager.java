@@ -1,6 +1,6 @@
 package engine.virtualization.record.manager;
 
-import java.math.BigInteger;
+
 import java.util.List;
 
 import engine.file.FileManager;
@@ -8,6 +8,7 @@ import engine.file.buffers.BlockBuffer;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
+import lib.BigKey;
 
 public abstract class RecordManager{
 	
@@ -54,8 +55,8 @@ public abstract class RecordManager{
 	/*
 	 * Le um record a partir de uma chave primaria
 	 */
-	public abstract Record read(BigInteger pk);
-	public abstract void read(BigInteger pk,byte[] buffer);
+	public abstract Record read(BigKey pk);
+	public abstract void read(BigKey pk,byte[] buffer);
 
 	/*
 	 * Essa função tem como objetivo procurar algum record que tenha a chave primaria correspondente

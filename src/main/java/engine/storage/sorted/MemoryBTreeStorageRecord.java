@@ -5,16 +5,17 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
+import lib.BigKey;
 import lib.btree.BPlusTree;
 
-import java.math.BigInteger;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class MemoryBTreeStorageRecord extends PkStorageRecord<BigInteger> {
+public class MemoryBTreeStorageRecord extends PkStorageRecord<BigKey> {
 
-    private BPlusTree<BigInteger,byte[]> arvoreB;
+    private BPlusTree<BigKey,byte[]> arvoreB;
 
     public MemoryBTreeStorageRecord() {
         arvoreB = new BPlusTree<>();
@@ -34,12 +35,12 @@ public class MemoryBTreeStorageRecord extends PkStorageRecord<BigInteger> {
     }
 
     @Override
-    public RecordStream<BigInteger> read(BigInteger key) {
-        return new RecordStream<BigInteger>() {
+    public RecordStream<BigKey> read(BigKey key) {
+        return new RecordStream<BigKey>() {
 
-            Iterator<Map.Entry<BigInteger, byte[]>> iterator;
+            Iterator<Map.Entry<BigKey, byte[]>> iterator;
 
-            Map.Entry<BigInteger, byte[]> current = null;
+            Map.Entry<BigKey, byte[]> current = null;
             @Override
             public void open() {
                 if(key==null)
@@ -54,7 +55,7 @@ public class MemoryBTreeStorageRecord extends PkStorageRecord<BigInteger> {
             }
 
             @Override
-            public BigInteger getKey() {
+            public BigKey getKey() {
                 if(current!=null)return current.getKey();
                 return null;
             }
@@ -92,20 +93,20 @@ public class MemoryBTreeStorageRecord extends PkStorageRecord<BigInteger> {
     }
 
     @Override
-    public void write(BigInteger key, Record r) {
+    public void write(BigKey key, Record r) {
         arvoreB.insert(key,r.getData());
     }
 
     @Override
-    public void write(List<Map.Entry<BigInteger, Record>> list) {
-        for (Map.Entry<BigInteger, Record> entry:
+    public void write(List<Map.Entry<BigKey, Record>> list) {
+        for (Map.Entry<BigKey, Record> entry:
              list) {
             arvoreB.insert(entry.getKey(),entry.getValue().getData());
         }
     }
 
     @Override
-    public void delete(BigInteger key) {
+    public void delete(BigKey key) {
         arvoreB.remove(key);
     }
 }

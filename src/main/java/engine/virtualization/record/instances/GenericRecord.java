@@ -3,8 +3,9 @@ package engine.virtualization.record.instances;
 import engine.exceptions.DataBaseException;
 import engine.info.Parameters;
 import engine.virtualization.record.Record;
+import lib.BigKey;
 
-import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
 
 public class GenericRecord extends Record {
@@ -33,8 +34,8 @@ public class GenericRecord extends Record {
 	}
 
 	@Override
-	public BigInteger primaryKey() {
-		return BigInteger.ZERO;
+	public BigKey primaryKey() {
+	    return new BigKey(new byte[]{0,0,0,0});
 	}
 
 	@Override

@@ -86,6 +86,9 @@ public class Header {
         return filePath;
     }
 
+    public void setPrototype(Prototype pt){
+        this.prototype = pt;
+    }
     public Prototype getPrototype() {
         return prototype;
     }

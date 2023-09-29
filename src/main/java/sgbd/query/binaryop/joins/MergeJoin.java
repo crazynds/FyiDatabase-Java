@@ -1,6 +1,7 @@
 package sgbd.query.binaryop.joins;
 
 import engine.util.Util;
+import lib.BigKey;
 import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
@@ -9,14 +10,14 @@ import sgbd.query.unaryop.SortOperator;
 import sgbd.query.unaryop.UnaryOperator;
 import sgbd.util.classes.ResourceName;
 
-import java.math.BigInteger;
+
 import java.util.Map;
 
 public class MergeJoin extends SimpleBinaryOperator {
 
     protected String leftSource,leftData,rightSource,rightData;
 
-    Map.Entry<Tuple,BigInteger> leftCurrent,rightCurrent;
+    Map.Entry<Tuple, BigKey> leftCurrent,rightCurrent;
 
     public MergeJoin(Operator left, Operator right, ResourceName leftRes, ResourceName rightRes) {
         super(
@@ -50,19 +51,19 @@ public class MergeJoin extends SimpleBinaryOperator {
     }
 
 
-    protected Map.Entry<Tuple,BigInteger> nextRight(){
+    protected Map.Entry<Tuple,BigKey> nextRight(){
         return nextSide(right, rightSource, rightData);
     }
 
-    protected Map.Entry<Tuple,BigInteger> nextLeft(){
+    protected Map.Entry<Tuple,BigKey> nextLeft(){
         return nextSide(left, leftSource, leftData);
     }
 
-    private Map.Entry<Tuple, BigInteger> nextSide(Operator op, String rightSource, String rightData) {
+    private Map.Entry<Tuple, BigKey> nextSide(Operator op, String rightSource, String rightData) {
         if(!op.hasNext())return null;
-        return new Map.Entry<Tuple, BigInteger>() {
+        return new Map.Entry<Tuple, BigKey>() {
             Tuple tuple = op.next();
-            BigInteger val = Util.convertByteArrayToNumber(tuple.getContent(rightSource).getData(rightData));
+            BigKey val = new BigKey(tuple.getContent(rightSource).getData(rightData));
 
             @Override
             public Tuple getKey() {
@@ -70,12 +71,12 @@ public class MergeJoin extends SimpleBinaryOperator {
             }
 
             @Override
-            public BigInteger getValue() {
+            public BigKey getValue() {
                 return val;
             }
 
             @Override
-            public BigInteger setValue(BigInteger value) {
+            public BigKey setValue(BigKey value) {
                 return val;
             }
         };

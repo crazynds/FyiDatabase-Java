@@ -1,12 +1,14 @@
 package sgbd.source.index;
 
+import lib.BigKey;
 import lib.btree.BPlusTree;
 import sgbd.prototype.RowData;
+import sgbd.prototype.column.Column;
 import sgbd.source.Source;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
 
-import java.math.BigInteger;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ public class MemoryIndex<T> extends Index<T>{
 
     //TODO: usar a btree da engina ao invez da BTree da lib
     //private MemoryBTreeStorageRecord storage;
-    private BPlusTree<BigInteger,T> storage;
+    private BPlusTree<BigKey,T> storage;
 
     public MemoryIndex(Header header, Source<T> src) {
         super(header,src);
@@ -25,19 +27,16 @@ public class MemoryIndex<T> extends Index<T>{
     }
 
     @Override
-    public void updateRef(BigInteger key, T reference) {
+    protected void updateRef(BigKey key, T reference) {
         storage.insert(key,reference);
     }
 
     @Override
-    public void deleteRef(BigInteger key) {
+    public T deleteRef(BigKey key) {
         // TODO: Fazer ele remover a entrada com a mesma referencia a partir da key dada
-//        Iterator<Map.Entry<BigInteger,Long>> it = storage.iterator(key);
-//        while(it.hasNext()){
-//            it.remove();
-//        }
         if(storage.get(key)!=null)
-            storage.remove(key);
+            return storage.remove(key);
+        return null;
     }
 
     @Override
@@ -56,11 +55,12 @@ public class MemoryIndex<T> extends Index<T>{
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, BigInteger lowerbound) {
+    protected RowIterator iterator(List<String> columns, BigKey lowerbound) {
         return new RowIterator() {
 
-            Iterator<Map.Entry<BigInteger,T>> it = lowerbound!=null ? storage.iterator(lowerbound) : storage.iterator();
-            Map.Entry<BigInteger,T> current = null;
+            Iterator<Map.Entry<BigKey,T>> it = lowerbound!=null ? storage.iterator(lowerbound) : storage.iterator();
+            Map.Entry<BigKey,T> current = null;
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
             @Override
             public void restart() {
@@ -72,7 +72,7 @@ public class MemoryIndex<T> extends Index<T>{
             }
 
             @Override
-            public BigInteger getRefKey() {
+            public BigKey getRefKey() {
                 if(current == null) return null;
                 return current.getKey();
             }
@@ -84,8 +84,10 @@ public class MemoryIndex<T> extends Index<T>{
 
             @Override
             public RowData next() {
-                T ref = it.next().getValue();
-                RowData row = src.findByRef(ref);
+                Map.Entry<BigKey,T> entry = it.next();
+                T ref = entry.getValue();
+                RowData row = translatorApi.convertBinaryToRowData(entry.getKey().getData(),metaInfo,false,true);
+
                 return row;
             }
         };

@@ -7,7 +7,6 @@ import sgbd.prototype.column.IntegerColumn;
 import sgbd.prototype.column.StringColumn;
 import sgbd.query.TestOperators;
 import sgbd.query.sourceop.SourceScan;
-import sgbd.query.sourceop.TableScan;
 import sgbd.source.components.Header;
 import sgbd.source.table.SimpleTable;
 import sgbd.source.table.Table;
@@ -19,7 +18,12 @@ public class Main {
 
     public static void main(String[] args) {
         Prototype pt = new Prototype();
+
+
         pt.addColumn(new IntegerColumn("id",true));
+        pt.addColumn(new IntegerColumn("semestre",true));
+
+
         pt.addColumn(new StringColumn("nome"));
         pt.addColumn(new IntegerColumn("idade"));
         pt.addColumn(new FloatColumn("salario"));
@@ -29,9 +33,10 @@ public class Main {
 
         tab.open();
         Faker.replaceRandom(new Random(1000));
-        for(int x=1;x<=1000;x++){
+        for(int x=1;x<=10;x++){
             RowData row = new RowData();
             row.setInt("id",Faker.integer(1000,2000));
+            row.setInt("semestre",Faker.integer(0,3));
             row.setString("nome",Faker.firstName());
             row.setInt("idade",Faker.integer(20,50));
             row.setFloat("salario", Faker.floatPoint(3000,10000));

@@ -1,11 +1,12 @@
 package sgbd.test;
 
+import lib.BigKey;
 import sgbd.prototype.RowData;
 import sgbd.source.components.RowIterator;
 import sgbd.source.table.Table;
 import sgbd.util.global.Faker;
 
-import java.math.BigInteger;
+
 import java.util.*;
 
 public class ConsistenceTest {
@@ -51,7 +52,7 @@ public class ConsistenceTest {
     public boolean checkConsistence(int qtdData){
         Random r = new Random(this.seed);
         Faker.replaceRandom(r);
-        TreeMap<BigInteger,RowData> invalidos = new TreeMap<>();
+        TreeMap<BigKey,RowData> invalidos = new TreeMap<>();
         boolean valid = true;
         long valids = 0;
         int ia,ib;
@@ -61,7 +62,7 @@ public class ConsistenceTest {
         for(int x=0;x<qtdData;x++){
             valid = true;
             RowData row = generetaRowData();
-            BigInteger pk = table.getTranslator().getPrimaryKey(row);
+            BigKey pk = table.getTranslator().getPrimaryKey(row);
             RowData toCompare = table.getPrimaryIndex().findByRef(pk);
             if(invalidos.containsKey(pk)){
                 System.out.println("Inconsistencia anterior justificada por substitui��o de id");
@@ -98,10 +99,10 @@ public class ConsistenceTest {
                 invalidos.put(pk,row);
             }else valids++;
         }
-        for (Map.Entry<BigInteger,RowData> dat:
+        for (Map.Entry<BigKey,RowData> dat:
              invalidos.entrySet()) {
             RowData row = dat.getValue();
-            BigInteger pk = dat.getKey();
+            BigKey pk = dat.getKey();
             RowData toCompare = table.getPrimaryIndex().findByRef(pk);
             valid = true;
             if(toCompare==null){

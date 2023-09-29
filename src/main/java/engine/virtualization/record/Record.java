@@ -1,8 +1,8 @@
 package engine.virtualization.record;
 
 import engine.file.streams.ReadByteStream;
+import lib.BigKey;
 
-import java.math.BigInteger;
 
 public abstract class Record implements ReadByteStream{
 
@@ -15,7 +15,7 @@ public abstract class Record implements ReadByteStream{
 
 	public abstract byte[] getData();
 
-	public abstract BigInteger primaryKey();
+	public abstract BigKey primaryKey();
 	
 	@Override
 	public void setPointer(long pos) {

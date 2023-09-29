@@ -1,6 +1,6 @@
 package engine.virtualization.record;
 
-import java.math.BigInteger;
+import lib.BigKey;
 
 public class RecordInterface{
 
@@ -14,7 +14,7 @@ public class RecordInterface{
 	 * Não é ncessário a implementação de uma lógica dentro dessa função
 	 * mas pode ser utilizada por otmizadores e cache para busca futura
 	 */
-	public void updeteReference(BigInteger pk,long key){
+	public void updeteReference(BigKey pk, long key){
 
 	}
 

@@ -7,14 +7,15 @@ import engine.file.streams.WriteByteStream;
 import engine.util.Util;
 import engine.virtualization.interfaces.BlockManager;
 import engine.virtualization.record.RecordInfoExtractor;
+import lib.BigKey;
 import lib.btree.BPlusTreeInsertionException;
 
-import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
 
-public class BTreeStorage implements Iterable<Map.Entry<BigInteger,ByteBuffer>>{
+public class BTreeStorage implements Iterable<Map.Entry<BigKey,ByteBuffer>>{
 
     private Node rootNode;
     private Leaf leafNode;
@@ -68,7 +69,7 @@ public class BTreeStorage implements Iterable<Map.Entry<BigInteger,ByteBuffer>>{
     }
 
 
-    public void insert(BigInteger pk, ByteBuffer buff){
+    public void insert(BigKey pk, ByteBuffer buff){
         try {
             rootNode.insert(pk, buff);
         }catch (BPlusTreeInsertionException e){
@@ -89,23 +90,23 @@ public class BTreeStorage implements Iterable<Map.Entry<BigInteger,ByteBuffer>>{
         rootNode.print(0);
     }
 
-    public ByteBuffer get(BigInteger t){
+    public ByteBuffer get(BigKey t){
         return rootNode.get(t);
     }
-    public ByteBuffer remove(BigInteger t){
+    public ByteBuffer remove(BigKey t){
         return rootNode.remove(t);
     }
 
     @Override
-    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator() {
+    public Iterator<Map.Entry<BigKey, ByteBuffer>> iterator() {
         return this.iterator(leafNode.min());
     }
 
-    public Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator(BigInteger pk) {
-        return new Iterator<Map.Entry<BigInteger, ByteBuffer>>() {
+    public Iterator<Map.Entry<BigKey, ByteBuffer>> iterator(BigKey pk) {
+        return new Iterator<Map.Entry<BigKey, ByteBuffer>>() {
 
             Leaf currentLeaf = rootNode.leafFrom(pk);
-            Iterator<Map.Entry<BigInteger, ByteBuffer>> it = null;
+            Iterator<Map.Entry<BigKey, ByteBuffer>> it = null;
 
             boolean updateLeaf(){
                 while((it==null || !it.hasNext()) && currentLeaf!=null){
@@ -123,7 +124,7 @@ public class BTreeStorage implements Iterable<Map.Entry<BigInteger,ByteBuffer>>{
             }
 
             @Override
-            public Map.Entry<BigInteger, ByteBuffer> next() {
+            public Map.Entry<BigKey, ByteBuffer> next() {
                 if(!updateLeaf())return null;
                 return it.next();
             }

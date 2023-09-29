@@ -8,7 +8,7 @@ import sgbd.prototype.metadata.LongMetadata;
 import sgbd.prototype.query.Tuple;
 import sgbd.prototype.query.fields.Field;
 
-import java.math.BigInteger;
+
 
 public class MaxAgregation extends AgregationOperation{
     protected Field value;

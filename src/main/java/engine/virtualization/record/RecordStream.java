@@ -1,7 +1,7 @@
 package engine.virtualization.record;
 
 
-import java.math.BigInteger;
+
 import java.util.Iterator;
 
 public interface RecordStream<T> extends Iterator<Record> {

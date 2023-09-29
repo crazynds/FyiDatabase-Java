@@ -1,10 +1,11 @@
 package sgbd.source.table;
 
 import java.io.IOException;
-import java.math.BigInteger;
+
 import java.util.List;
 
 import engine.exceptions.DataBaseException;
+import lib.BigKey;
 import sgbd.prototype.RowData;
 import sgbd.source.Source;
 import sgbd.source.components.Header;
@@ -59,7 +60,7 @@ public abstract class Table extends Source<Long> {
 	/*
 		Aceita apenas novos inserts, verifica chave primaria
 	 */
-	public abstract BigInteger insert(RowData r);
+	public abstract BigKey insert(RowData r);
 	public abstract void insert(List<RowData> r);
 
 	@Override

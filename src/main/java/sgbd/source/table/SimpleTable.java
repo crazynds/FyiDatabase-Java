@@ -3,6 +3,7 @@ package sgbd.source.table;
 import engine.file.FileManager;
 import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.storage.common.FixedHeapStorageRecord;
+import sgbd.prototype.RowData;
 import sgbd.source.components.Header;
 import sgbd.source.index.MemoryIndex;
 
@@ -25,7 +26,8 @@ public class SimpleTable extends GenericTable {
     public void open() {
         if(storage==null) {
             this.storage = new FixedHeapStorageRecord((r, key) -> {
-                this.primaryIndex.updateRef(this.translatorApi.getPrimaryKey(r),key);
+                RowData row = this.translatorApi.convertToRowData(r,null);
+                this.primaryIndex.update(row,key);
             }, this.fm, this.translatorApi.maxRecordSize());
             this.primaryIndex = new MemoryIndex(header.getSubHeader("primary_index"),this);
         }

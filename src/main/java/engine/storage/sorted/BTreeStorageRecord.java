@@ -8,15 +8,16 @@ import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.storage.btree.BTreeStorage;
+import lib.BigKey;
 
-import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class BTreeStorageRecord extends PkStorageRecord<BigInteger> {
+public class BTreeStorageRecord extends PkStorageRecord<BigKey> {
 
     private BTreeStorage btree;
     private BlockManager blockManager;
@@ -29,13 +30,13 @@ public class BTreeStorageRecord extends PkStorageRecord<BigInteger> {
     @Override
     public synchronized void restart() {
         // TODO
-        ArrayList<BigInteger> pks = new ArrayList<>();
-        RecordStream<BigInteger> it = this.read(null);
+        ArrayList<BigKey> pks = new ArrayList<>();
+        RecordStream<BigKey> it = this.read(null);
         while(it.hasNext()){
             it.next();
             pks.add(it.getKey());
         }
-        for (BigInteger pk:
+        for (BigKey pk:
              pks) {
             this.delete(pk);
         }
@@ -48,12 +49,12 @@ public class BTreeStorageRecord extends PkStorageRecord<BigInteger> {
     }
 
     @Override
-    public RecordStream read(BigInteger key) {
+    public RecordStream read(BigKey key) {
         return new RecordStream() {
 
-            Iterator<Map.Entry<BigInteger, ByteBuffer>> iterator = null;
+            Iterator<Map.Entry<BigKey, ByteBuffer>> iterator = null;
 
-            Map.Entry<BigInteger, ByteBuffer> current = null;
+            Map.Entry<BigKey, ByteBuffer> current = null;
 
             @Override
             public void open() {
@@ -69,7 +70,7 @@ public class BTreeStorageRecord extends PkStorageRecord<BigInteger> {
             }
 
             @Override
-            public BigInteger getKey() {
+            public BigKey getKey() {
                 if(current!=null)return current.getKey();
                 return null;
             }
@@ -107,19 +108,19 @@ public class BTreeStorageRecord extends PkStorageRecord<BigInteger> {
     }
 
     @Override
-    public synchronized void write(BigInteger key, Record r) {
+    public synchronized void write(BigKey key, Record r) {
         btree.insert(key, ByteBuffer.wrap(r.getData()));
     }
 
     @Override
-    public synchronized void write(List<Map.Entry<BigInteger, Record>> list) {
-        for(Map.Entry<BigInteger, Record> entry:list){
+    public synchronized void write(List<Map.Entry<BigKey, Record>> list) {
+        for(Map.Entry<BigKey, Record> entry:list){
             btree.insert(entry.getKey(),ByteBuffer.wrap(entry.getValue().getData()));
         }
     }
 
     @Override
-    public synchronized void delete(BigInteger key) {
+    public synchronized void delete(BigKey key) {
         btree.remove(key);
     }
 

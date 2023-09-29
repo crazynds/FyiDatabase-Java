@@ -1,19 +1,20 @@
 package sgbd.query.unaryop;
 
 import engine.util.Util;
+import lib.BigKey;
 import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.query.agregation.AgregationOperation;
 
-import java.math.BigInteger;
+
 import java.util.*;
 
 public class GroupOperator extends SimpleUnaryOperator {
 
     private String source,column;
 
-    private BigInteger groupName;
+    private BigKey groupName;
     private Tuple lastTupleLoaded;
     List<AgregationOperation> agregationOperations;
 
@@ -48,13 +49,11 @@ public class GroupOperator extends SimpleUnaryOperator {
                 rowGroup.setField(column,lastTupleLoaded.getContent(source).getField(column),lastTupleLoaded.getContent(source).getMetadata(column));
                 // Seta nela o dado inicial
                 actualTuple.setContent(source,rowGroup);
-                groupName = Util.convertByteArrayToNumber(lastTupleLoaded.getContent(source).getData(column));
+                groupName = new BigKey(lastTupleLoaded.getContent(source).getData(column));
                 // Chama a inicialização de todas as operações de agregações
                 final Tuple t = actualTuple;
                 agregationOperations.stream().forEach(agregationOperation -> agregationOperation.initialize(t));
-            }else if(Util.convertByteArrayToNumber(
-                        lastTupleLoaded.getContent(source).getData(column)
-                    ).compareTo(groupName)!=0){ // Se o grupo da tupla carregada é diferente do grupo da tupla atual, então sai do while true
+            }else if(new BigKey(lastTupleLoaded.getContent(source).getData(column)).compareTo(groupName)!=0){ // Se o grupo da tupla carregada é diferente do grupo da tupla atual, então sai do while true
                 break;
             }
             // Processa todas as operações de agregação para cada operação

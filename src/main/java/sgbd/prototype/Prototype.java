@@ -107,9 +107,9 @@ public class Prototype implements Iterable<Column>{
 			public int compare(Column o1, Column o2) {
 				if(o1.isPrimaryKey()&& !o2.isPrimaryKey())return -1;
 				if(!o1.isPrimaryKey()&& o2.isPrimaryKey())return 1;
-				if(o1.isPrimaryKey()&& o2.isPrimaryKey())
-					return Integer.compare(columns.indexOf(o1),columns.indexOf(o2));
-
+				if(o1.isPrimaryKey()&& o2.isPrimaryKey()) {
+					return Integer.compare(columns.indexOf(o2),columns.indexOf(o1));
+				}
 				else {
 					if(o1.isDinamicSize() && !o2.isDinamicSize())return 1;
 					if(!o1.isDinamicSize() && o2.isDinamicSize())return -1;

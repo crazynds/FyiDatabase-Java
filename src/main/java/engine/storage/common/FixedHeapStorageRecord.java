@@ -8,9 +8,10 @@ import engine.virtualization.interfaces.StorageEventHandler;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
+import lib.BigKey;
 
 import java.io.IOException;
-import java.math.BigInteger;
+
 import java.util.List;
 
 public class FixedHeapStorageRecord extends AnonymousStorageRecord{
@@ -55,7 +56,7 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
 
     @Override
     public synchronized void flush() {
-        byte[] num = Util.convertNumberToByteArray(BigInteger.valueOf(qtdOfRecords),sizeOfBytesQtdRecords);
+        byte[] num = BigKey.valueOf(qtdOfRecords,sizeOfBytesQtdRecords).getData();
         heap.write(0,num,0,sizeOfBytesQtdRecords);
         heap.commitWrites();
     }

@@ -1,9 +1,10 @@
 package engine.exceptions;
 
-import java.math.BigInteger;
+
+import lib.BigKey;
 
 public class NotFoundRowException extends DataBaseException{
-    public NotFoundRowException(String locale, BigInteger pk) {
+    public NotFoundRowException(String locale, BigKey pk) {
         super(locale, "Record com a primary key de valor "+pk.longValue()+" não foi encontrado.");
     }
 }

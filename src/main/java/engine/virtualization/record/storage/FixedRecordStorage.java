@@ -1,7 +1,6 @@
 package engine.virtualization.record.storage;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -18,6 +17,7 @@ import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
+import lib.BigKey;
 
 public class FixedRecordStorage implements RecordStorageController {
 
@@ -89,7 +89,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		if(changed) {
 			lock.writeLock().lock();
 			try {
-					byte[] num = Util.convertNumberToByteArray(BigInteger.valueOf(qtdOfRecords),sizeOfBytesQtdRecords);
+					byte[] num = BigKey.valueOf(qtdOfRecords,sizeOfBytesQtdRecords).getData();
 					heap.write(0,num,0,sizeOfBytesQtdRecords);
 					heap.commitWrites();
 			}finally {
@@ -99,7 +99,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	}
 
 	@Override
-	public boolean search(BigInteger pk, byte[] buffer) {
+	public boolean search(BigKey pk, byte[] buffer) {
 		lock.readLock().lock();
 		try {
 			long startPos;
@@ -136,7 +136,7 @@ public class FixedRecordStorage implements RecordStorageController {
 	public long write(Record r, long key) {
 		checkKey(key);
 		RecordInfoExtractor extractor = recordInterface.getExtractor();
-		BigInteger pk = extractor.getPrimaryKey(r);
+		BigKey pk = extractor.getPrimaryKey(r);
 
 		lock.writeLock().lock();
 		try {
@@ -144,7 +144,7 @@ public class FixedRecordStorage implements RecordStorageController {
 				ByteBuffer buffer = heap.read(key,sizeOfEachRecord);
 				GenericRecord buff = new GenericRecord(buffer.array());
 				if(extractor.isActiveRecord(buff)){
-					BigInteger pkBuff = extractor.getPrimaryKey(buff);
+					BigKey pkBuff = extractor.getPrimaryKey(buff);
 
 					WriteByteStream wbs = getWriteByteStream();
 					if(pk.compareTo(pkBuff)==0){
@@ -176,7 +176,7 @@ public class FixedRecordStorage implements RecordStorageController {
 
 	@Override
 	public long writeNew(Record r) {
-		BigInteger pk = recordInterface.getExtractor().getPrimaryKey(r);
+		BigKey pk = recordInterface.getExtractor().getPrimaryKey(r);
 		long position = 0;
 		int size = r.size();
 		if(size>sizeOfEachRecord)size=sizeOfEachRecord;
@@ -195,7 +195,7 @@ public class FixedRecordStorage implements RecordStorageController {
 				lock.writeLock().unlock();
 			}
 		}else {
-			TreeMap<BigInteger,byte[]> arr = new TreeMap<>();
+			TreeMap<BigKey,byte[]> arr = new TreeMap<>();
 
 			GenericRecord buffer =new GenericRecord(new byte[sizeOfEachRecord]);
 			byte[] data;
@@ -224,7 +224,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		return position;
 	}
 
-	private long writeNewP1(TreeMap<BigInteger,byte[]> records, GenericRecord buffer){
+	private long writeNewP1(TreeMap<BigKey,byte[]> records, GenericRecord buffer){
 		long startPos;
 		startPos = findRecordBinarySearch(records.firstKey(), 0, qtdOfRecords - 1, buffer);
 
@@ -239,10 +239,10 @@ public class FixedRecordStorage implements RecordStorageController {
 		return (startPos-sizeOfBytesQtdRecords)/sizeOfEachRecord;
 	}
 
-	private long writeNewP2(TreeMap<BigInteger,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long pos){
-		Map.Entry<BigInteger,byte[]> entry=null;
+	private long writeNewP2(TreeMap<BigKey,byte[]> records, GenericRecord buffer, WriteByteStream wbs, long pos){
+		Map.Entry<BigKey,byte[]> entry=null;
 		LinkedList<byte[]> list = new LinkedList<>();
-		LinkedList<BigInteger> listKey = new LinkedList<>();
+		LinkedList<BigKey> listKey = new LinkedList<>();
 		byte[] data = null;
 		long readOffset= pos;
 		long writeOffset = pos;
@@ -253,8 +253,8 @@ public class FixedRecordStorage implements RecordStorageController {
 
 			if(recordInterface.getExtractor().isActiveRecord(buffer)) {
 				long writePosition = getPositionOfRecord(writeOffset);
-				BigInteger firstKey = records.firstKey();
-				BigInteger buffPk = recordInterface.getExtractor().getPrimaryKey(buffer);
+				BigKey firstKey = records.firstKey();
+				BigKey buffPk = recordInterface.getExtractor().getPrimaryKey(buffer);
 				switch (firstKey.compareTo(buffPk)) {
 					case -1:
 						do{
@@ -318,8 +318,8 @@ public class FixedRecordStorage implements RecordStorageController {
 		return writeOffset;
 	}
 
-	private void writeNewP3(TreeMap<BigInteger,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long writeOffset){
-		Map.Entry<BigInteger,byte[]> entry=null;
+	private void writeNewP3(TreeMap<BigKey,byte[]> records, GenericRecord buffer, WriteByteStream wbs, long writeOffset){
+		Map.Entry<BigKey,byte[]> entry=null;
 		byte[] data = null;
 		while((entry = records.pollFirstEntry())!=null){
 			long position = getPositionOfRecord(writeOffset);
@@ -335,7 +335,7 @@ public class FixedRecordStorage implements RecordStorageController {
 
 	@Override
 	public void writeNew(List<Record> list) {
-		TreeMap<BigInteger,byte[]> records = new TreeMap<BigInteger,byte[]>();
+		TreeMap<BigKey,byte[]> records = new TreeMap<BigKey,byte[]>();
 		byte[] data = null;
 
 		GenericRecord buffer = new GenericRecord(new byte[sizeOfEachRecord]);
@@ -365,7 +365,7 @@ public class FixedRecordStorage implements RecordStorageController {
 		}
 	}
 
-	protected long findRecordBinarySearch(BigInteger pk, long min, long max,GenericRecord buffer){
+	protected long findRecordBinarySearch(BigKey pk, long min, long max, GenericRecord buffer){
 		if(max>min){
 			long mid = min + (max - min)/2;
 			long offset = 0;
@@ -378,7 +378,7 @@ public class FixedRecordStorage implements RecordStorageController {
 				return findRecordBinarySearch(pk,min,mid-1,buffer);
 			}
 
-			BigInteger pk2 = recordInterface.getExtractor().getPrimaryKey(buffer);
+			BigKey pk2 = recordInterface.getExtractor().getPrimaryKey(buffer);
 
 			switch (pk.compareTo(pk2)){
 				case -1:
@@ -491,14 +491,14 @@ public class FixedRecordStorage implements RecordStorageController {
 //			}
 //
 //			@Override
-//			public void setPointer(BigInteger pk) {
+//			public void setPointer(BigKey pk) {
 //				long position = findRecordBinarySearch(pk,0,qtdOfRecords-1,buffer2);
 //				checkKey(position);
 //				pos = (position-sizeOfBytesQtdRecords)/sizeOfEachRecord;
 //			}
 //
 //			@Override
-//			public BigInteger getPointer() {
+//			public BigKey getPointer() {
 //				if(buffer==null)return null;
 //				if(recordInterface.getExtractor().isActiveRecord(buffer))
 //					return recordInterface.getExtractor().getPrimaryKey(buffer);

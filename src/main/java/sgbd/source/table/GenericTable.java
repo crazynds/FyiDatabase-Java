@@ -3,13 +3,14 @@ package sgbd.source.table;
 import engine.storage.common.AnonymousStorageRecord;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordStream;
+import lib.BigKey;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.RowData;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
 import sgbd.source.index.Index;
 
-import java.math.BigInteger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +39,17 @@ public abstract class GenericTable extends Table {
     }
 
     @Override
-    public BigInteger insert(RowData r) {
+    public BigKey insert(RowData r) {
         translatorApi.validateRowData(r);
-        BigInteger pk = translatorApi.getPrimaryKey(r);
-        this.primaryIndex.deleteRef(pk);
+        BigKey pk = translatorApi.getPrimaryKey(r);
         Record record = translatorApi.convertToRecord(r);
-        this.storage.write(record);
+
+        Long ref = this.primaryIndex.deleteRef(pk);
+        if(ref!=null){
+            this.storage.update(ref,record);
+        }else{
+            this.storage.write(record);
+        }
         this.storage.flush();
         return pk;
     }
@@ -53,9 +59,13 @@ public abstract class GenericTable extends Table {
         for (RowData row: r){
             translatorApi.validateRowData(row);
             Record record = translatorApi.convertToRecord(row);
-            this.primaryIndex.deleteRef(translatorApi.getPrimaryKey(record));
 
-            list.add(record);
+            Long ref = this.primaryIndex.deleteRef(translatorApi.getPrimaryKey(record));
+            if(ref!=null){  // Se já existia a entrada com aquela chave na tabela, então sobrescreve a entrada antiga
+                this.storage.update(ref,record);
+            }else{
+                list.add(record);
+            }
         }
         this.storage.write(list);
         this.storage.flush();

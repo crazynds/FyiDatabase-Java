@@ -1,9 +1,10 @@
 package sgbd.prototype;
 
 import engine.util.Util;
+import lib.BigKey;
 import sgbd.util.global.UtilConversor;
 
-import java.math.BigInteger;
+
 
 public class BData {
     private byte[] data;
@@ -45,10 +46,10 @@ public class BData {
         if(data==null)return null;
         return UtilConversor.byteArrayToInt(data);
     }
-    public BigInteger getBigInteger() {
+    public BigKey getBigKey() {
         byte[] data = this.data;
         if(data==null)return null;
-        return Util.convertByteArrayToNumber(data);
+        return new BigKey(data);
     }
     public Long getLong() {
         byte[] data = this.data;

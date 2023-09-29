@@ -6,11 +6,12 @@ import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.instances.GenericRecord;
+import lib.BigKey;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.query.fields.Field;
 import sgbd.util.global.UtilConversor;
 
-import java.math.BigInteger;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
@@ -18,7 +19,7 @@ import java.util.*;
 public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
 
     private final int headerSize;
-    private byte[] headerBuffer;
+    private final byte[] headerBuffer;
 
 
     private final ArrayList<Column> columns;
@@ -78,10 +79,8 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         return size;
     }
 
-    public BigInteger getPrimaryKey(RowData rw){
-        BigInteger pk;
+    public BigKey getPrimaryKey(RowData rw){
         ByteBuffer buffer = ByteBuffer.allocate(primaryKeySize);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
         for(Column c:columns){
             if(c.isPrimaryKey()){
                 byte[] arr = rw.getData(c.getName());
@@ -90,7 +89,11 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
                 break;
             }
         }
-        return Util.convertByteArrayToNumber(buffer.array());
+        return new BigKey(buffer.array());
+    }
+
+    public ArrayList<Column> getColumns(){
+        return columns;
     }
 
     public int getPrimaryKeySize(){
@@ -98,15 +101,15 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
     }
 
     @Override
-    public synchronized BigInteger getPrimaryKey(ByteBuffer rbs) {
+    public synchronized BigKey getPrimaryKey(ByteBuffer rbs) {
         rbs.get(this.headerSize,bufferArrayPk,0,primaryKeySize);
-        return Util.convertByteArrayToNumber(bufferArrayPk);
+        return new BigKey(bufferArrayPk,true);
     }
 
     @Override
-    public synchronized BigInteger getPrimaryKey(ReadByteStream rbs) {
+    public synchronized BigKey getPrimaryKey(ReadByteStream rbs) {
         rbs.read(this.headerSize,bufferArrayPk,0,primaryKeySize);
-        return Util.convertByteArrayToNumber(bufferArrayPk);
+        return new BigKey(bufferArrayPk,true);
     }
 
     @Override
@@ -150,21 +153,24 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         }
         rw.setValid();
     }
-
-    public synchronized RowData convertToRowData(Record r, Map<String,Column> meta){
+    public synchronized RowData convertBinaryToRowData(byte[] data, Map<String,Column> meta,boolean hasHeader,boolean onlyPrimaryKey) {
         RowData row = new RowData();
-        byte[] data = r.getData();
-        byte[] header = headerBuffer;
-        System.arraycopy(data,0,header,0,this.headerSize);
-        int headerPointer = 1;
-        int offset = this.headerSize;
+
         int selecteds = 0;
+        int offset = (hasHeader)?this.headerSize:0;
+
+        byte[] header = headerBuffer;
+        if(hasHeader)
+            System.arraycopy(data,0,header,0,this.headerSize);
+
+        int headerPointer = 1;
 
         for(Column c: columns){
-            if(selecteds >= meta.size())break;
-            boolean checkColumn = meta.containsKey(c.getName());
+            if(meta!=null && selecteds >= meta.size())break;
+            if(onlyPrimaryKey && !c.isPrimaryKey())break;
+            boolean checkColumn = meta==null || meta.containsKey(c.getName());
             if(checkColumn)selecteds++;
-            if(c.camBeNull()){
+            if(c.camBeNull() && hasHeader){
                 try {
                     if ((header[headerPointer / 8] & (1 << headerPointer%8)) != 0) {
                         //campo é nulo
@@ -174,23 +180,28 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
                     headerPointer++;
                 }
             }
+            int size = c.getSize();
             if (c.isDinamicSize()) {
-                int size = UtilConversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
+                size = UtilConversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
                 offset += 4;
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
                     row.setField(c.getName(), Field.createField(c,new BData(arr)), c);
                 }
-                offset += size;
+
             } else {
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + c.getSize());
                     row.setField(c.getName(), Field.createField(c,new BData(arr)), c);
                 }
-                offset += c.getSize();
             }
+            offset += size;
         }
         return row;
+    }
+
+    public synchronized RowData convertToRowData(Record r, Map<String,Column> meta){
+        return convertBinaryToRowData(r.getData(),meta,true,false);
     }
 
     public Record convertToRecord(RowData rw){

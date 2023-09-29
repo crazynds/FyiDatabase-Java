@@ -8,8 +8,9 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordInterface;
 import engine.virtualization.record.instances.GenericRecord;
+import lib.BigKey;
 
-import java.math.BigInteger;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
 
     @Override
     public void writeNew(List<Record> list) {
-        TreeMap<BigInteger,byte[]> records = new TreeMap<BigInteger,byte[]>();
+        TreeMap<BigKey,byte[]> records = new TreeMap<BigKey,byte[]>();
         byte[] data = null;
 
         GenericRecord buffer = new GenericRecord(new byte[sizeOfEachRecord]);
@@ -56,7 +57,7 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
         }
     }
 
-    private long findStartInsert(TreeMap<BigInteger,byte[]> records, GenericRecord buffer){
+    private long findStartInsert(TreeMap<BigKey,byte[]> records, GenericRecord buffer){
         long startPos;
         startPos = findRecordBinarySearch(records.firstKey(), 0, qtdOfRecords - 1, buffer);
 
@@ -70,10 +71,10 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
 
         return (startPos-sizeOfBytesQtdRecords)/sizeOfEachRecord;
     }
-    private void insertLoop(TreeMap<BigInteger,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long pos){
-        Map.Entry<BigInteger,byte[]> entry=null;
+    private void insertLoop(TreeMap<BigKey,byte[]> records, GenericRecord buffer,WriteByteStream wbs,long pos){
+        Map.Entry<BigKey,byte[]> entry=null;
         LinkedList<byte[]> list = new LinkedList<>();
-        LinkedList<BigInteger> listKey = new LinkedList<>();
+        LinkedList<BigKey> listKey = new LinkedList<>();
         ReferenceReadByteStream reference = new ReferenceReadByteStream(heap,0);
         RecordInfoExtractor extractor = recordInterface.getExtractor();
         byte[] data = null;
@@ -90,8 +91,8 @@ public class OptimizedFixedRecordStorage extends FixedRecordStorage{
 
             if(extractor.isActiveRecord(reference)) {
                 long writePosition = getPositionOfRecord(writeOffset);
-                BigInteger firstKey = records.firstKey();
-                BigInteger buffPk = extractor.getPrimaryKey(reference);
+                BigKey firstKey = records.firstKey();
+                BigKey buffPk = extractor.getPrimaryKey(reference);
                 switch (firstKey.compareTo(buffPk)) {
                     case -1:
                         do{
