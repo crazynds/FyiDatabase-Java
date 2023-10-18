@@ -38,6 +38,7 @@ public class Header {
         Gson gson = new Gson();
         Header header = (Header)gson.fromJson(json,Header.class);
         header.path = path;
+        if(header.subHeaders==null)header.subHeaders = new HashMap<>();
         return header;
     }
     public void save(String path) throws IOException {
