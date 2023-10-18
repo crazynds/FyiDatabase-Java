@@ -84,6 +84,10 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         for(Column c:columns){
             if(c.isPrimaryKey()){
                 byte[] arr = rw.getData(c.getName());
+                if(arr==null){
+                    arr = new byte[c.getSize()];
+                    Arrays.fill(arr,(byte)0);
+                }
                 buffer.put(arr);
             }else{
                 break;

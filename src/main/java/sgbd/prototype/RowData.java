@@ -2,6 +2,7 @@ package sgbd.prototype;
 
 import com.sun.source.tree.Tree;
 import engine.util.Util;
+import lib.BigKey;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.column.IntegerColumn;
 import sgbd.prototype.metadata.*;
@@ -62,6 +63,10 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 		BData bdata = new BData(UtilConversor.longToByteArray(data));
 		this.setField(column, Field.createField(LongMetadata.generic,bdata));
 	}
+	public void setBigKey(String column, BigKey data) {
+		BData bdata = new BData(data.getData());
+		this.setField(column, Field.createField(new BigIntegerMetadata(bdata.length()),bdata));
+	}
 	public void setString(String column,String data) {
 		BData bdata = new BData(UtilConversor.stringToByteArray(data));
 		this.setField(column, Field.createField(new StringMetadata((short)(data.length()+1)),bdata));
@@ -114,6 +119,7 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 		Field f = this.data.get(column);
 		setField(column,null);
 		setMetadata(column,null);
+		this.data.remove(column);
 		return f;
 	}
 
@@ -146,6 +152,10 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 	public Long getLong(String column) {
 		if(!this.data.containsKey(column))return null;
 		return this.data.get(column).getLong();
+	}
+	public BigKey getBigKey(String column) {
+		if(!this.data.containsKey(column))return null;
+		return this.data.get(column).getBData().getBigKey();
 	}
 	public Float getFloat(String column) {
 		if(!this.data.containsKey(column))return null;

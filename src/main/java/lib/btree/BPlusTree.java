@@ -82,19 +82,13 @@ public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry
                 if(actualLeaf==null)return false;
                 if(iterator==null){
                     iterator = actualLeaf.iterator(key);
-                    int count = 0;
-                    while(iterator.hasNext() && iterator.next().getKey().compareTo(key)==-1){
-                        count++;
-                    };
-                    if(iterator.hasNext()) {
-                        iterator = actualLeaf.iterator();
-                        for (int x = 0; x < count; x++) iterator.next();
-                    }
-                }else{
-                    iterator = actualLeaf.iterator(key);
+                    actualLeaf = actualLeaf.getNextLeaf();
                 }
-                actualLeaf = actualLeaf.getNextLeaf();
-                return true;
+                while(iterator.hasNext()==false && actualLeaf!=null) {
+                    iterator = actualLeaf.iterator();
+                    actualLeaf = actualLeaf.getNextLeaf();
+                }
+                return iterator.hasNext();
             }
 
             @Override

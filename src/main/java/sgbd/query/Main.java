@@ -1,6 +1,8 @@
 package sgbd.query;
 
 import engine.info.Parameters;
+import lib.booleanexpression.entities.constructor.ExpressionConstructor;
+import lib.booleanexpression.entities.elements.Element;
 import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.entities.expressions.AtomicExpression;
@@ -10,36 +12,31 @@ import lib.booleanexpression.enums.LogicalOperator;
 import lib.booleanexpression.enums.RelationalOperator;
 import sgbd.info.Query;
 import sgbd.prototype.query.fields.IntegerField;
+import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
 import sgbd.source.table.Table;
+
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Table movie = Table.loadFromHeader("filme.head");
-        movie.open();
+        Table table = Table.loadFromHeader("users.head");
+        Table table2 = Table.loadFromHeader("cidades.head");
+        table.open();
+        table2.open();
 
-        Operator movie1 = new TableScan(movie);
-        Operator movie2 = new TableScan(movie);
+        Operator scan = new TableScan(table);
+        Operator scan2 = new TableScan(table2);
 
-
-        BooleanExpression b1 = new AtomicExpression(
-                new Variable("filme.idFilme"),
-                new Value(new IntegerField(10)),
-                RelationalOperator.GREATER_THAN_OR_EQUAL);
-        BooleanExpression b2 = new AtomicExpression(
-                new Variable("filme.idFilme"),
-                new Value(new IntegerField(4)),
-                RelationalOperator.LESS_THAN);
-
-        BooleanExpression b = new LogicalExpression(LogicalOperator.OR,b1,b2);
-
-        Operator filterOperator = new FilterOperator(movie1,b);
-
-
-        TestOperators.testOperator(filterOperator);
+        BooleanExpression b = new AtomicExpression(
+                new Variable("users.idCidade"),
+                new Variable("cidades.id"), RelationalOperator.EQUAL);
+        Operator join = new NestedLoopJoin(scan,scan2,b);
+        Operator filter = new SelectColumnsOperator(join, List.of("cidades.id","users.idCidade","users.nome"));
+        TestOperators.testOperator(filter);
 
         //Fecha as tables, não serão mais acessadas
 

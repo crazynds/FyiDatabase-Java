@@ -39,7 +39,7 @@ public class ConsistenceTest {
         for(int x=0;x<qtdData;x++){
             RowData row = generetaRowData();
             list.add(row);
-            if(list.size()>blockSize) {
+            if(list.size()>=blockSize) {
                 this.table.insert(list);
                 list.clear();
                 //System.out.println("["+x+"/"+qtdData+"]");
@@ -62,10 +62,10 @@ public class ConsistenceTest {
         for(int x=0;x<qtdData;x++){
             valid = true;
             RowData row = generetaRowData();
-            BigKey pk = table.getTranslator().getPrimaryKey(row);
+            BigKey pk = table.getPrimaryIndex().getTranslator().getPrimaryKey(row);
             RowData toCompare = table.getPrimaryIndex().findByRef(pk);
             if(invalidos.containsKey(pk)){
-                System.out.println("Inconsistencia anterior justificada por substitui��o de id");
+                System.out.println("Inconsistencia anterior justificada por substituição de id");
                 invalidos.remove(pk);
                 valids++;
             }
@@ -130,6 +130,10 @@ public class ConsistenceTest {
                         break;
                 }
                 if(!valid){
+                    System.out.println("=================================");
+                    printRowData(row);
+                    printRowData(toCompare);
+                    System.out.println("=================================");
                     System.out.println("Inconsistencia encontrada na coluna "+columnName);
                     break;
                 }
@@ -140,7 +144,7 @@ public class ConsistenceTest {
                     printRowData(toCompare);
             }
         }
-        //System.out.println("["+valids+"/"+qtdData+"] "+((float)valids/qtdData)*100.0+"% de records v�lidos verificados!");
+        System.out.println("["+valids+"/"+qtdData+"] "+((float)valids/qtdData)*100.0+"% de records válidos verificados!");
 
         return invalidos.isEmpty();
     }

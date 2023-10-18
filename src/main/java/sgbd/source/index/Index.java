@@ -1,5 +1,6 @@
 package sgbd.source.index;
 
+import engine.exceptions.DataBaseException;
 import engine.util.Util;
 import lib.BigKey;
 import sgbd.prototype.Prototype;
@@ -17,15 +18,18 @@ import java.util.List;
 public abstract class Index<T> extends Source<BigKey> {
 
     protected Source<T> src;
-    protected boolean uniqueIndex;
+    protected boolean nonUniqueIndex;
 
-    private static final String UNIQUE_COLUMN_NAME = "@_ UNIQUE_CONT";
+    protected static final String UNIQUE_COLUMN_NAME = "@_ UNIQUE_CONT";
 
 
     private static Header preparePrototype(Header header,Source src){
         Prototype py = new Prototype();
-        if(!header.getBool("unique")){
+        if(header.getBool("non_unique") &&
+                header.getPrototype().getColumns().stream()
+                        .anyMatch(column -> column.getName().compareTo(UNIQUE_COLUMN_NAME)==0) == false){
             py.addColumn(UNIQUE_COLUMN_NAME,src.getTranslator().getPrimaryKeySize(), Metadata.PRIMARY_KEY|Metadata.IGNORE_COLUMN);
+            throw new DataBaseException("Index->preparePrototype","Ainda não está funcionando os indices secundários não unicos.");
         }
         for(Column c:header.getPrototype()){
             if(c.isPrimaryKey()){
@@ -39,7 +43,7 @@ public abstract class Index<T> extends Source<BigKey> {
     public Index(Header header,Source<T> src) {
         super(preparePrototype(header,src));
 
-        uniqueIndex = header.getBool("unique");
+        nonUniqueIndex = header.getBool("non_unique");
         this.src = src;
     }
 
@@ -49,7 +53,7 @@ public abstract class Index<T> extends Source<BigKey> {
         TranslatorApi srcTranslator = src.getTranslator();
         while(it.hasNext()){
             RowData row = it.next();
-            if(!this.uniqueIndex) {
+            if(this.nonUniqueIndex) {
                 BigKey pk = srcTranslator.getPrimaryKey(row);
                 row.setData(UNIQUE_COLUMN_NAME, pk.getData());
             }
@@ -58,7 +62,7 @@ public abstract class Index<T> extends Source<BigKey> {
         }
     }
     public void update(RowData row,T reference){
-        if(!this.uniqueIndex) {
+        if(this.nonUniqueIndex) {
             BigKey pk = src.getTranslator().getPrimaryKey(row);
             row.setData(UNIQUE_COLUMN_NAME, pk.getData());
         }
@@ -69,16 +73,6 @@ public abstract class Index<T> extends Source<BigKey> {
     }
     protected abstract void updateRef(BigKey key,T reference);
     public abstract T deleteRef(BigKey key);
-
-    @Override
-    public RowData findByRef(BigKey reference) {
-        RowIterator<BigKey> it = this.iterator(null,reference);
-        if(it.hasNext()){
-            RowData row = it.next();
-            if(it.getRefKey().compareTo(reference) == 0)return row;
-        }
-        return null;
-    }
 
     @Override
     public RowIterator<BigKey> iterator() {

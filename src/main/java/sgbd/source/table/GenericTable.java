@@ -8,7 +8,6 @@ import sgbd.prototype.column.Column;
 import sgbd.prototype.RowData;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
-import sgbd.source.index.Index;
 
 
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ public abstract class GenericTable extends Table {
     @Override
     public void clear() {
         if(this.storage==null)this.open();
+        this.primaryIndex.clear();
         this.storage.restart();
         this.storage.flush();
     }
@@ -55,19 +55,9 @@ public abstract class GenericTable extends Table {
     }
     @Override
     public void insert(List<RowData> r) {
-        ArrayList<Record> list = new ArrayList<>();
         for (RowData row: r){
-            translatorApi.validateRowData(row);
-            Record record = translatorApi.convertToRecord(row);
-
-            Long ref = this.primaryIndex.deleteRef(translatorApi.getPrimaryKey(record));
-            if(ref!=null){  // Se já existia a entrada com aquela chave na tabela, então sobrescreve a entrada antiga
-                this.storage.update(ref,record);
-            }else{
-                list.add(record);
-            }
+            this.insert(row);
         }
-        this.storage.write(list);
         this.storage.flush();
     }
 

@@ -32,6 +32,13 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
             heap = new HeapStorage(fm);
             this.sizeOfEachRecord = sizeOfEachRecord;
             this.handler = handler;
+
+            try {
+                byte[] num = new byte[sizeOfBytesQtdRecords];
+                heap.read(0, num, 0, sizeOfBytesQtdRecords);
+                this.qtdOfRecords = Util.convertByteArrayToNumber(num).longValue();
+            }catch(DataBaseException e){}
+
         }catch(IOException e){
             throw new DataBaseException("FixedRecordStorage->Constructor","Erro ao criar heap storage. "+e.getMessage());
         }
@@ -52,6 +59,7 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
     @Override
     public synchronized void restart() {
         heap.clearFile();
+        qtdOfRecords = 0;
     }
 
     @Override

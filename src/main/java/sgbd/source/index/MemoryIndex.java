@@ -55,6 +55,24 @@ public class MemoryIndex<T> extends Index<T>{
     }
 
     @Override
+    public RowData findByRef(BigKey reference) {
+        Iterator<Map.Entry<BigKey,T>> it = storage.iterator(reference);
+        if(it.hasNext()){
+            Map.Entry<BigKey,T> row = it.next();
+            BigKey pk = row.getKey();
+            if(nonUniqueIndex) {
+                RowData rowdata = translatorApi.convertBinaryToRowData(row.getKey().getData(),null,false,true);
+                rowdata.unset(UNIQUE_COLUMN_NAME);
+                pk = translatorApi.getPrimaryKey(rowdata);
+            }
+
+            if(pk.compareTo(reference) == 0)
+                return src.findByRef(row.getValue());
+        }
+        return null;
+    }
+
+    @Override
     protected RowIterator iterator(List<String> columns, BigKey lowerbound) {
         return new RowIterator() {
 
@@ -72,9 +90,9 @@ public class MemoryIndex<T> extends Index<T>{
             }
 
             @Override
-            public BigKey getRefKey() {
+            public T getRefKey() {
                 if(current == null) return null;
-                return current.getKey();
+                return current.getValue();
             }
 
             @Override
@@ -84,10 +102,16 @@ public class MemoryIndex<T> extends Index<T>{
 
             @Override
             public RowData next() {
-                Map.Entry<BigKey,T> entry = it.next();
-                T ref = entry.getValue();
-                RowData row = translatorApi.convertBinaryToRowData(entry.getKey().getData(),metaInfo,false,true);
-
+                current = it.next();
+                T ref = current.getValue();
+                RowData row = translatorApi.convertBinaryToRowData(current.getKey().getData(),metaInfo,false,true);
+                if(nonUniqueIndex)
+                    row.unset(UNIQUE_COLUMN_NAME);
+//                if(ref instanceof Long){
+//                    row.setLong("#ref",(Long)ref);
+//                }else if(ref instanceof BigKey){
+//                    row.setBigKey("#ref",(BigKey) ref);
+//                }
                 return row;
             }
         };

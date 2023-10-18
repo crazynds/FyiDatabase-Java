@@ -2,6 +2,9 @@ package sgbd.test;
 
 import sgbd.prototype.column.Column;
 import sgbd.prototype.Prototype;
+import sgbd.prototype.column.FloatColumn;
+import sgbd.prototype.column.IntegerColumn;
+import sgbd.prototype.column.StringColumn;
 import sgbd.source.components.Header;
 import sgbd.source.table.Table;
 
@@ -12,22 +15,22 @@ public class Main {
     public static void main(String[] args) {
         HashMap<String,String> mapa = new HashMap<>();
         Prototype p1 = new Prototype();
-        p1.addColumn("id",4, Column.PRIMARY_KEY);
+        p1.addColumn(new IntegerColumn("id",true));
         mapa.put("id","int");
-        p1.addColumn("nome",255,Column.DINAMIC_COLUMN_SIZE);
+        p1.addColumn(new StringColumn("nome"));
         mapa.put("nome","string");
-        p1.addColumn("idade",4,Column.CAN_NULL_COLUMN);
+        p1.addColumn(new IntegerColumn("idade"));
         mapa.put("idade","int");
-        p1.addColumn("salario",4,Column.NONE);
+        p1.addColumn(new FloatColumn("salario"));
         mapa.put("salario","float");
 
         Table users = Table.openTable(new Header(p1,"users"));
 
         ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa,156);
         int qtdData=1000000;
-        int block = 10000;
+        int block = 1000;
         long startTime = System.nanoTime();
-        consistenceTest.generateRandomData(qtdData);
+        //consistenceTest.generateRandomData(qtdData);
         consistenceTest.generateRandomDataBlock(qtdData,block);
         long generateTime = System.nanoTime();
         consistenceTest.printAllData();
@@ -35,6 +38,8 @@ public class Main {
             System.out.println("Dados consistentes");
         }
         long checkTime = System.nanoTime();
+
+        users.close();
 
         System.out.println("Tempo de geração: "+(generateTime-startTime)/1000000000.0);
         System.out.println("Tempo de checagem: "+(checkTime-generateTime)/1000000000.0);
