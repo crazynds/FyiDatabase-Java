@@ -35,7 +35,7 @@ public class CSVTable extends Table {
         super(prepareStuff(header));
         this.beginIndex = Integer.parseInt(header.get("beginIndex"));
         this.separator = header.get("separator").charAt(0);
-        this.stringDelimiter = header.get("beginIndex").charAt(0);
+        this.stringDelimiter = header.get("delimiter").charAt(0);
     }
     public CSVTable(Header header,char separator, char stringDelimiter, int beginIndex) {
         super(prepareStuff(header));

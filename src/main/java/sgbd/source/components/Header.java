@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
@@ -79,7 +80,7 @@ public class Header {
     public String getTablePath(){
         String filePath = this.get(Header.FILE_PATH);
         if(this.path!=null && filePath!=null){
-            filePath = new File(new File(this.path).getAbsolutePath()).getParentFile() + "/" + filePath;
+            filePath = Path.of(filePath).isAbsolute() ? filePath : new File(new File(this.path).getAbsolutePath()).getParentFile() + "/" + filePath;
         }
         if(filePath == null){
             filePath = this.get(Header.TABLE_NAME)+".dat";
