@@ -95,20 +95,16 @@ abstract public class JDBCTable extends Table {
     @Override
     protected RowIterator<Long> iterator(List<String> columns, Long lowerbound) {
         return new RowIterator<>() {
-            long currentPage = 1L;
-            long registersCount;
             long currentIt = 0L;
-            final int pageSize;
+            long registersCount = 0;
+            long lastPage;
+            long currentPage = 0L;
+            long pageSize;
             ResultSet results;
 
             {
-                this.registersCount = getRegistersCount();
-                this.pageSize = getPageSize();
+                this.updatePagination();
                 this.results = fetchResults();
-
-                if (lowerbound > 0L && hasNext()) {
-                    for (int x = 1; x < lowerbound; x++) next();
-                }
             }
 
             private ResultSet fetchResults() {
@@ -126,7 +122,7 @@ abstract public class JDBCTable extends Table {
                     PreparedStatement ps = connection.prepareStatement(query);
 
                     ps.setString(1, pkColumn);
-                    ps.setInt(2, pageSize);
+                    ps.setLong(2, pageSize);
                     ps.setLong(3, (currentPage - 1) * pageSize + lowerbound);
 
                     return ps.executeQuery();
@@ -136,20 +132,20 @@ abstract public class JDBCTable extends Table {
                 }
             }
 
-            private long getRegistersCount() {
+            private void updatePagination() {
+                currentPage++;
+                this.pageSize = getPageSize();
                 try {
                     String query = "SELECT COUNT(1) AS row_count FROM " + header.get(Header.TABLE_NAME);
                     PreparedStatement ps = connection.prepareStatement(query);
                     ResultSet rs = ps.executeQuery();
 
                     if (rs.next()) {
-                        return (rs.getInt("row_count") - lowerbound);
+                        this.registersCount = (rs.getInt("row_count") - lowerbound);
+                        this.lastPage = (long) Math.ceil((double) registersCount / pageSize);
                     }
-
-                    return 0;
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    return 0;
                 }
             }
 
@@ -158,10 +154,6 @@ abstract public class JDBCTable extends Table {
                 currentIt = 0L;
                 currentPage = 1L;
                 results = fetchResults();
-
-                if (lowerbound > 0L && hasNext()) {
-                    for (int x = 1; x < lowerbound; x++) next();
-                }
             }
 
             @Override
@@ -176,8 +168,8 @@ abstract public class JDBCTable extends Table {
             @Override
             public boolean hasNext() {
                 if (currentIt < registersCount) {
-                    if (currentIt == pageSize) {
-                        currentPage++;
+                    if (currentIt == pageSize * currentPage) {
+                        this.updatePagination();
                         results = this.fetchResults();
                     }
 
@@ -193,8 +185,8 @@ abstract public class JDBCTable extends Table {
             public RowData next() {
                 if (registersCount > 0) {
                     try {
-                        currentIt++;
                         results.next();
+                        currentIt++;
                         RowData rowData = new RowData();
                         ResultSetMetaData metaData = results.getMetaData();
                         int columnCount = metaData.getColumnCount();
