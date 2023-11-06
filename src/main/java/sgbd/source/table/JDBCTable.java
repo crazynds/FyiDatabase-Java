@@ -128,8 +128,6 @@ abstract public class JDBCTable extends Table {
                     ps.setString(1, pkColumn);
                     ps.setInt(2, pageSize);
                     ps.setLong(3, (currentPage - 1) * pageSize + lowerbound);
-                    System.out.println("Fetching page: " + currentPage);
-                    System.out.println(ps.toString());
 
                     return ps.executeQuery();
                 } catch (SQLException e) {
