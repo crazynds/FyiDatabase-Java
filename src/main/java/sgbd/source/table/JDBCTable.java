@@ -94,32 +94,42 @@ abstract public class JDBCTable extends Table {
 
     @Override
     protected RowIterator<Long> iterator(List<String> columns, Long lowerbound) {
-        return null;
-    }
+        return new RowIterator<>() {
+            long currentPage = 1L;
+            long registersCount;
+            long currentIt = 0L;
+            final int pageSize;
+            ResultSet results;
 
-    @Override
-    public RowIterator<Long> iterator(List<String> columns) {
-        return null;
-    }
+            {
+                this.registersCount = getRegistersCount();
+                this.pageSize = getPageSize();
+                this.results = fetchResults();
 
-    @Override
-    public RowIterator<Long> iterator() {
-        return new RowIterator<Long>() {
-            long currentPage = 1;
-            int registersCount = getRegistersCount();
-            int currentIndex = 0;
-            final int pageSize = getPageSize();
-            ResultSet results = fetchResults();
+                if (lowerbound > 0L && hasNext()) {
+                    for (int x = 1; x < lowerbound; x++) next();
+                }
+            }
 
             private ResultSet fetchResults() {
                 try {
                     String pkColumn = pkColumns.stream().findFirst().orElseThrow();
+                    String selectedColumns = "*";
+                    if (columns != null) {
+                        columns.add(pkColumn);
+                        selectedColumns = columns.toString();
+                        selectedColumns = selectedColumns.substring(1, selectedColumns.length() - 1);
+                    }
+
                     // FIXME: Avoid SQL Injection && Only works with 1 PK Column
-                    String query = "SELECT * FROM " + header.get(Header.TABLE_NAME) + " ORDER BY ? LIMIT ? OFFSET ?";
+                    String query = "SELECT " + selectedColumns + " FROM " + header.get(Header.TABLE_NAME) + " ORDER BY ? LIMIT ? OFFSET ?";
                     PreparedStatement ps = connection.prepareStatement(query);
+
                     ps.setString(1, pkColumn);
                     ps.setInt(2, pageSize);
-                    ps.setLong(3, (currentPage - 1) * pageSize);
+                    ps.setLong(3, (currentPage - 1) * pageSize + lowerbound);
+                    System.out.println("Fetching page: " + currentPage);
+                    System.out.println(ps.toString());
 
                     return ps.executeQuery();
                 } catch (SQLException e) {
@@ -128,14 +138,14 @@ abstract public class JDBCTable extends Table {
                 }
             }
 
-            private int getRegistersCount() {
+            private long getRegistersCount() {
                 try {
                     String query = "SELECT COUNT(1) AS row_count FROM " + header.get(Header.TABLE_NAME);
                     PreparedStatement ps = connection.prepareStatement(query);
                     ResultSet rs = ps.executeQuery();
 
                     if (rs.next()) {
-                        return rs.getInt("row_count");
+                        return (rs.getInt("row_count") - lowerbound);
                     }
 
                     return 0;
@@ -147,8 +157,13 @@ abstract public class JDBCTable extends Table {
 
             @Override
             public void restart() {
-                currentPage = 1;
+                currentIt = 0L;
+                currentPage = 1L;
                 results = fetchResults();
+
+                if (lowerbound > 0L && hasNext()) {
+                    for (int x = 1; x < lowerbound; x++) next();
+                }
             }
 
             @Override
@@ -157,35 +172,31 @@ abstract public class JDBCTable extends Table {
 
             @Override
             public Long getRefKey() {
-                return null;
+                return currentIt;
             }
 
             @Override
             public boolean hasNext() {
-                try {
-                    boolean hasNext = results.next();
-                    if (!hasNext) {
-                        if (currentIndex < registersCount) {
-                            currentPage++;
-                            results = this.fetchResults();
-                            return this.hasNext();
-                        }
-
-                        registersCount = 0;
-                        results.close();
+                if (currentIt < registersCount) {
+                    if (currentIt == pageSize) {
+                        currentPage++;
+                        results = this.fetchResults();
                     }
 
-                    return hasNext;
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return false;
+                    return true;
                 }
+
+                registersCount = 0;
+
+                return false;
             }
 
             @Override
             public RowData next() {
                 if (registersCount > 0) {
                     try {
+                        currentIt++;
+                        results.next();
                         RowData rowData = new RowData();
                         ResultSetMetaData metaData = results.getMetaData();
                         int columnCount = metaData.getColumnCount();
@@ -200,26 +211,34 @@ abstract public class JDBCTable extends Table {
                             }
 
                             switch (columnType) {
+                                case Types.CHAR:
+                                case Types.LONGNVARCHAR:
                                 case Types.VARCHAR:
                                     rowData.setString(columnName, columnValue);
                                     break;
                                 case Types.INTEGER:
                                     rowData.setInt(columnName, Integer.parseInt(columnValue));
                                     break;
+                                case Types.BIGINT:
+                                    rowData.setLong(columnName, Long.parseLong(columnValue));
+                                    break;
                                 case Types.FLOAT:
                                     rowData.setFloat(columnName, Float.parseFloat(columnValue));
                                     break;
                                 case Types.DOUBLE:
                                     rowData.setDouble(columnName, Double.parseDouble(columnValue));
+                                    break;
                                 case Types.BOOLEAN:
                                     rowData.setBoolean(columnName, Boolean.parseBoolean(columnValue));
                                     break;
+                                default:
+                                    // TODO: Map all values to correct data types
+                                    rowData.setString(columnName, columnValue);
                             }
                         }
 
-                        currentIndex++;
                         return rowData;
-                    } catch (SQLException e) {
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 } else {
@@ -227,6 +246,16 @@ abstract public class JDBCTable extends Table {
                 }
             }
         };
+    }
+
+    @Override
+    public RowIterator<Long> iterator(List<String> columns) {
+        return this.iterator(columns, 0L);
+    }
+
+    @Override
+    public RowIterator<Long> iterator() {
+        return this.iterator(null, 0L);
     }
 
     public void setPageSize(int pageSize) {
