@@ -22,26 +22,32 @@ abstract public class JDBCTable extends Table {
      */
     public int pageSize = 100;
 
+    /**
+     * @param header Must contain connection information: ['connection-url', 'connection-user', 'connection-password']
+     */
+    public JDBCTable(Header header) {
+        super(header);
+    }
+
     public JDBCTable(Header header, String connectionUrl) {
         super(header);
-        this.header.set(Header.TABLE_TYPE, "JDBCTable");
-        this.header.set("connectionUrl", connectionUrl);
+        this.header.set("connection-url", connectionUrl);
     }
 
     public JDBCTable(Header header, String connectionUrl, String connectionUser, String connectionPassword) {
         this(header, connectionUrl);
-        this.header.set("connectionUser", connectionUser);
-        this.header.set("connectionPassword", connectionPassword);
+        this.header.set("connection-user", connectionUser);
+        this.header.set("connection-password", connectionPassword);
     }
 
     @Override
     public void open() {
-        String connectionUrl = header.get("connectionUrl");
+        String connectionUrl = header.get("connection-url");
         if (connectionUrl != null) {
             try {
                 if (this.connection == null || this.connection.isClosed()) {
-                    String connectionUser = header.get("connectionUser");
-                    String connectionPassword = header.get("connectionPassword");
+                    String connectionUser = header.get("connection-user");
+                    String connectionPassword = header.get("connection-password");
                     if (connectionUser != null && connectionPassword != null) {
                         connection = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
                     } else {

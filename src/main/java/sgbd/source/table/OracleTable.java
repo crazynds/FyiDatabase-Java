@@ -1,5 +1,6 @@
 package sgbd.source.table;
 
+import engine.virtualization.interfaces.TemporaryBuffer;
 import sgbd.source.components.Header;
 
 import java.sql.PreparedStatement;
@@ -7,14 +8,19 @@ import java.sql.SQLException;
 
 public class OracleTable extends JDBCTable {
 
+    public OracleTable(Header header)
+    {
+        super(header);
+        this.header.set(Header.TABLE_TYPE, "OracleTable");
+    }
+
     public OracleTable(Header header, String connectionUrl) {
         super(header, connectionUrl);
-        this.header.set("connectionType", "PostgreSQL");
+        this.header.set(Header.TABLE_TYPE, "OracleTable");
     }
 
     public OracleTable(Header header, String connectionUrl, String connectionUser, String connectionPassword) {
         super(header, connectionUrl, connectionUser, connectionPassword);
-        this.header.set("connectionType", "PostgreSQL");
     }
 
     /**

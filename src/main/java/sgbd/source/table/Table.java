@@ -31,6 +31,12 @@ public abstract class Table extends Source<Long> {
 				return new MemoryTable(header);
 			case "CSVTable":
 				return new CSVTable(header);
+			case "MySQLTable":
+				return new MySQLTable(header);
+			case "PostgreSQLTable":
+				return new PostgreSQLTable(header);
+			case "OracleTable":
+				return new OracleTable(header);
 			case "SimpleTable":
 			default:
 				return new SimpleTable(header);
