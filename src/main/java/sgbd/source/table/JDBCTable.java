@@ -2,9 +2,12 @@ package sgbd.source.table;
 
 import engine.exceptions.DataBaseException;
 import lib.BigKey;
+import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
+import sgbd.prototype.column.*;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
+import sgbd.prototype.metadata.Metadata;
 
 import java.sql.*;
 import java.util.*;
@@ -12,7 +15,7 @@ import java.util.*;
 abstract public class JDBCTable extends Table {
 
     public Connection connection;
-    public Set<String> pkColumns;
+
     /**
      * Page size used in iterator for
      * fetching results
@@ -43,7 +46,8 @@ abstract public class JDBCTable extends Table {
                     connection = DriverManager.getConnection(connectionUrl);
                 }
 
-                setTablePrimaryKeys();
+                // Forcefully rewrite header's prototype
+                setPrototype();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -51,19 +55,61 @@ abstract public class JDBCTable extends Table {
 
     }
 
-    public void setTablePrimaryKeys() {
+    public void setPrototype() {
+        Prototype pt = new Prototype();
+
         try {
-            ResultSet pkColumns = connection.getMetaData().getPrimaryKeys(null, null, header.get(Header.TABLE_NAME));
-            SortedSet<String> pkColumnSet = new TreeSet<>();
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet columns = metaData.getColumns(null, null, header.get(Header.TABLE_NAME), null);
+            ResultSet pkColumns = metaData.getPrimaryKeys(null, null, header.get(Header.TABLE_NAME));
+            ArrayList<String> pkColumnsNames = new ArrayList<>();
+
             while (pkColumns.next()) {
-                String pkColumnName = pkColumns.getString("COLUMN_NAME");
-                pkColumnSet.add(pkColumnName);
+                pkColumnsNames.add(pkColumns.getString("COLUMN_NAME"));
             }
 
-            this.pkColumns = pkColumnSet;
-        } catch (SQLException e) {
+            while (columns.next()) {
+                String columnName = columns.getString("COLUMN_NAME");
+                int columnType = Integer.parseInt(columns.getString("DATA_TYPE"));
+                boolean isPk = pkColumnsNames.contains(columnName);
+
+                switch (columnType) {
+                    case Types.INTEGER:
+                        pt.addColumn(new IntegerColumn(columnName, isPk));
+                        break;
+                    case Types.BIGINT:
+                        pt.addColumn(new LongColumn(columnName, isPk));
+                        break;
+                    case Types.FLOAT:
+                        pt.addColumn(new FloatColumn(columnName));
+                        break;
+                    case Types.DOUBLE:
+                        pt.addColumn(new DoubleColumn(columnName));
+                        break;
+                    case Types.BOOLEAN:
+                        pt.addColumn(new BooleanColumn(columnName));
+                        break;
+                    default:
+                        // TODO: Map all values to correct data types
+                        pt.addColumn(new StringColumn(columnName));
+                }
+            }
+
+            header.setPrototype(pt);
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<String> getPKColumns() {
+        ArrayList<String> pkColumns = new ArrayList<>();
+        for (Column column : header.getPrototype().getColumns()) {
+            if (column.isPrimaryKey()) {
+                pkColumns.add(column.getName());
+            }
+        }
+
+        return pkColumns;
     }
 
     @Override
@@ -81,7 +127,6 @@ abstract public class JDBCTable extends Table {
         throw new DataBaseException("JDBCTable", "This type of table (JDBCTable) is not writable");
     }
 
-
     @Override
     public void close() {
         try {
@@ -89,7 +134,6 @@ abstract public class JDBCTable extends Table {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -109,21 +153,19 @@ abstract public class JDBCTable extends Table {
 
             private ResultSet fetchResults() {
                 try {
-                    String pkColumn = pkColumns.stream().findFirst().orElseThrow();
                     String selectedColumns = "*";
                     if (columns != null) {
-                        columns.add(pkColumn);
+                        columns.addAll(getPKColumns());
                         selectedColumns = columns.toString();
                         selectedColumns = selectedColumns.substring(1, selectedColumns.length() - 1);
                     }
 
-                    // FIXME: Avoid SQL Injection && Only works with 1 PK Column
-                    String query = "SELECT " + selectedColumns + " FROM " + header.get(Header.TABLE_NAME) + " ORDER BY ? LIMIT ? OFFSET ?";
+                    // FIXME: Avoid SQL Injection
+                    String query = "SELECT " + selectedColumns + " FROM " + header.get(Header.TABLE_NAME) + " LIMIT ? OFFSET ?";
                     PreparedStatement ps = connection.prepareStatement(query);
 
-                    ps.setString(1, pkColumn);
-                    ps.setLong(2, pageSize);
-                    ps.setLong(3, (currentPage - 1) * pageSize + lowerbound);
+                    ps.setLong(1, pageSize);
+                    ps.setLong(2, (currentPage - 1) * pageSize + lowerbound);
 
                     return ps.executeQuery();
                 } catch (SQLException e) {
@@ -177,7 +219,6 @@ abstract public class JDBCTable extends Table {
                 }
 
                 registersCount = 0;
-
                 return false;
             }
 
@@ -187,43 +228,28 @@ abstract public class JDBCTable extends Table {
                     try {
                         results.next();
                         currentIt++;
-                        RowData rowData = new RowData();
-                        ResultSetMetaData metaData = results.getMetaData();
-                        int columnCount = metaData.getColumnCount();
-                        for (int i = 1; i <= columnCount; i++) {
-                            String columnName = metaData.getColumnName(i);
-                            int columnType = metaData.getColumnType(i);
-                            String columnValue = "";
 
-                            Object valueObject = results.getObject(i);
-                            if (valueObject != null) {
-                                columnValue = valueObject.toString();
+                        RowData rowData = new RowData();
+                        for (Column column : header.getPrototype().getColumns()) {
+                            if (columns != null && !columns.contains(column.getName())) {
+                                continue;
                             }
 
-                            switch (columnType) {
-                                case Types.CHAR:
-                                case Types.LONGNVARCHAR:
-                                case Types.VARCHAR:
-                                    rowData.setString(columnName, columnValue);
-                                    break;
-                                case Types.INTEGER:
-                                    rowData.setInt(columnName, Integer.parseInt(columnValue));
-                                    break;
-                                case Types.BIGINT:
-                                    rowData.setLong(columnName, Long.parseLong(columnValue));
-                                    break;
-                                case Types.FLOAT:
-                                    rowData.setFloat(columnName, Float.parseFloat(columnValue));
-                                    break;
-                                case Types.DOUBLE:
-                                    rowData.setDouble(columnName, Double.parseDouble(columnValue));
-                                    break;
-                                case Types.BOOLEAN:
-                                    rowData.setBoolean(columnName, Boolean.parseBoolean(columnValue));
-                                    break;
-                                default:
-                                    // TODO: Map all values to correct data types
-                                    rowData.setString(columnName, columnValue);
+                            String columnName = column.getName();
+                            String columnValue = results.getString(columnName);
+                            // TODO: Improve null handling
+                            if (columnValue == null) {
+                                columnValue = "";
+                            }
+
+                            switch (column.getFlags()) {
+                                case Metadata.PRIMARY_KEY, Metadata.SIGNED_INTEGER_COLUMN ->
+                                        rowData.setInt(columnName, results.getInt(columnName), column);
+                                case Metadata.FLOATING_POINT ->
+                                        rowData.setFloat(columnName, results.getFloat(columnName), column);
+                                case Metadata.BOOLEAN ->
+                                        rowData.setBoolean(columnName, results.getBoolean(columnName), column);
+                                default -> rowData.setString(columnName, columnValue, column);
                             }
                         }
 
