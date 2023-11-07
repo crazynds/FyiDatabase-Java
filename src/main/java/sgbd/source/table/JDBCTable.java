@@ -38,12 +38,14 @@ abstract public class JDBCTable extends Table {
         String connectionUrl = header.get("connectionUrl");
         if (connectionUrl != null) {
             try {
-                String connectionUser = header.get("connectionUser");
-                String connectionPassword = header.get("connectionPassword");
-                if (connectionUser != null && connectionPassword != null) {
-                    connection = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
-                } else {
-                    connection = DriverManager.getConnection(connectionUrl);
+                if (this.connection == null || this.connection.isClosed()) {
+                    String connectionUser = header.get("connectionUser");
+                    String connectionPassword = header.get("connectionPassword");
+                    if (connectionUser != null && connectionPassword != null) {
+                        connection = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+                    } else {
+                        connection = DriverManager.getConnection(connectionUrl);
+                    }
                 }
 
                 // Forcefully rewrite header's prototype
@@ -160,18 +162,14 @@ abstract public class JDBCTable extends Table {
                         selectedColumns = selectedColumns.substring(1, selectedColumns.length() - 1);
                     }
 
-                    // FIXME: Avoid SQL Injection
-                    String query = "SELECT " + selectedColumns + " FROM " + header.get(Header.TABLE_NAME) + " LIMIT ? OFFSET ?";
-                    PreparedStatement ps = connection.prepareStatement(query);
-
-                    ps.setLong(1, pageSize);
-                    ps.setLong(2, (currentPage - 1) * pageSize + lowerbound);
-
+                    Long offset = (currentPage - 1) * pageSize + lowerbound;
+                    PreparedStatement ps = getStatementForPaginatedSelect(selectedColumns, pageSize, offset);
                     return ps.executeQuery();
                 } catch (SQLException e) {
                     System.out.println(e.getMessage());
-                    return null;
                 }
+
+                return null;
             }
 
             private void updatePagination() {
@@ -280,6 +278,27 @@ abstract public class JDBCTable extends Table {
 
     public int getPageSize() {
         return pageSize;
+    }
+
+    /**
+     * @param selectedColumns Columns to be retrieved in the SELECT statement. e.g: "id, name"
+     */
+    protected PreparedStatement getStatementForPaginatedSelect(String selectedColumns, Long pageSize, Long offset) {
+        try {
+            String query = "SELECT " + selectedColumns +
+                    " FROM " + header.get(Header.TABLE_NAME) +
+                    " LIMIT ? OFFSET ?";
+
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setLong(1, pageSize);
+            ps.setLong(2, offset);
+
+            return ps;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 }

@@ -13,4 +13,5 @@ public class MySQLTable extends JDBCTable {
         super(header, connectionUrl, connectionUser, connectionPassword);
         this.header.set("connectionType", "MySQL");
     }
+
 }
