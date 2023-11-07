@@ -24,6 +24,7 @@ abstract public class JDBCTable extends Table {
 
     public JDBCTable(Header header, String connectionUrl) {
         super(header);
+        this.header.set(Header.TABLE_TYPE, "JDBCTable");
         this.header.set("connectionUrl", connectionUrl);
     }
 
