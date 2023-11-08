@@ -10,11 +10,6 @@ public class MySQLTable extends JDBCTable {
         this.header.set(Header.TABLE_TYPE, "MySQLTable");
     }
 
-    public MySQLTable(Header header, String connectionUrl) {
-        super(header, connectionUrl);
-        this.header.set(Header.TABLE_TYPE, "MySQLTable");
-    }
-
     public MySQLTable(Header header, String connectionUrl, String connectionUser, String connectionPassword) {
         super(header, connectionUrl, connectionUser, connectionPassword);
     }

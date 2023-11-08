@@ -18,54 +18,54 @@ abstract public class JDBCTable extends Table {
     public Connection connection;
 
     /**
-     * Page size used in iterator for
-     * fetching results
-     */
-    public int pageSize = 100;
-
-    /**
      * @param header Must contain connection information: ['connection-url', 'connection-user', 'connection-password']
      */
     public JDBCTable(Header header) {
         super(header);
-    }
-
-    public JDBCTable(Header header, String connectionUrl) {
-        super(header);
-        this.header.set("connection-url", connectionUrl);
+        validateHeaderConnection(header);
     }
 
     public JDBCTable(Header header, String connectionUrl, String connectionUser, String connectionPassword) {
-        this(header, connectionUrl);
+        super(header);
+        this.header.set("connection-url", connectionUrl);
         this.header.set("connection-user", connectionUser);
         this.header.set("connection-password", connectionPassword);
     }
 
+    private void validateHeaderConnection(Header header) {
+        ArrayList<String> missingConnectionFields = new ArrayList<>();
+        if (header.get("connection-url") == null) missingConnectionFields.add("connection-url");
+        if (header.get("connection-user") == null) missingConnectionFields.add("connection-user");
+        if (header.get("connection-password") == null) missingConnectionFields.add("connection-password");
+
+        if (!missingConnectionFields.isEmpty()) {
+            throw new DataBaseException("JDBCTable", "Header must contain: " + String.join(", ", missingConnectionFields));
+        }
+    }
+
     @Override
     public void open() {
-        String connectionUrl = header.get("connection-url");
-        if (connectionUrl != null) {
-            try {
-                if (this.connection == null || this.connection.isClosed()) {
-                    String connectionUser = header.get("connection-user");
-                    String connectionPassword = header.get("connection-password");
-                    if (connectionUser != null && connectionPassword != null) {
-                        connection = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
-                    } else {
-                        connection = DriverManager.getConnection(connectionUrl);
-                    }
+        try {
+            if (this.connection == null || this.connection.isClosed()) {
+                String connectionUrl = header.get("connection-url");
+                String connectionUser = header.get("connection-user");
+                String connectionPassword = header.get("connection-password");
+                if (connectionUser != null && connectionPassword != null) {
+                    connection = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+                } else {
+                    connection = DriverManager.getConnection(connectionUrl);
                 }
-
-                // Forcefully rewrite header's prototype
-                setPrototype();
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+
+            // Forcefully rewrite header's prototype
+            setPrototype();
+        } catch (DataBaseException | SQLException e) {
+            throw new DataBaseException("JDBCTable", e.getMessage());
         }
 
     }
 
-    public void setPrototype() {
+    protected void setPrototype() {
         Prototype pt = new Prototype();
 
         try {
@@ -107,8 +107,8 @@ abstract public class JDBCTable extends Table {
 
             header.setPrototype(pt);
             translatorApi = header.getPrototype().validateColumns();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (DataBaseException | SQLException e) {
+            throw new DataBaseException("JDBCTable", e.getMessage());
         }
     }
 
@@ -142,8 +142,7 @@ abstract public class JDBCTable extends Table {
     public void close() {
         try {
             connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ignored) {
         }
     }
 
@@ -151,18 +150,13 @@ abstract public class JDBCTable extends Table {
     protected RowIterator<Long> iterator(List<String> columns, Long lowerbound) {
         return new RowIterator<>() {
             long currentIt = 0L;
-            long registersCount = 0;
-            long lastPage;
-            long currentPage = 0L;
-            long pageSize;
             ResultSet results;
 
             {
-                this.updatePagination();
-                this.results = fetchResults();
+                fetchResults();
             }
 
-            private ResultSet fetchResults() {
+            private void fetchResults() {
                 try {
                     String selectedColumns = "*";
                     if (columns != null) {
@@ -171,38 +165,17 @@ abstract public class JDBCTable extends Table {
                         selectedColumns = selectedColumns.substring(1, selectedColumns.length() - 1);
                     }
 
-                    Long offset = (currentPage - 1) * pageSize + lowerbound;
-                    PreparedStatement ps = getStatementForPaginatedSelect(selectedColumns, pageSize, offset);
-                    return ps.executeQuery();
+                    PreparedStatement ps = getSelectStatement(selectedColumns, lowerbound);
+                    results = ps.executeQuery();
                 } catch (SQLException e) {
                     System.out.println(e.getMessage());
-                }
-
-                return null;
-            }
-
-            private void updatePagination() {
-                currentPage++;
-                this.pageSize = getPageSize();
-                try {
-                    String query = "SELECT COUNT(1) AS row_count FROM " + header.get(Header.TABLE_NAME);
-                    PreparedStatement ps = connection.prepareStatement(query);
-                    ResultSet rs = ps.executeQuery();
-
-                    if (rs.next()) {
-                        this.registersCount = (rs.getInt("row_count") - lowerbound);
-                        this.lastPage = (long) Math.ceil((double) registersCount / pageSize);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
             }
 
             @Override
             public void restart() {
                 currentIt = 0L;
-                currentPage = 1L;
-                results = fetchResults();
+                fetchResults();
             }
 
             @Override
@@ -216,68 +189,56 @@ abstract public class JDBCTable extends Table {
 
             @Override
             public boolean hasNext() {
-                if (currentIt < registersCount) {
-                    if (currentIt == pageSize * currentPage) {
-                        this.updatePagination();
-                        results = this.fetchResults();
-                    }
-
-                    return true;
+                try {
+                    return results.next();
+                } catch (SQLException e) {
+                    throw new DataBaseException("JDBCTable", e.getMessage());
                 }
-
-                registersCount = 0;
-                return false;
             }
 
             @Override
             public RowData next() {
-                if (registersCount > 0) {
-                    try {
-                        results.next();
-                        currentIt++;
+                try {
+                    currentIt++;
 
-                        RowData rowData = new RowData();
-                        for (Column c : header.getPrototype().getColumns()) {
-                            if (columns != null && !columns.contains(c.getName())) {
-                                continue;
-                            }
-
-                            String val = results.getString(c.getName());
-
-                            if(val == null || val.compareToIgnoreCase("null")==0 || val.isEmpty() || val.isBlank()){
-                                rowData.setField(c.getName(),new NullField(c),c);
-                                continue;
-                            }
-
-                            switch (Util.typeOfColumn(c)){
-                                case "string":
-                                    rowData.setString(c.getName(),val,c);
-                                    break;
-                                case "int":
-                                    rowData.setInt(c.getName(),Integer.parseInt(val),c);
-                                    break;
-                                case "long":
-                                    rowData.setLong(c.getName(),Long.valueOf(val),c);
-                                    break;
-                                case "double":
-                                    rowData.setDouble(c.getName(),Double.parseDouble(val),c);
-                                    break;
-                                case "float":
-                                    rowData.setFloat(c.getName(),Float.parseFloat(val),c);
-                                    break;
-                                case "boolean":
-                                    rowData.setBoolean(c.getName(),Boolean.parseBoolean(val),c);
-                                    break;
-                            }
-
+                    RowData rowData = new RowData();
+                    for (Column c : header.getPrototype().getColumns()) {
+                        if (columns != null && !columns.contains(c.getName())) {
+                            continue;
                         }
 
-                        return rowData;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        String val = results.getString(c.getName());
+
+                        if (val == null || val.compareToIgnoreCase("null") == 0 || val.isEmpty() || val.isBlank()) {
+                            rowData.setField(c.getName(), new NullField(c), c);
+                            continue;
+                        }
+
+                        switch (Util.typeOfColumn(c)) {
+                            case "string":
+                                rowData.setString(c.getName(), val, c);
+                                break;
+                            case "int":
+                                rowData.setInt(c.getName(), Integer.parseInt(val), c);
+                                break;
+                            case "long":
+                                rowData.setLong(c.getName(), Long.valueOf(val), c);
+                                break;
+                            case "double":
+                                rowData.setDouble(c.getName(), Double.parseDouble(val), c);
+                                break;
+                            case "float":
+                                rowData.setFloat(c.getName(), Float.parseFloat(val), c);
+                                break;
+                            case "boolean":
+                                rowData.setBoolean(c.getName(), Boolean.parseBoolean(val), c);
+                                break;
+                        }
                     }
-                } else {
-                    throw new NoSuchElementException();
+
+                    return rowData;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
         };
@@ -293,33 +254,45 @@ abstract public class JDBCTable extends Table {
         return this.iterator(null, 0L);
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
     /**
      * @param selectedColumns Columns to be retrieved in the SELECT statement. e.g: "id, name"
      */
-    protected PreparedStatement getStatementForPaginatedSelect(String selectedColumns, Long pageSize, Long offset) {
+    protected PreparedStatement getSelectStatement(String selectedColumns, Long offset) {
         try {
+            Long registersCount = this.getRowCount();
             String query = "SELECT " + selectedColumns +
                     " FROM " + header.get(Header.TABLE_NAME) +
-                    " LIMIT ? OFFSET ?";
+                    " LIMIT ?, ?";
 
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setLong(1, pageSize);
-            ps.setLong(2, offset);
+            ps.setLong(1, offset);
+            ps.setLong(2, registersCount);
 
             return ps;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataBaseException("JDBCTable", e.getMessage());
         }
+    }
 
-        return null;
+    protected Long getRowCount() {
+        try {
+            String query = "SELECT COUNT(*) FROM " + header.get(Header.TABLE_NAME);
+            PreparedStatement ps = connection.prepareStatement(query);
+
+            try (ResultSet resultSet = ps.executeQuery()) {
+                long rowCount = 0L;
+                if (resultSet.next()) {
+                    rowCount = resultSet.getLong(1);
+                }
+
+                ps.close();
+                resultSet.close();
+
+                return rowCount;
+            }
+        } catch (SQLException e) {
+            throw new DataBaseException("JDBCTable", e.getMessage());
+        }
     }
 
 }
