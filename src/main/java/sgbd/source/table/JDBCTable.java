@@ -106,6 +106,7 @@ abstract public class JDBCTable extends Table {
             }
 
             header.setPrototype(pt);
+            translatorApi = header.getPrototype().validateColumns();
         } catch (Exception e) {
             e.printStackTrace();
         }
