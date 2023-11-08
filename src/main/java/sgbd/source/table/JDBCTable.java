@@ -5,9 +5,10 @@ import lib.BigKey;
 import sgbd.prototype.Prototype;
 import sgbd.prototype.RowData;
 import sgbd.prototype.column.*;
+import sgbd.prototype.query.fields.NullField;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
-import sgbd.prototype.metadata.Metadata;
+import sgbd.util.global.Util;
 
 import java.sql.*;
 import java.util.*;
@@ -235,27 +236,39 @@ abstract public class JDBCTable extends Table {
                         currentIt++;
 
                         RowData rowData = new RowData();
-                        for (Column column : header.getPrototype().getColumns()) {
-                            if (columns != null && !columns.contains(column.getName())) {
+                        for (Column c : header.getPrototype().getColumns()) {
+                            if (columns != null && !columns.contains(c.getName())) {
                                 continue;
                             }
 
-                            String columnName = column.getName();
-                            String columnValue = results.getString(columnName);
-                            // TODO: Improve null handling
-                            if (columnValue == null) {
-                                columnValue = "";
+                            String val = results.getString(c.getName());
+
+                            if(val == null || val.compareToIgnoreCase("null")==0 || val.isEmpty() || val.isBlank()){
+                                rowData.setField(c.getName(),new NullField(c),c);
+                                continue;
                             }
 
-                            switch (column.getFlags()) {
-                                case Metadata.PRIMARY_KEY, Metadata.SIGNED_INTEGER_COLUMN ->
-                                        rowData.setInt(columnName, results.getInt(columnName), column);
-                                case Metadata.FLOATING_POINT ->
-                                        rowData.setFloat(columnName, results.getFloat(columnName), column);
-                                case Metadata.BOOLEAN ->
-                                        rowData.setBoolean(columnName, results.getBoolean(columnName), column);
-                                default -> rowData.setString(columnName, columnValue, column);
+                            switch (Util.typeOfColumn(c)){
+                                case "string":
+                                    rowData.setString(c.getName(),val,c);
+                                    break;
+                                case "int":
+                                    rowData.setInt(c.getName(),Integer.parseInt(val),c);
+                                    break;
+                                case "long":
+                                    rowData.setLong(c.getName(),Long.valueOf(val),c);
+                                    break;
+                                case "double":
+                                    rowData.setDouble(c.getName(),Double.parseDouble(val),c);
+                                    break;
+                                case "float":
+                                    rowData.setFloat(c.getName(),Float.parseFloat(val),c);
+                                    break;
+                                case "boolean":
+                                    rowData.setBoolean(c.getName(),Boolean.parseBoolean(val),c);
+                                    break;
                             }
+
                         }
 
                         return rowData;
