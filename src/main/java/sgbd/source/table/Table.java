@@ -26,15 +26,14 @@ public abstract class Table extends Source<Long> {
 	public static Table openTable(Header header, boolean clear){
 		header.setBool("clear",clear);
 		if(header.get(Header.TABLE_TYPE)==null)return new SimpleTable(header);
-		switch (header.get(Header.TABLE_TYPE)){
-			case "MemoryTable":
-				return new MemoryTable(header);
-			case "CSVTable":
-				return new CSVTable(header);
-			case "SimpleTable":
-			default:
-				return new SimpleTable(header);
-		}
+        return switch (header.get(Header.TABLE_TYPE)) {
+            case "MemoryTable" -> new MemoryTable(header);
+            case "CSVTable" -> new CSVTable(header);
+            case "MySQLTable" -> new MySQLTable(header);
+            case "PostgreSQLTable" -> new PostgreSQLTable(header);
+            case "OracleTable" -> new OracleTable(header);
+            default -> new SimpleTable(header);
+        };
 	}
 	public static Table loadFromHeader(String headerPath){
 		Header header;
