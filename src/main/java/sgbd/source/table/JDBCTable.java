@@ -112,17 +112,6 @@ abstract public class JDBCTable extends Table {
         }
     }
 
-    public ArrayList<String> getPKColumns() {
-        ArrayList<String> pkColumns = new ArrayList<>();
-        for (Column column : header.getPrototype().getColumns()) {
-            if (column.isPrimaryKey()) {
-                pkColumns.add(column.getName());
-            }
-        }
-
-        return pkColumns;
-    }
-
     @Override
     public void clear() {
         throw new DataBaseException("JDBCTable", "This type of table (JDBCTable) is not writable");
@@ -160,7 +149,6 @@ abstract public class JDBCTable extends Table {
                 try {
                     String selectedColumns = "*";
                     if (columns != null) {
-                        columns.addAll(getPKColumns());
                         selectedColumns = columns.toString();
                         selectedColumns = selectedColumns.substring(1, selectedColumns.length() - 1);
                     }
