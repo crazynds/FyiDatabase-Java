@@ -17,8 +17,10 @@ public abstract class Source<T> implements Iterable<RowData>{
 
 
     public Source(Header header)  {
-        if(header.getPrototype()!=null)
+        if (header.getPrototype() != null) {
             translatorApi = header.getPrototype().validateColumns();
+        }
+
         this.header = header;
     }
 
