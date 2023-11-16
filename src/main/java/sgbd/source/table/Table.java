@@ -7,6 +7,7 @@ import java.util.List;
 import engine.exceptions.DataBaseException;
 import lib.BigKey;
 import sgbd.prototype.RowData;
+import sgbd.query.Operator;
 import sgbd.source.Source;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;

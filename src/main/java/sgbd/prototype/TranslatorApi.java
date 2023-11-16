@@ -6,6 +6,7 @@ import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.instances.GenericRecord;
+import engine.virtualization.record.instances.GenericRecordPK;
 import lib.BigKey;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.query.fields.Field;
@@ -247,7 +248,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             System.arraycopy(data,0,bufferRecord,offset,data.length);
             offset+=data.length;
         }
-        return new GenericRecord(bufferRecord);
+        return new GenericRecordPK(this.getPrimaryKey(rw),bufferRecord);
     }
 
     public Map<String,Column> generateMetaInfo(List<String> select){

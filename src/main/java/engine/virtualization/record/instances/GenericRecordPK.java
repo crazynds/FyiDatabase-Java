@@ -15,6 +15,10 @@ public class GenericRecordPK extends GenericRecord{
         super(data, size);
     }
 
+    public void setPrimaryKey(BigKey pk){
+        this.pk = pk;
+    }
+
     @Override
     public BigKey primaryKey() {
         return this.pk;

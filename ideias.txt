@@ -9,5 +9,5 @@
 
 1 - Criar função copy no espaço heap e no buffer temporario.
  Essa função é util para não fazer a escrita e depois leitura de uma memoria buffer que ficaria entre o que esta salvo em disco e a memoria temporaria. Ganha desempenho
- Dessa forma, para adaptar o manager estatico, ele ao invez de ler todo o record salvo, ele le apenas os dados necessários para pegar a primarykey, e se necessário mudar de posição o record inteiro, ele usa a função copy, economizando recursos e ganhando desempenho.
+ Dessa forma, para adaptar o manager estatico, ele ao invez de ler tod0 o record salvo, ele le apenas os dados necessários para pegar a primarykey, e se necessário mudar de posição o record inteiro, ele usa a função copy, economizando recursos e ganhando desempenho.
 MAS: não tenho acesso aos array dos buffers para poder usar a função System.arraycpy

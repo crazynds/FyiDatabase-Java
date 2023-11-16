@@ -25,11 +25,11 @@ public class SimpleTable extends GenericTable {
     @Override
     public void open() {
         if(storage==null) {
+            this.primaryIndex = new MemoryIndex(header.getSubHeader("primary_index"),this);
             this.storage = new FixedHeapStorageRecord((r, key) -> {
-                RowData row = this.translatorApi.convertToRowData(r,null);
+                RowData row = this.translatorApi.convertBinaryToRowData(r.getData(),null,true, true);
                 this.primaryIndex.update(row,key);
             }, this.fm, this.translatorApi.maxRecordSize());
-            this.primaryIndex = new MemoryIndex(header.getSubHeader("primary_index"),this);
         }
     }
 

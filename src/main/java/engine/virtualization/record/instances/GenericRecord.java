@@ -33,9 +33,10 @@ public class GenericRecord extends Record {
 		return data;
 	}
 
+
 	@Override
 	public BigKey primaryKey() {
-	    return new BigKey(new byte[]{0,0,0,0});
+	    return null;
 	}
 
 	@Override
