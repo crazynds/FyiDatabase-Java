@@ -6,7 +6,6 @@ import engine.virtualization.interfaces.BlockManager;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
-import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.instances.GenericRecordPK;
 import engine.virtualization.record.storage.btree.BTreeStorage;
 import lib.BigKey;
@@ -22,9 +21,11 @@ public class BTreeStorageRecord extends PkStorageRecord<BigKey> {
 
     private BTreeStorage btree;
     private BlockManager blockManager;
+    private FileManager fm;
 
     public BTreeStorageRecord(FileManager fm,RecordInfoExtractor extractor, int sizeOfKey, int sizeOfEntry) {
         blockManager = new BlockManager();
+        this.fm = fm;
         btree = new BTreeStorage( fm, blockManager, extractor, sizeOfKey, sizeOfEntry);
     }
 
@@ -47,11 +48,12 @@ public class BTreeStorageRecord extends PkStorageRecord<BigKey> {
     @Override
     public void flush() {
         btree.save();
+        fm.flush();
     }
 
     @Override
-    public RecordStream read(BigKey key) {
-        return new RecordStream() {
+    public RecordStream<BigKey> read(BigKey key) {
+        return new RecordStream<>() {
 
             Iterator<Map.Entry<BigKey, ByteBuffer>> iterator = null;
 

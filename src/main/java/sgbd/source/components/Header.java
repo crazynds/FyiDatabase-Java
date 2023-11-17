@@ -69,8 +69,9 @@ public class Header {
         return subHeaders.get(key);
     }
 
-    public void setBool(String key, boolean value){
+    public Header setBool(String key, boolean value){
         information.put(key,value? Header.TRUE : Header.FALSE);
+        return this;
     }
 
     public boolean getBool(String key){

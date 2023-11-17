@@ -6,6 +6,7 @@ import sgbd.prototype.column.FloatColumn;
 import sgbd.prototype.column.IntegerColumn;
 import sgbd.prototype.column.StringColumn;
 import sgbd.source.components.Header;
+import sgbd.source.table.CompleteTable;
 import sgbd.source.table.Table;
 
 import java.util.HashMap;
@@ -24,11 +25,11 @@ public class Main {
         p1.addColumn(new FloatColumn("salario"));
         mapa.put("salario","float");
 
-        Table users = Table.openTable(new Header(p1,"users"));
+        Table users = new CompleteTable(new Header(p1,"users"));
 
         ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa,156);
         int qtdData=1000000;
-        int block = 1000;
+        int block = 100;
         long startTime = System.nanoTime();
         //consistenceTest.generateRandomData(qtdData);
         consistenceTest.generateRandomDataBlock(qtdData,block);

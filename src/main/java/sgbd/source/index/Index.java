@@ -23,7 +23,7 @@ public abstract class Index<T> extends Source<BigKey> {
     protected static final String UNIQUE_COLUMN_NAME = "@_ UNIQUE_CONT";
 
 
-    private static Header preparePrototype(Header header,Source src){
+    protected static Header preparePrototype(Header header,Source src){
         Prototype py = new Prototype();
         if(header.getBool("non_unique") &&
                 header.getPrototype().getColumns().stream()
@@ -41,13 +41,13 @@ public abstract class Index<T> extends Source<BigKey> {
     }
 
     public Index(Header header,Source<T> src) {
-        super(preparePrototype(header,src));
+        super(header);
 
         nonUniqueIndex = header.getBool("non_unique");
         this.src = src;
     }
 
-    protected void reindex(){
+    public void reindex(){
         this.clear();
         RowIterator<T> it = src.iterator(translatorApi.getColumns().stream().map(column -> column.getName()).toList());
         TranslatorApi srcTranslator = src.getTranslator();

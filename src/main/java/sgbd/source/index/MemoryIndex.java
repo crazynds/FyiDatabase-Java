@@ -21,10 +21,10 @@ public class MemoryIndex<T> extends Index<T>{
     private BPlusTree<BigKey,T> storage;
 
     public MemoryIndex(Header header, Source<T> src) {
-        super(header,src);
+        super(preparePrototype(header,src),src);
         storage = new BPlusTree<>();
-        reindex();
     }
+
 
     @Override
     protected void updateRef(BigKey key, T reference) {

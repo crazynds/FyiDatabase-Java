@@ -30,6 +30,8 @@ public class SimpleTable extends GenericTable {
                 RowData row = this.translatorApi.convertBinaryToRowData(r.getData(),null,true, true);
                 this.primaryIndex.update(row,key);
             }, this.fm, this.translatorApi.maxRecordSize());
+            this.primaryIndex.open();
+            this.primaryIndex.reindex();
         }
     }
 

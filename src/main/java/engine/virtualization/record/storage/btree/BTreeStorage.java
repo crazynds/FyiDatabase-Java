@@ -112,7 +112,6 @@ public class BTreeStorage implements Iterable<Map.Entry<BigKey,ByteBuffer>>{
                 while((it==null || !it.hasNext()) && currentLeaf!=null){
                     it = currentLeaf.iterator(pk);
                     currentLeaf = currentLeaf.getNextLeaf();
-                    System.out.print("|");
                 }
                 if(it!=null && it.hasNext())return true;
                 return false;

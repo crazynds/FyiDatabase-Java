@@ -28,7 +28,8 @@ public abstract class Table extends Source<Long> {
 		header.setBool("clear",clear);
 		if(header.get(Header.TABLE_TYPE)==null)return new SimpleTable(header);
         return switch (header.get(Header.TABLE_TYPE)) {
-            case "MemoryTable" -> new MemoryTable(header);
+			case "MemoryTable" -> new MemoryTable(header);
+			case "CompleteTable" -> new CompleteTable(header);
             case "CSVTable" -> new CSVTable(header);
             case "MySQLTable" -> new MySQLTable(header);
             case "PostgreSQLTable" -> new PostgreSQLTable(header);

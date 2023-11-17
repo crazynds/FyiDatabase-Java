@@ -25,6 +25,9 @@ public abstract class GenericTable extends Table {
 
     @Override
     public void close() {
+        if(this.primaryIndex!=null){
+            this.primaryIndex.close();
+        }
         this.storage.flush();
         this.storage.close();
         this.storage = null;
@@ -36,6 +39,9 @@ public abstract class GenericTable extends Table {
         this.primaryIndex.clear();
         this.storage.restart();
         this.storage.flush();
+        if(this.primaryIndex!=null){
+            this.primaryIndex.clear();
+        }
     }
 
     @Override
