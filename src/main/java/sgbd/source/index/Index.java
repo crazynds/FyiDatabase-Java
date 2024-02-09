@@ -61,6 +61,18 @@ public abstract class Index<T> extends Source<BigKey> {
             this.update(row,ref);
         }
     }
+
+    public BigKey insert(RowData r){
+        return null;
+    }
+    public void insert(List<RowData> r){
+        for (RowData row:
+             r) {
+            this.insert(row);
+        }
+    }
+
+
     public void update(RowData row,T reference){
         if(this.nonUniqueIndex) {
             BigKey pk = src.getTranslator().getPrimaryKey(row);

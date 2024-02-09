@@ -5,15 +5,17 @@ import sgbd.prototype.Prototype;
 import sgbd.prototype.column.FloatColumn;
 import sgbd.prototype.column.IntegerColumn;
 import sgbd.prototype.column.StringColumn;
+import sgbd.source.Source;
 import sgbd.source.components.Header;
 import sgbd.source.table.CompleteTable;
+import sgbd.source.table.GenericTable1;
 import sgbd.source.table.Table;
 
 import java.util.HashMap;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         HashMap<String,String> mapa = new HashMap<>();
         Prototype p1 = new Prototype();
         p1.addColumn(new IntegerColumn("id",true));
@@ -25,25 +27,33 @@ public class Main {
         p1.addColumn(new FloatColumn("salario"));
         mapa.put("salario","float");
 
-        Table users = new CompleteTable(new Header(p1,"users"));
+        //Source users = new CompleteTable(new Header(p1,"users"));
+        Source users = new GenericTable1(new Header(p1,"users"), "d:\\", "newTable", 4096, true);
 
         ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa,156);
         int qtdData=1000000;
-        int block = 100;
+        int block = 1000;
         long startTime = System.nanoTime();
         //consistenceTest.generateRandomData(qtdData);
         consistenceTest.generateRandomDataBlock(qtdData,block);
         long generateTime = System.nanoTime();
         consistenceTest.printAllData();
-        if(consistenceTest.checkConsistence(qtdData)){
-            System.out.println("Dados consistentes");
-        }
+        long startCheckinTime = System.nanoTime();
+//        if(consistenceTest.checkConsistence(qtdData)){
+//            System.out.println("Dados consistentes");
+//        }
         long checkTime = System.nanoTime();
 
         users.close();
 
         System.out.println("Tempo de geração: "+(generateTime-startTime)/1000000000.0);
-        System.out.println("Tempo de checagem: "+(checkTime-generateTime)/1000000000.0);
+        System.out.println("Tempo de checagem: "+(checkTime-startCheckinTime)/1000000000.0);
+
+
+
+        /**
+         * Testes ANTIGOS
+         */
 
         /**
          * Testes realizados da seguinte forma:

@@ -58,12 +58,6 @@ public abstract class Table extends Source<Long> {
 		return header.get(Header.TABLE_NAME);
 	}
 
-	/*
-		Aceita apenas novos inserts, verifica chave primaria
-	 */
-	public abstract BigKey insert(RowData r);
-	public abstract void insert(List<RowData> r);
-
 	@Override
 	public RowData findByRef(Long reference) {
 		RowIterator<Long> it = iterator(null,reference);

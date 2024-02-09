@@ -1,6 +1,7 @@
 package sgbd.source;
 
 import engine.exceptions.DataBaseException;
+import lib.BigKey;
 import sgbd.prototype.RowData;
 import sgbd.prototype.TranslatorApi;
 import sgbd.source.components.Header;
@@ -55,6 +56,11 @@ public abstract class Source<T> implements Iterable<RowData>{
     }
 
 
+    /*
+        Realiza a inserção, verifica chave primaria e substitui se já existir
+     */
+    public abstract BigKey insert(RowData r);
+    public abstract void insert(List<RowData> r);
 
     public abstract RowData findByRef(T reference);
 

@@ -63,6 +63,7 @@ public class GenericTable1 extends Source<BigKey> {
         //clearing the btree is to be implemented yet
     }
 
+    @Override
     public BigKey insert(RowData r) {
         translatorApi.validateRowData(r);
         BigKey bigKey = translatorApi.getPrimaryKey(r);
@@ -82,7 +83,7 @@ public class GenericTable1 extends Source<BigKey> {
         //this.tree.flush();
         return bigKey;
     }
-
+    @Override
     public void insert(List<RowData> r) {
         for (RowData row : r) {
             this.insert(row);

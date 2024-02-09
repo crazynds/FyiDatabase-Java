@@ -102,9 +102,9 @@ public class MainIdb {
             tab.insert(row);
         }
 
-        printRecord(tab, 200);
+        //printRecord(tab, 200);
         
-        //TestOperators.testOperator(new SourceScan(tab));
+        TestOperators.testOperator(new SourceScan(tab));
 
         tab.close();
     }
