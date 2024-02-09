@@ -84,7 +84,7 @@ public class MainIdb {
         pt.addColumn(new FloatColumn("salario"));
         pt.addColumn(new IntegerColumn("num_cart"));
         Header header = new Header(pt, "pessoa_teste");
-        GenericTable1 tab = new GenericTable1(header, "d:\\", "newTable", 4096, false);
+        GenericTable1 tab = new GenericTable1(header, "d:\\", "newTable", 4096, true);
 
         tab.open();
         Faker.replaceRandom(new Random(1000));
@@ -102,7 +102,7 @@ public class MainIdb {
             tab.insert(row);
         }
 
-        printRecord(tab, 20);
+        printRecord(tab, 200);
         
         //TestOperators.testOperator(new SourceScan(tab));
 

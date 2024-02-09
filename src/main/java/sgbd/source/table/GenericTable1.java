@@ -230,6 +230,7 @@ public class GenericTable1 extends Source<BigKey> {
         key.setKeys(new BigKey[]{reference});
 
         Value v = tree.search(key);
+        if(v==null)return null;
         Record record = (Record) v.get(0);
         RowData rowData = this.translatorApi.convertToRowData(record, null);
         return rowData;
