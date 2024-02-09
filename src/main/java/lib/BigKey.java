@@ -3,8 +3,7 @@ package lib;
 import engine.util.Util;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.nio.ByteBuffer;
 
 public class BigKey implements Comparable<BigKey>{
 
@@ -46,23 +45,13 @@ public class BigKey implements Comparable<BigKey>{
 
     @Override
     public int compareTo(BigKey o) {
-        int result = 0;
-        if(this.data.length==o.data.length){
-            for(int x=this.data.length-1;x>=0 && result==0;x--){
-                // TODO: Arrumar comparação
-                result = this.data[x]-o.data[x];
-            }
-        }else{
-            int a = this.data.length;
-            int b = o.data.length;
-            int x=Integer.max(a,b)-1;
-            while(x>=0 && result == 0){
-                result = ((a>x)?this.data[x]:0)-((b>x)?o.data[x]:0);
-                x-=1;
-            }
 
-        }
-        return (result<0)?-1:(result>0)?1:0;
+//        ByteBuffer wrapped = ByteBuffer.wrap(o.getData()); // big-endian by default
+//
+//        int num1 = java.nio.ByteBuffer.wrap(this.data).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+//        int num2 = java.nio.ByteBuffer.wrap(o.getData()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+
+        return o.toBigInteger().compareTo(this.toBigInteger());
     }
 
     public static BigKey valueOf(BigInteger bi,int size){
