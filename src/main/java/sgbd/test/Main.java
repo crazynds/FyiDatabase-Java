@@ -27,8 +27,8 @@ public class Main {
         p1.addColumn(new FloatColumn("salario"));
         mapa.put("salario","float");
 
-        //Source users = new CompleteTable(new Header(p1,"users"));
-        Source users = new GenericTable1(new Header(p1,"users"), "d:\\", "newTable", 4096, true);
+        Source users = new CompleteTable(new Header(p1,"users"));
+        //Source users = new GenericTable1(new Header(p1,"users"), "d:\\", "newTable", 4096, true);
 
         ConsistenceTest consistenceTest = new ConsistenceTest(users,mapa,156);
         int qtdData=1000000;
@@ -37,11 +37,11 @@ public class Main {
         //consistenceTest.generateRandomData(qtdData);
         consistenceTest.generateRandomDataBlock(qtdData,block);
         long generateTime = System.nanoTime();
-        consistenceTest.printAllData();
+        //consistenceTest.printAllData();
         long startCheckinTime = System.nanoTime();
-//        if(consistenceTest.checkConsistence(qtdData)){
-//            System.out.println("Dados consistentes");
-//        }
+        if(consistenceTest.checkConsistence(qtdData)){
+            System.out.println("Dados consistentes");
+        }
         long checkTime = System.nanoTime();
 
         users.close();

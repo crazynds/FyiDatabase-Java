@@ -108,10 +108,10 @@ public class Leaf<T extends Comparable<T>,M> extends Node<T,M>{
         return 0;
     }
 
-    public void insert(T key, M data){
+    public Map.Entry<T,M> insert(T key, M data){
         Map.Entry<T,M> entry = new AbstractMap.SimpleEntry<>(key,data);
         if(Arrays.stream(itens).noneMatch(n->n!=null && n.getKey().compareTo(key)==0)
-                && qtd == itens.length)throw new BPlusTreeInsertionException(entry);
+                && qtd == itens.length)return entry;
         for(int x=0;x<qtd;x++){
             T k = itens[x].getKey();
             M d = itens[x].getValue();
@@ -119,7 +119,7 @@ public class Leaf<T extends Comparable<T>,M> extends Node<T,M>{
                 case 0:
                     itens[x].setValue(data);
                     entry = null;
-                    return;
+                    return null;
                 case -1:
                     Map.Entry<T,M> aux = itens[x];
                     itens[x] = entry;
@@ -131,6 +131,7 @@ public class Leaf<T extends Comparable<T>,M> extends Node<T,M>{
             itens[qtd] = entry;
             qtd++;
         }
+        return null;
     }
 
     @Override

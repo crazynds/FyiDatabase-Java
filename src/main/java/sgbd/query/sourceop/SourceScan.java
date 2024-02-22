@@ -14,7 +14,7 @@ import java.util.*;
 public class SourceScan extends SourceOperator{
 
     private List<String> columns;
-    protected RowIterator<?> iterator;
+    protected RowIterator iterator;
 
     public SourceScan(Source t){
         super(t);

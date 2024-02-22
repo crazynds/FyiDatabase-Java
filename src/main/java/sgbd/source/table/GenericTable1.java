@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import sgbd.source.Source;
 
-public class GenericTable1 extends Source<BigKey> {
+public class GenericTable1 extends Source {
 
     BPlusTreeFile1 tree = null;
 
@@ -64,7 +64,7 @@ public class GenericTable1 extends Source<BigKey> {
     }
 
     @Override
-    public BigKey insert(RowData r) {
+    public void insert(RowData r) {
         translatorApi.validateRowData(r);
         BigKey bigKey = translatorApi.getPrimaryKey(r);
         Record record = translatorApi.convertToRecord(r);
@@ -77,11 +77,7 @@ public class GenericTable1 extends Source<BigKey> {
         value.set(0, record);
 
         boolean ok = tree.insert(key, value);
-        if (!ok) {
-            return null;
-        }
         //this.tree.flush();
-        return bigKey;
     }
     @Override
     public void insert(List<RowData> r) {
@@ -143,7 +139,7 @@ public class GenericTable1 extends Source<BigKey> {
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, BigKey lowerBound) {
+    protected RowIterator iterator(List<String> columns, RowData lowerBound) {
         return new RowIterator() {
             boolean started = false;
             RecordStream<BigKey> recordStream;
@@ -155,7 +151,7 @@ public class GenericTable1 extends Source<BigKey> {
                     pairs = tree.searchAll();
                 } else {
                     Key key = new Key(tree.getKeySchema());
-                    key.setKeys(new BigKey[]{lowerBound});
+                    key.setKeys(new BigKey[]{getTranslator().getPrimaryKey(lowerBound)});
 
                     pairs = tree.partialSearchDP(key);
                 }
@@ -213,10 +209,6 @@ public class GenericTable1 extends Source<BigKey> {
                 recordStream = null;
             }
 
-            @Override
-            public BigKey getRefKey() {
-                return recordStream.getKey();
-            }
         };
     }
 
@@ -226,9 +218,9 @@ public class GenericTable1 extends Source<BigKey> {
     }
 
     @Override
-    public RowData findByRef(BigKey reference) {
+    public RowData findByRef(RowData reference) {
         Key key = new Key(tree.getKeySchema());
-        key.setKeys(new BigKey[]{reference});
+        key.setKeys(new BigKey[]{getTranslator().getPrimaryKey(reference)});
 
         Value v = tree.search(key);
         if(v==null)return null;

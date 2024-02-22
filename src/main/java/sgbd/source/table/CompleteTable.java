@@ -5,7 +5,8 @@ import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.storage.common.FixedHeapStorageRecord;
 import sgbd.prototype.RowData;
 import sgbd.source.components.Header;
-import sgbd.source.index.PrimaryIndex;
+import sgbd.source.index.Index;
+import sgbd.source.index.MemoryIndex;
 
 public class CompleteTable extends GenericTable{
 
@@ -24,14 +25,17 @@ public class CompleteTable extends GenericTable{
     @Override
     public void open() {
         if(storage==null) {
-            Header pkHeader = header.getSubHeader("primary_index");
-            pkHeader.set(Header.FILE_PATH,header.getTablePath()+".idx");
-            this.primaryIndex = new PrimaryIndex(pkHeader,this);
+            Header idxHeader = header.getSubHeader("primary_index");
+            idxHeader.setBool("primary_index",true);
+            this.primaryIndex = new MemoryIndex(idxHeader,this);
             this.storage = new FixedHeapStorageRecord((r, key) -> {
                 RowData row = this.translatorApi.convertBinaryToRowData(r.getData(),null,true, true);
-                this.primaryIndex.update(row,key);
+                row.setLong(Index.REFERENCE_COLUMN_NAME,key);
+                // update index
+                this.primaryIndex.insert(row);
             }, this.fm, this.translatorApi.maxRecordSize());
             this.primaryIndex.open();
+            this.primaryIndex.reindex();
         }
     }
 }

@@ -29,9 +29,8 @@ public class MainIdb {
         
         RowData row = new RowData();
         row.setInt("id", id);
-            
-        BigKey bigKey = tab.translatorApi.getPrimaryKey(row);
-        row = tab.findByRef(bigKey);
+
+        row = tab.findByRef(row);
         
         List<String> columns = new ArrayList<String>();
 

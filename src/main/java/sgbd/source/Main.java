@@ -12,6 +12,7 @@ import sgbd.query.sourceop.TableScan;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
 import sgbd.source.table.CompleteTable;
+import sgbd.source.table.GenericTable;
 import sgbd.source.table.SimpleTable;
 import sgbd.source.table.Table;
 import sgbd.util.global.Faker;
@@ -33,13 +34,14 @@ public class Main {
         pt.addColumn(new FloatColumn("salario"));
         pt.addColumn(new IntegerColumn("num_cart"));
         Header header = new Header(pt,"pessoa_teste");
-        Table tab = new CompleteTable(header);
+        GenericTable tab = new CompleteTable(header);
 
         tab.open();
+        tab.clear();
         Faker.replaceRandom(new Random(1000));
-        for(int x=1;x<=10;x++){
+        for(int x=1;x<=15;x++){
             RowData row = new RowData();
-            row.setInt("id",Faker.integer(1000,2000));
+            row.setInt("id",Faker.integer(0,10));
             row.setInt("semestre",Faker.integer(0,3));
             row.setString("nome",Faker.firstName());
             row.setInt("idade",Faker.integer(20,50));

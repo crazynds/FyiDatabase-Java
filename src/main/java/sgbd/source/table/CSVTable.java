@@ -63,13 +63,18 @@ public class CSVTable extends Table {
     }
 
     @Override
+    public RowData findByRef(RowData reference) {
+        return null;
+    }
+
+    @Override
     public void close() {
         this.recognizer = null;
     }
 
 
     @Override
-    public BigKey insert(RowData r) {
+    public void insert(RowData r) {
         throw new DataBaseException("CSVTable","This type of table (CSVTable) is not writable");
     }
 
@@ -78,36 +83,30 @@ public class CSVTable extends Table {
         throw new DataBaseException("CSVTable","This type of table (CSVTable) is not writable");
     }
 
-
     @Override
     public RowIterator iterator(List<String> columns) {
-        return this.iterator(columns, 0L);
+        return this.iterator(columns, null);
     }
 
     @Override
-    protected RowIterator<Long> iterator(List<String> columns, Long lowerbound) {
-        return new RowIterator<Long>() {
-            RowIterator<Long> sub = iterator();
+    protected RowIterator iterator(List<String> columns, RowData lowerbound) {
+        return new RowIterator() {
+            RowIterator sub = iterator();
             Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
             {
-                for(int x=0;x<lowerbound;x++)sub.next();
+                //for(int x=0;x<lowerbound;x++)sub.next();
             }
 
             @Override
             public void restart() {
                 sub.restart();
-                for(int x=0;x<lowerbound;x++)sub.next();
+                //for(int x=0;x<lowerbound;x++)sub.next();
             }
 
             @Override
             public void unlock() {
                 sub.unlock();
-            }
-
-            @Override
-            public Long getRefKey() {
-                return sub.getRefKey();
             }
 
             @Override
@@ -123,8 +122,8 @@ public class CSVTable extends Table {
     }
 
     @Override
-    public RowIterator<Long> iterator() {
-        return new RowIterator<Long>() {
+    public RowIterator iterator() {
+        return new RowIterator() {
 
             long currentIt = 0L;
             Iterator<String[]> csvLines = recognizer.iterator();
@@ -132,11 +131,6 @@ public class CSVTable extends Table {
 
             @Override
             public void unlock() {
-            }
-
-            @Override
-            public Long getRefKey() {
-                return currentIt;
             }
 
             @Override

@@ -66,8 +66,9 @@ public class ConsistenceTest {
         for(int x=0;x<qtdData;x++){
             valid = true;
             RowData row = generetaRowData();
-            BigKey pk = table.getPrimaryIndex().getTranslator().getPrimaryKey(row);
-            RowData toCompare = table.getPrimaryIndex().findByRef(pk);
+            BigKey pk = table.getTranslator().getPrimaryKey(row);
+            RowData toCompare = table.findByRef(row);
+
             if(invalidos.containsKey(pk)){
                 System.out.println("Inconsistencia anterior justificada por substituição de id");
                 invalidos.remove(pk);
@@ -107,7 +108,7 @@ public class ConsistenceTest {
              invalidos.entrySet()) {
             RowData row = dat.getValue();
             BigKey pk = dat.getKey();
-            RowData toCompare = table.getPrimaryIndex().findByRef(pk);
+            RowData toCompare = table.findByRef(row);
             valid = true;
             if(toCompare==null){
                 valid = false;
@@ -154,7 +155,7 @@ public class ConsistenceTest {
     }
 
     public void printAllData(){
-        for (RowIterator<?> it = this.source.iterator(); it.hasNext(); ) {
+        for (RowIterator it = this.source.iterator(); it.hasNext(); ) {
             RowData row = it.next();
             printRowData(row);
         }

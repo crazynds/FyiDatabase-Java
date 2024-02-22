@@ -4,6 +4,7 @@ import engine.util.Util;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class BigKey implements Comparable<BigKey>{
 
@@ -51,7 +52,22 @@ public class BigKey implements Comparable<BigKey>{
 //        int num1 = java.nio.ByteBuffer.wrap(this.data).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
 //        int num2 = java.nio.ByteBuffer.wrap(o.getData()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
 
-        return o.toBigInteger().compareTo(this.toBigInteger());
+        return this.toBigInteger().compareTo(o.toBigInteger());
+
+//        int x=Math.max(this.data.length,o.data.length)-1;
+//        for(;x>=o.data.length;x--){
+//            if(this.data[x]!=0)return 1;
+//        }
+//        for(;x>=this.data.length;x--){
+//            if(o.data[x]!=0)return -1;
+//        }
+//        for(;x>=0;x--){
+//            int a = Byte.compare(this.data[x],o.data[x]);
+//            if(a!=0)return a;
+//        }
+//        return 0;
+//        return java.nio.ByteBuffer.wrap(this.getData()).compareTo(java.nio.ByteBuffer.wrap(o.data));
+        //return Arrays.compare(this.data,o.data);
     }
 
     public static BigKey valueOf(BigInteger bi,int size){

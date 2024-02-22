@@ -13,30 +13,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class MemoryIndex<T> extends Index<T>{
+public class MemoryIndex extends Index{
 
 
     //TODO: usar a btree da engina ao invez da BTree da lib
     //private MemoryBTreeStorageRecord storage;
-    private BPlusTree<BigKey,T> storage;
+    private BPlusTree<BigKey,BigKey> storage;
 
-    public MemoryIndex(Header header, Source<T> src) {
+    public MemoryIndex(Header header, Source src) {
         super(preparePrototype(header,src),src);
         storage = new BPlusTree<>();
     }
 
-
     @Override
-    protected void updateRef(BigKey key, T reference) {
+    protected void insertPair(BigKey key, BigKey reference) {
         storage.insert(key,reference);
-    }
-
-    @Override
-    public T deleteRef(BigKey key) {
-        // TODO: Fazer ele remover a entrada com a mesma referencia a partir da key dada
-        if(storage.get(key)!=null)
-            return storage.remove(key);
-        return null;
     }
 
     @Override
@@ -55,30 +46,9 @@ public class MemoryIndex<T> extends Index<T>{
     }
 
     @Override
-    public RowData findByRef(BigKey reference) {
-        Iterator<Map.Entry<BigKey,T>> it = storage.iterator(reference);
-        if(it.hasNext()){
-            Map.Entry<BigKey,T> row = it.next();
-            BigKey pk = row.getKey();
-            if(nonUniqueIndex) {
-                RowData rowdata = translatorApi.convertBinaryToRowData(row.getKey().getData(),null,false,true);
-                rowdata.unset(UNIQUE_COLUMN_NAME);
-                pk = translatorApi.getPrimaryKey(rowdata);
-            }
-
-            if(pk.compareTo(reference) == 0)
-                return src.findByRef(row.getValue());
-        }
-        return null;
-    }
-
-    @Override
-    protected RowIterator iterator(List<String> columns, BigKey lowerbound) {
+    protected RowIterator idxIterator(List<String> columns, BigKey lowerbound) {
         return new RowIterator() {
-
-            Iterator<Map.Entry<BigKey,T>> it = lowerbound!=null ? storage.iterator(lowerbound) : storage.iterator();
-            Map.Entry<BigKey,T> current = null;
-            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
+            Iterator<Map.Entry<BigKey,BigKey>> it = lowerbound==null ? storage.iterator() : storage.iterator(lowerbound);
 
             @Override
             public void restart() {
@@ -87,12 +57,7 @@ public class MemoryIndex<T> extends Index<T>{
 
             @Override
             public void unlock() {
-            }
-
-            @Override
-            public T getRefKey() {
-                if(current == null) return null;
-                return current.getValue();
+                it = null;
             }
 
             @Override
@@ -102,18 +67,12 @@ public class MemoryIndex<T> extends Index<T>{
 
             @Override
             public RowData next() {
-                current = it.next();
-                T ref = current.getValue();
-                RowData row = translatorApi.convertBinaryToRowData(current.getKey().getData(),metaInfo,false,true);
-                if(nonUniqueIndex)
-                    row.unset(UNIQUE_COLUMN_NAME);
-//                if(ref instanceof Long){
-//                    row.setLong("#ref",(Long)ref);
-//                }else if(ref instanceof BigKey){
-//                    row.setBigKey("#ref",(BigKey) ref);
-//                }
-                return row;
+                Map.Entry<BigKey,BigKey> entry = it.next();
+                if(entry==null)return null;
+                return generateRowData(entry.getKey(),entry.getValue());
             }
         };
     }
+
+
 }

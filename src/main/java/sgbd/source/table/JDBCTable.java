@@ -118,7 +118,7 @@ abstract public class JDBCTable extends Table {
     }
 
     @Override
-    public BigKey insert(RowData r) {
+    public void insert(RowData r) {
         throw new DataBaseException("JDBCTable", "This type of table (JDBCTable) is not writable");
     }
 
@@ -135,9 +135,15 @@ abstract public class JDBCTable extends Table {
         }
     }
 
+
     @Override
-    protected RowIterator<Long> iterator(List<String> columns, Long lowerbound) {
-        return new RowIterator<>() {
+    public RowData findByRef(RowData reference) {
+        throw new DataBaseException("JDBCTable", "This function of table (JDBCTable) is not implemented yet!");
+    }
+
+    @Override
+    protected RowIterator iterator(List<String> columns, RowData lowerbound) {
+        return new RowIterator() {
             long currentIt = 0L;
             ResultSet results;
 
@@ -153,7 +159,7 @@ abstract public class JDBCTable extends Table {
                         selectedColumns = selectedColumns.substring(1, selectedColumns.length() - 1);
                     }
 
-                    PreparedStatement ps = getSelectStatement(selectedColumns, lowerbound);
+                    PreparedStatement ps = getSelectStatement(selectedColumns, 0L);
                     results = ps.executeQuery();
                 } catch (SQLException e) {
                     System.out.println(e.getMessage());
@@ -168,11 +174,6 @@ abstract public class JDBCTable extends Table {
 
             @Override
             public void unlock() {
-            }
-
-            @Override
-            public Long getRefKey() {
-                return currentIt;
             }
 
             @Override
@@ -233,13 +234,13 @@ abstract public class JDBCTable extends Table {
     }
 
     @Override
-    public RowIterator<Long> iterator(List<String> columns) {
-        return this.iterator(columns, 0L);
+    public RowIterator iterator(List<String> columns) {
+        return this.iterator(columns, null);
     }
 
     @Override
-    public RowIterator<Long> iterator() {
-        return this.iterator(null, 0L);
+    public RowIterator iterator() {
+        return this.iterator(null, null);
     }
 
     /**
