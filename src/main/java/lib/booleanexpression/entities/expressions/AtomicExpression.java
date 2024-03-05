@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lib.booleanexpression.entities.AttributeFilters;
 import lib.booleanexpression.entities.elements.Element;
 import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
@@ -73,6 +74,37 @@ public class AtomicExpression extends BooleanExpression{
             case IS_NOT -> Result.evaluate(false);
         };
     }
+
+    @Override
+    public void applyAttributeFilters(AttributeFilters filter) {
+        Variable var = null;
+        Value val = null;
+        if(firstElement instanceof Value && secondElement instanceof Variable){
+            var = (Variable) secondElement;
+            val = (Value) firstElement;
+        }else if(secondElement instanceof Value && firstElement instanceof Variable){
+            var = (Variable) firstElement;
+            val = (Value) secondElement;
+        }
+        if(var==null || val==null)return;
+        switch (getRelationalOperator()){
+            case LESS_THAN, LESS_THAN_OR_EQUAL:
+                filter.addEntry(var.toString(),null,val);
+                break;
+            case GREATER_THAN, GREATER_THAN_OR_EQUAL:
+                filter.addEntry(var.toString(),val,null);
+                break;
+            case EQUAL:
+                filter.addEntry(var.toString(),val,val);
+                break;
+            case NOT_EQUAL:
+            case IS:
+            case IS_NOT:
+            default:
+                return;
+        }
+    }
+
 
     public RelationalOperator getRelationalOperator() {
         return relationalOperator;

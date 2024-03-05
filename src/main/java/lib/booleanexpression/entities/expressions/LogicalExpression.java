@@ -1,5 +1,6 @@
 package lib.booleanexpression.entities.expressions;
 
+import lib.booleanexpression.entities.AttributeFilters;
 import lib.booleanexpression.enums.*;
 import sgbd.prototype.query.Tuple;
 
@@ -60,6 +61,14 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
         return hasNotReadyVariables ? Result.NOT_READY : (anticipatedResult.val() ? Result.FALSE : Result.TRUE);
 
+    }
+
+    @Override
+    public void applyAttributeFilters(AttributeFilters filter) {
+        if(this.logicalOperator.equals(LogicalOperator.OR))return;
+        for (BooleanExpression expression:expressions) {
+            expression.applyAttributeFilters(filter);
+        }
     }
 
     public LogicalOperator getLogicalOperator() {

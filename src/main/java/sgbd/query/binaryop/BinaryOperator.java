@@ -1,7 +1,6 @@
 package sgbd.query.binaryop;
 
-import lib.booleanexpression.entities.expressions.BooleanExpression;
-import sgbd.query.AttributeFilters;
+import lib.booleanexpression.entities.AttributeFilters;
 import sgbd.query.Operator;
 import sgbd.source.Source;
 

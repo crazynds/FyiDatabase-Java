@@ -5,9 +5,10 @@ import java.util.Arrays;
 public class Variable extends Element{
 
     private final String[] name;
+    private final String fullName;
 
     public Variable(String name){
-
+        this.fullName = name;
     	this.name = name.split("\\.");
     	
     }
@@ -18,7 +19,7 @@ public class Variable extends Element{
 
     @Override
     public String toString(){
-        return Arrays.stream(name).reduce((s, s2) -> s+'.'+s2).get();
+        return fullName;
     }
 
 }

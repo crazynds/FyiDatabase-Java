@@ -1,6 +1,6 @@
 package sgbd.query;
 
-import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.entities.AttributeFilters;
 import sgbd.prototype.query.Tuple;
 import sgbd.source.Source;
 

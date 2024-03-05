@@ -1,5 +1,6 @@
 package lib.booleanexpression.entities.expressions;
 
+import lib.booleanexpression.entities.AttributeFilters;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.enums.*;
 import sgbd.prototype.query.Tuple;
@@ -22,5 +23,7 @@ public abstract class BooleanExpression {
     public boolean isFalse(){
         return !booleanValue;
     }
+
+    public abstract void applyAttributeFilters(AttributeFilters filter);
 
 }

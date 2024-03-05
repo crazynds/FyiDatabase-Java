@@ -1,4 +1,4 @@
-package sgbd.query;
+package lib.booleanexpression.entities;
 
 
 import lib.booleanexpression.entities.elements.Value;
@@ -16,8 +16,11 @@ public class AttributeFilters {
 
     }
 
-    public void merge(){
-
+    public void merge(AttributeFilters other){
+        for (Map.Entry<String, Map.Entry<Value, Value>> entry:
+             other.map.entrySet()) {
+            addEntry(entry.getKey(),entry.getValue().getKey(),entry.getValue().getValue());
+        }
     }
 
     public void addEntry(String column, Value min, Value max){
@@ -27,8 +30,8 @@ public class AttributeFilters {
             Map.Entry<Value,Value> entry = map.get(column);
             Value a = entry.getKey();
             Value b = entry.getValue();
-            a = (a.getField().compareTo(min.getField())<=0)? a : min;
-            b = (b.getField().compareTo(max.getField())<=0)? b : max;
+            a = (a!=null && (min==null || a.getField().compareTo(min.getField())<=0))? a : min;
+            b = (b!=null && (max==null || b.getField().compareTo(max.getField())<=0))? b : max;
             map.put(column,Map.entry(a,b));
         }
     }
