@@ -27,12 +27,22 @@ public class StringField extends Field<String>{
         if(!f.metadata.isString()){
             switch (Util.typeOfColumn(f.metadata)){
             case "boolean":
-            case "string":
-            case "long":
-            case "int":
-            case "double":
-            case "float":
                 val = String.valueOf(f.getBoolean());
+                break;
+            case "string":
+                val = String.valueOf(f.getString());
+                break;
+            case "long":
+                val = String.valueOf(f.getLong());
+                break;
+            case "int":
+                val = String.valueOf(f.getInt());
+                break;
+            case "double":
+                val = String.valueOf(f.getDouble());
+                break;
+            case "float":
+                val = String.valueOf(f.getFloat());
                 break;
             case "null":
             default:
