@@ -1,6 +1,7 @@
 package sgbd.query.sourceop;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
+import sgbd.query.AttributeFilters;
 import sgbd.query.Operator;
 import sgbd.source.Source;
 
@@ -15,10 +16,9 @@ public abstract class SourceOperator implements Operator {
         this.asName= source.getSourceName();
     }
 
-
     @Override
-    public void lookup(BooleanExpression expression) {
-        // do nothing
+    public void lookup(AttributeFilters filters) {
+        // apply filters
     }
 
     public void asName(String name){

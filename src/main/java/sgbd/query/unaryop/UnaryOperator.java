@@ -1,6 +1,7 @@
 package sgbd.query.unaryop;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
+import sgbd.query.AttributeFilters;
 import sgbd.query.Operator;
 import sgbd.source.Source;
 
@@ -12,9 +13,8 @@ public abstract class UnaryOperator implements Operator {
     protected Operator operator;
 
     @Override
-    public void lookup(BooleanExpression expression) {
-        // do nothing
-
+    public void lookup(AttributeFilters filters) {
+        operator.lookup(filters);
     }
 
     public UnaryOperator(Operator op){

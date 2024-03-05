@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface Operator {
     
-    public void lookup(BooleanExpression expression);
+    public void lookup(AttributeFilters filters);
 
     public void open();
     public Tuple next();
