@@ -5,6 +5,7 @@ import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
 import sgbd.prototype.metadata.StringMetadata;
 import sgbd.util.global.Util;
+import sgbd.util.global.UtilConversor;
 
 public class StringField extends Field<String>{
     public StringField(Metadata metadata, BData data) {
@@ -12,7 +13,7 @@ public class StringField extends Field<String>{
     }
 
     public StringField(String str) {
-        super(new StringMetadata((short)str.length()), str);
+        super(new StringMetadata((short)str.length()), new BData(UtilConversor.stringToByteArray(str)), str);
     }
 
     @Override
@@ -27,12 +28,22 @@ public class StringField extends Field<String>{
         if(!f.metadata.isString()){
             switch (Util.typeOfColumn(f.metadata)){
             case "boolean":
-            case "string":
-            case "long":
-            case "int":
-            case "double":
-            case "float":
                 val = String.valueOf(f.getBoolean());
+                break;
+            case "string":
+                val = String.valueOf(f.getString());
+                break;
+            case "long":
+                val = String.valueOf(f.getLong());
+                break;
+            case "int":
+                val = String.valueOf(f.getInt());
+                break;
+            case "double":
+                val = String.valueOf(f.getDouble());
+                break;
+            case "float":
+                val = String.valueOf(f.getFloat());
                 break;
             case "null":
             default:

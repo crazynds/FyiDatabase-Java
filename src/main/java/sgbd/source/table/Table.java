@@ -13,9 +13,7 @@ import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
 import sgbd.source.index.Index;
 
-public abstract class Table extends Source<Long> {
-
-	protected Index<Long> primaryIndex;
+public abstract class Table extends Source {
 
 	public Table(Header header)  {
 		super(header);
@@ -47,10 +45,6 @@ public abstract class Table extends Source<Long> {
 		return openTable(header);
 	}
 
-	public Index<Long> getPrimaryIndex(){
-		return primaryIndex;
-	}
-
 	/*
 		Retorna nome da table
 	 */
@@ -58,20 +52,4 @@ public abstract class Table extends Source<Long> {
 		return header.get(Header.TABLE_NAME);
 	}
 
-	/*
-		Aceita apenas novos inserts, verifica chave primaria
-	 */
-	public abstract BigKey insert(RowData r);
-	public abstract void insert(List<RowData> r);
-
-	@Override
-	public RowData findByRef(Long reference) {
-		RowIterator<Long> it = iterator(null,reference);
-		if(it.hasNext()){
-			RowData row = it.next();
-			Long ref = it.getRefKey();
-			if(ref.compareTo(reference) == 0)return row;
-		}
-		return null;
-	}
 }

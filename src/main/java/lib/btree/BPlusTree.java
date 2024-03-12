@@ -1,5 +1,6 @@
 package lib.btree;
 
+import lib.BigKey;
 import sgbd.util.global.Faker;
 
 import java.security.InvalidParameterException;
@@ -9,7 +10,7 @@ import java.util.Random;
 
 public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry<T,M>>{
 
-    protected static final int ORDER  = 4;
+    protected static final int ORDER  = 16;
 
     private Node<T,M> rootNode;
     private Leaf<T,M> firstLeaf;
@@ -17,12 +18,9 @@ public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry
     public static void main(String[] args){
         BPlusTree<Integer,String> bee = new BPlusTree<>();
 
-        Faker.replaceRandom(new Random(100));
-        for (int x=0;x<1000;x++){
-            String name = Faker.firstName();
-            int id = Faker.integer(1,1000);
-            bee.insert(id,name);
-        }
+        bee.insert(7,"sete");
+        bee.insert(5,"oito");
+        bee.insert(5,"nove");
 
         Integer oldValue = -1;
         for(Map.Entry<Integer,String> itens:bee){
@@ -47,15 +45,14 @@ public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry
 
 
     public void insert(T t, M d){
-        try {
-            rootNode.insert(t, d);
-        }catch (BPlusTreeInsertionException e){
+        Map.Entry<T,M> e = rootNode.insert(t, d);
+        if(e!=null){
             Node<T,M> left = rootNode;
             Node<T,M> right = rootNode.half();
             Page<T,M> page = new Page<>(left);
             page.insertNode(right);
             rootNode = page;
-            this.insert((T)e.getEntry().getKey(),(M)e.getEntry().getValue());
+            this.insert((T)e.getKey(),(M)e.getValue());
         }
     }
     public M get(T t){
@@ -82,6 +79,7 @@ public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry
                 if(actualLeaf==null)return false;
                 if(iterator==null){
                     iterator = actualLeaf.iterator(key);
+
                     actualLeaf = actualLeaf.getNextLeaf();
                 }
                 while(iterator.hasNext()==false && actualLeaf!=null) {

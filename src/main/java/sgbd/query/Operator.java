@@ -1,6 +1,6 @@
 package sgbd.query;
 
-import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.entities.AttributeFilters;
 import sgbd.prototype.query.Tuple;
 import sgbd.source.Source;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface Operator {
     
-    public void lookup(BooleanExpression expression);
+    public void lookup(AttributeFilters filters);
 
     public void open();
     public Tuple next();

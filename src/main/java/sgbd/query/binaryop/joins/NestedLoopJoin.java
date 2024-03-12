@@ -43,7 +43,7 @@ public class NestedLoopJoin extends SimpleBinaryOperator {
         while(currentLeftTuple!=null || left.hasNext()){
             if(currentLeftTuple==null){
                 currentLeftTuple = left.next();
-                right.lookup(expression);
+                //right.lookup(expression);
                 right.open();
             }
             //Loopa pelo operador direito

@@ -1,6 +1,6 @@
 package sgbd.query.binaryop;
 
-import lib.booleanexpression.entities.expressions.BooleanExpression;
+import lib.booleanexpression.entities.AttributeFilters;
 import sgbd.query.Operator;
 import sgbd.source.Source;
 
@@ -18,8 +18,8 @@ public abstract class BinaryOperator implements Operator {
     }
 
     @Override
-    public void lookup(BooleanExpression expression) {
-        // do nothing
+    public void lookup(AttributeFilters filters) {
+        // ignore filters
     }
 
     public Operator getLeftOperator(){

@@ -3,8 +3,8 @@ package lib;
 import engine.util.Util;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class BigKey implements Comparable<BigKey>{
 
@@ -46,23 +46,28 @@ public class BigKey implements Comparable<BigKey>{
 
     @Override
     public int compareTo(BigKey o) {
-        int result = 0;
-        if(this.data.length==o.data.length){
-            for(int x=this.data.length-1;x>=0 && result==0;x--){
-                // TODO: Arrumar comparação
-                result = this.data[x]-o.data[x];
-            }
-        }else{
-            int a = this.data.length;
-            int b = o.data.length;
-            int x=Integer.max(a,b)-1;
-            while(x>=0 && result == 0){
-                result = ((a>x)?this.data[x]:0)-((b>x)?o.data[x]:0);
-                x-=1;
-            }
 
-        }
-        return (result<0)?-1:(result>0)?1:0;
+//        ByteBuffer wrapped = ByteBuffer.wrap(o.getData()); // big-endian by default
+//
+//        int num1 = java.nio.ByteBuffer.wrap(this.data).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+//        int num2 = java.nio.ByteBuffer.wrap(o.getData()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+
+        return this.toBigInteger().compareTo(o.toBigInteger());
+
+//        int x=Math.max(this.data.length,o.data.length)-1;
+//        for(;x>=o.data.length;x--){
+//            if(this.data[x]!=0)return 1;
+//        }
+//        for(;x>=this.data.length;x--){
+//            if(o.data[x]!=0)return -1;
+//        }
+//        for(;x>=0;x--){
+//            int a = Byte.compare(this.data[x],o.data[x]);
+//            if(a!=0)return a;
+//        }
+//        return 0;
+//        return java.nio.ByteBuffer.wrap(this.getData()).compareTo(java.nio.ByteBuffer.wrap(o.data));
+        //return Arrays.compare(this.data,o.data);
     }
 
     public static BigKey valueOf(BigInteger bi,int size){

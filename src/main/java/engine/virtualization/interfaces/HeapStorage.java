@@ -13,9 +13,6 @@ import engine.file.streams.WriteByteStream;
 public class HeapStorage implements ByteStream{
 	
 	private FileManager origin;
-	
-	private TemporaryBuffer temp;
-
 
 	private WriteByteStream actualWriter;
 	private int blockWriter;
@@ -25,7 +22,6 @@ public class HeapStorage implements ByteStream{
 
 
 	public HeapStorage(FileManager origin,int tempBufferSize) throws IOException {
-		temp = new TemporaryBuffer(origin,tempBufferSize);
 		pointer = 0;
 		this.origin=origin;
 		origin.getBuffer().hintBlock(0);
@@ -71,7 +67,6 @@ public class HeapStorage implements ByteStream{
 
 	public void clearFile(){
 		origin.getBuffer().flush();
-		temp.clear();
 		origin.clearFile();
 	}
 
@@ -100,7 +95,7 @@ public class HeapStorage implements ByteStream{
 		do {
 			if(blockWriter!=block){
 				closeWriter();
-				actualWriter = temp.getBlockWriteByteStream(block);
+				actualWriter = origin.getBlockWriteByteStream(block);
 				blockWriter = block;
 			}
 			offset2+=actualWriter.write(position, data,offset+offset2, len-offset2);
@@ -121,7 +116,6 @@ public class HeapStorage implements ByteStream{
 	@Override
 	public synchronized void commitWrites() {
 		closeWriter();
-		temp.commit();
 	}
 
 	private void closeWriter(){
@@ -154,7 +148,7 @@ public class HeapStorage implements ByteStream{
 		int offset2=0;
 		int leitura;
 		do {
-			ReadableBlock rbs = temp.getBlockReadByteStream(block);
+			ReadableBlock rbs = origin.getBlockReadByteStream(block);
 			leitura = len-offset2;
 			if(leitura+position>rbs.getBlockSize())leitura = rbs.getBlockSize()-position;
 			rbs.read(position, buffer, offset2+offset, leitura);
@@ -183,7 +177,7 @@ public class HeapStorage implements ByteStream{
 		int offset2=0;
 		int leitura;
 		do {
-			ReadableBlock rbs = temp.getBlockReadByteStream(block);
+			ReadableBlock rbs = origin.getBlockReadByteStream(block);
 			leitura = len-offset2;
 			if(leitura+position>rbs.getBlockSize())leitura = rbs.getBlockSize()-position;
 			rbs.read(position, buffer, offset2+offset, leitura);

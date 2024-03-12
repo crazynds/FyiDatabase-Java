@@ -1,5 +1,6 @@
 package sgbd.prototype;
 
+import com.mysql.cj.result.Row;
 import engine.exceptions.DataBaseException;
 import engine.file.streams.ReadByteStream;
 import engine.util.Util;
@@ -95,6 +96,25 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             }
         }
         return new BigKey(buffer.array());
+    }
+
+    public RowData primaryKeyToRowData(BigKey rw){
+        return this.primaryKeyToRowData(rw, new RowData());
+    }
+    public RowData primaryKeyToRowData(BigKey rw, RowData row){
+        byte[] arr = rw.getData();
+        int offset = 0;
+
+        for(Column c:columns){
+            if(c.isPrimaryKey()){
+                Field f = Field.createField(c,new BData(Arrays.copyOfRange(arr,offset,offset+c.getSize())));
+                row.setField(c.getName(),f,c);
+                offset += c.getSize();
+            }else{
+                break;
+            }
+        }
+        return row;
     }
 
     public ArrayList<Column> getColumns(){

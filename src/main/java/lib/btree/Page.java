@@ -80,24 +80,25 @@ public class Page<T extends Comparable<T>,M> extends Node<T,M> {
     }
 
     @Override
-    public void insert(T t, M m) {
+    public Map.Entry<T,M> insert(T t, M m) {
         int index = findNode(t);
-        try {
-            nodes.get(index).insert(t, m);
+        Map.Entry<T,M> e = nodes.get(index).insert(t, m);
+        if(e==null){
             if (t.compareTo(actualMin) == -1) actualMin = t;
-        }catch (BPlusTreeInsertionException e){
-            t = (T)e.getEntry().getKey();
-            m = (M)e.getEntry().getValue();
+        }else{
+            t = (T)e.getKey();
+            m = (M)e.getValue();
 
             if(nodes.size() < BPlusTree.ORDER){
                 Node<T,M> right = nodes.get(index).half();
                 insertNode(right);
                 insert(t,m);
-                return;
+                return null;
             }
             // se nada pode acontecer, throw pra cima
-            throw e;
+            return e;
         }
+        return null;
     }
 
     @Override

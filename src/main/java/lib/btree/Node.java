@@ -4,7 +4,7 @@ import java.util.Map;
 
 public abstract class Node<T extends Comparable<T>,M>  implements Iterable<Map.Entry<T,M>> {
 
-    public abstract void insert(T t,M m);
+    public abstract Map.Entry<T,M> insert(T t,M m);
     public abstract M get(T t);
     public abstract M remove(T t);
 

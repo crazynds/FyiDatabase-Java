@@ -8,6 +8,7 @@ import sgbd.prototype.column.Column;
 import sgbd.prototype.RowData;
 import sgbd.source.components.Header;
 import sgbd.source.components.RowIterator;
+import sgbd.source.index.Index;
 
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public abstract class GenericTable extends Table {
 
+    protected Index primaryIndex;
     protected AnonymousStorageRecord storage;
 
     public GenericTable(Header header) {
@@ -25,9 +27,6 @@ public abstract class GenericTable extends Table {
 
     @Override
     public void close() {
-        if(this.primaryIndex!=null){
-            this.primaryIndex.close();
-        }
         this.storage.flush();
         this.storage.close();
         this.storage = null;
@@ -36,28 +35,24 @@ public abstract class GenericTable extends Table {
     @Override
     public void clear() {
         if(this.storage==null)this.open();
-        this.primaryIndex.clear();
         this.storage.restart();
         this.storage.flush();
-        if(this.primaryIndex!=null){
-            this.primaryIndex.clear();
-        }
+        this.primaryIndex.clear();
     }
 
     @Override
-    public BigKey insert(RowData r) {
+    public void insert(RowData r) {
         translatorApi.validateRowData(r);
-        BigKey pk = translatorApi.getPrimaryKey(r);
         Record record = translatorApi.convertToRecord(r);
 
-        Long ref = this.primaryIndex.deleteRef(pk);
-        if(ref!=null){
-            this.storage.update(ref,record);
+        RowData old = this.primaryIndex.findByRef(r);
+        if(old!=null){
+            this.storage.update(old.getLong(Index.REFERENCE_COLUMN_NAME),record);
         }else{
             this.storage.write(record);
         }
+
         this.storage.flush();
-        return pk;
     }
     @Override
     public void insert(List<RowData> r) {
@@ -67,30 +62,26 @@ public abstract class GenericTable extends Table {
         this.storage.flush();
     }
 
+    public RowData findByRef(RowData reference){
+        RowData row = this.primaryIndex.findByRef(reference);
+        RowIterator it = iterator(null,row);
+        if(it.hasNext()){
+            return it.next();
+        }
+        return null;
+    }
+
     @Override
 
     public RowIterator iterator(List<String> columns) {
-        return this.iterator(columns, 0L);
-    }
-
-    @Override
-    public RowIterator iterator() {
-        ArrayList<String> columns = new ArrayList<>();
-        for (Column c:this.getTranslator()) {
-            columns.add(c.getName());
-        }
-        return this.iterator(columns);
-    }
-
-    @Override
-    protected RowIterator iterator(List<String> columns,Long lowerBound) {
         return new RowIterator() {
             boolean started = false;
             RecordStream<Long> recordStream;
             Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
             private void start(){
-                recordStream = storage.read(lowerBound);
+
+                recordStream = storage.read(0L);
                 recordStream.open();
                 started=true;
             }
@@ -120,7 +111,9 @@ public abstract class GenericTable extends Table {
                     unlock();
                     return null;
                 }
-                return translatorApi.convertToRowData(record,metaInfo);
+                RowData row = translatorApi.convertToRowData(record,metaInfo);
+                row.setLong(Index.REFERENCE_COLUMN_NAME,recordStream.getKey());
+                return row;
             }
 
             @Override
@@ -131,11 +124,65 @@ public abstract class GenericTable extends Table {
                 recordStream = null;
             }
 
+        };
+    }
+
+    @Override
+    public RowIterator iterator() {
+        ArrayList<String> columns = new ArrayList<>();
+        for (Column c:this.getTranslator()) {
+            columns.add(c.getName());
+        }
+        return this.iterator(columns);
+    }
+
+    @Override
+    public RowIterator iterator(List<String> columns,RowData lowerBound) {
+        return new RowIterator() {
+            boolean started = false;
+
+            RowIterator recordStream;
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
+
+            private void start(){
+                // TODO: fazer loading a partir do lower bound no iterator.
+                recordStream = primaryIndex.iterator(columns, lowerBound);
+                started=true;
+            }
+
             @Override
-            public Long getRefKey() {
-                return recordStream.getKey();
+            public void restart() {
+                if(!started || recordStream==null)start();
+                recordStream.restart();
+            }
+
+            @Override
+            public void unlock() {
+                if(recordStream!=null)
+                    recordStream.unlock();
+                recordStream = null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                if(!started || recordStream==null)start();
+                return recordStream.hasNext();
+            }
+
+            @Override
+            public RowData next() {
+                RowData row = recordStream.next();
+                RecordStream<Long> stream = storage.read(row.getLong(Index.REFERENCE_COLUMN_NAME));
+                stream.open();
+                Record r = stream.next();
+                row= translatorApi.convertToRowData(r,metaInfo);
+                return row;
             }
         };
+    }
+
+    public Index getPrimaryIndex(){
+        return primaryIndex;
     }
 
 }

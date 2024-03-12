@@ -4,13 +4,14 @@ import sgbd.prototype.BData;
 import sgbd.prototype.metadata.BooleanMetadata;
 import sgbd.prototype.metadata.DoubleMetadata;
 import sgbd.prototype.metadata.Metadata;
+import sgbd.util.global.UtilConversor;
 
 public class DoubleField extends Field<Double>{
     public DoubleField(Metadata metadata, BData data) {
         super(metadata, data);
     }
     public DoubleField(double value) {
-        super(DoubleMetadata.generic,value);
+        super(DoubleMetadata.generic,new BData(UtilConversor.doubleToByteArray(value)),value);
     }
     @Override
     protected Double constructData() {

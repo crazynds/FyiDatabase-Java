@@ -1,6 +1,7 @@
 package sgbd.source;
 
 import engine.exceptions.DataBaseException;
+import lib.BigKey;
 import sgbd.prototype.RowData;
 import sgbd.prototype.TranslatorApi;
 import sgbd.source.components.Header;
@@ -9,7 +10,7 @@ import sgbd.source.components.RowIterator;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class Source<T> implements Iterable<RowData>{
+public abstract class Source implements Iterable<RowData>{
 
     protected TranslatorApi translatorApi;
 
@@ -55,16 +56,25 @@ public abstract class Source<T> implements Iterable<RowData>{
     }
 
 
-
-    public abstract RowData findByRef(T reference);
+    /*
+        Realiza a inserção, verifica chave primaria e substitui se já existir
+     */
+    public abstract void insert(RowData r);
+    public void insert(List<RowData> r){
+        for (RowData row: r) {
+            this.insert(row);
+        }
+    }
 
 
     /*
         Itera sobre os dados na fonte. Recebe como um dos parametros as colunas a serem lidas
      */
-    protected abstract RowIterator<T> iterator(List<String> columns,T lowerbound);
-    public abstract RowIterator<T> iterator(List<String> columns);
-    public abstract RowIterator<T> iterator();
+    public abstract RowData findByRef(RowData reference);
+
+    public abstract RowIterator iterator(List<String> columns,RowData lowerbound);
+    public abstract RowIterator iterator(List<String> columns);
+    public abstract RowIterator iterator();
 
     /*
         Retorna nome da fonte

@@ -120,10 +120,14 @@ public class CSVRecognizer implements Iterable<String[]>{
 
         StringBuilder data = new StringBuilder();
 
+        int i = 1;
+        
         for (char c : line.toCharArray()) {
 
-            stringDelimiterFound = c == stringDelimiter ? !stringDelimiterFound : stringDelimiterFound;
+            stringDelimiterFound = (i == 1 || i == line.length()) && c == stringDelimiter;
 
+            i++;
+            
             if (c != separator || stringDelimiterFound)
                 data.append(c);
 
@@ -169,9 +173,6 @@ public class CSVRecognizer implements Iterable<String[]>{
         for (char c : data.toCharArray())
             if (c == stringDelimiter)
                 i++;
-
-        if (i > 2)
-            throw new InvalidCsvException("Não é possível ter mais de dois delimitadores de String: \n" + data);
 
         if (i == 1)
             throw new InvalidCsvException("Não é possível ter apenas um delimitador de String: \n" + data);
