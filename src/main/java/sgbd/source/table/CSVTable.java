@@ -89,7 +89,7 @@ public class CSVTable extends Table {
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, RowData lowerbound) {
+    public RowIterator iterator(List<String> columns, RowData lowerbound) {
         return new RowIterator() {
             RowIterator sub = iterator();
             Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);

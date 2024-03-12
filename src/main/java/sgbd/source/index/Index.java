@@ -104,7 +104,7 @@ public abstract class Index extends Table {
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, RowData lowerbound){
+    public RowIterator iterator(List<String> columns, RowData lowerbound){
         return this.idxIterator(columns,lowerbound==null ? null : translatorApi.getPrimaryKey(lowerbound));
     }
     @Override

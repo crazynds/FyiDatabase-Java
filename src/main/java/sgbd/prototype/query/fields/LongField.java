@@ -4,6 +4,7 @@ import sgbd.prototype.BData;
 import sgbd.prototype.metadata.FloatMetadata;
 import sgbd.prototype.metadata.LongMetadata;
 import sgbd.prototype.metadata.Metadata;
+import sgbd.util.global.UtilConversor;
 
 public class LongField extends Field<Long>{
     public LongField(Metadata metadata, BData data) {
@@ -11,7 +12,7 @@ public class LongField extends Field<Long>{
     }
 
     public LongField(long value) {
-        super(LongMetadata.generic, value);
+        super(LongMetadata.generic,new BData(UtilConversor.longToByteArray(value)), value);
     }
     @Override
     protected Long constructData() {

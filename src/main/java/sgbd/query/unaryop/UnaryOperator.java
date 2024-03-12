@@ -13,7 +13,7 @@ public abstract class UnaryOperator implements Operator {
 
     @Override
     public void lookup(AttributeFilters filters) {
-        operator.lookup(filters);
+        //operator.lookup(filters);
     }
 
     public UnaryOperator(Operator op){

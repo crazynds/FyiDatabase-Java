@@ -139,7 +139,7 @@ public class GenericTable1 extends Source {
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, RowData lowerBound) {
+    public RowIterator iterator(List<String> columns, RowData lowerBound) {
         return new RowIterator() {
             boolean started = false;
             RecordStream<BigKey> recordStream;

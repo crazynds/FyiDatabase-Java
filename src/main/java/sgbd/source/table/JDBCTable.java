@@ -142,7 +142,7 @@ abstract public class JDBCTable extends Table {
     }
 
     @Override
-    protected RowIterator iterator(List<String> columns, RowData lowerbound) {
+    public RowIterator iterator(List<String> columns, RowData lowerbound) {
         return new RowIterator() {
             long currentIt = 0L;
             ResultSet results;

@@ -5,6 +5,7 @@ import sgbd.prototype.BData;
 import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
 import sgbd.util.global.Util;
+import sgbd.util.global.UtilConversor;
 
 public class IntegerField extends Field<Integer> {
 
@@ -13,7 +14,7 @@ public class IntegerField extends Field<Integer> {
         if(Util.typeOfColumn(col)!="int")throw new DataBaseException("IntField->Constructor","IntField needs to be int");
     }
     public IntegerField(int value) {
-        super(IntegerMetadata.generic, value);
+        super(IntegerMetadata.generic, new BData(UtilConversor.intToByteArray(value)), value);
     }
 
     @Override

@@ -5,6 +5,7 @@ import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
 import sgbd.prototype.metadata.StringMetadata;
 import sgbd.util.global.Util;
+import sgbd.util.global.UtilConversor;
 
 public class StringField extends Field<String>{
     public StringField(Metadata metadata, BData data) {
@@ -12,7 +13,7 @@ public class StringField extends Field<String>{
     }
 
     public StringField(String str) {
-        super(new StringMetadata((short)str.length()), str);
+        super(new StringMetadata((short)str.length()), new BData(UtilConversor.stringToByteArray(str)), str);
     }
 
     @Override

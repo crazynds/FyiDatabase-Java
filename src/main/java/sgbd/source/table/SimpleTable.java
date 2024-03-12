@@ -5,6 +5,7 @@ import engine.file.buffers.OptimizedFIFOBlockBuffer;
 import engine.storage.common.FixedHeapStorageRecord;
 import sgbd.prototype.RowData;
 import sgbd.source.components.Header;
+import sgbd.source.index.Index;
 import sgbd.source.index.MemoryIndex;
 
 public class SimpleTable extends GenericTable {
@@ -31,6 +32,7 @@ public class SimpleTable extends GenericTable {
             this.storage = new FixedHeapStorageRecord((r, key) -> {
                 RowData row = this.translatorApi.convertBinaryToRowData(r.getData(),null,true, true);
                 // update index
+                row.setLong(Index.REFERENCE_COLUMN_NAME,key);
                 this.primaryIndex.insert(row);
             }, this.fm, this.translatorApi.maxRecordSize());
             this.primaryIndex.open();

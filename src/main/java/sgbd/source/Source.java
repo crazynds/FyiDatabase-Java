@@ -72,7 +72,7 @@ public abstract class Source implements Iterable<RowData>{
      */
     public abstract RowData findByRef(RowData reference);
 
-    protected abstract RowIterator iterator(List<String> columns,RowData lowerbound);
+    public abstract RowIterator iterator(List<String> columns,RowData lowerbound);
     public abstract RowIterator iterator(List<String> columns);
     public abstract RowIterator iterator();
 

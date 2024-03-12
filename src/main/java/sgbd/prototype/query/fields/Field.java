@@ -18,10 +18,10 @@ public abstract class Field<T> implements Comparable<Field>{
         //this.bufferedData = constructData();
     }
 
-    protected Field(Metadata metadata,T value){
+    protected Field(Metadata metadata,BData data,T value){
         this.bufferedData = value;
         this.metadata = metadata;
-        this.data = null;
+        this.data = data;
     }
 
     public static Field createField(Metadata metadata,BData data){

@@ -33,16 +33,16 @@ public class Main {
         pt.addColumn(new IntegerColumn("idade"));
         pt.addColumn(new FloatColumn("salario"));
         pt.addColumn(new IntegerColumn("num_cart"));
-        Header header = new Header(pt,"pessoa_teste");
-        GenericTable tab = new CompleteTable(header);
+        Header header = new Header(pt,"alunos");
+        GenericTable tab = new SimpleTable(header);
 
         tab.open();
         tab.clear();
         Faker.replaceRandom(new Random(1000));
-        for(int x=1;x<=15;x++){
+        for(int x=1;x<=100;x++){
             RowData row = new RowData();
             row.setInt("id",Faker.integer(0,10));
-            row.setInt("semestre",Faker.integer(0,3));
+            row.setInt("semestre",Faker.integer(0,10));
             row.setString("nome",Faker.firstName());
             row.setInt("idade",Faker.integer(20,50));
             row.setFloat("salario", Faker.floatPoint(3000,10000));
@@ -54,5 +54,6 @@ public class Main {
 
 
         tab.close();
+        tab.saveHeader("alunos.head");
     }
 }

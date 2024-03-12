@@ -4,6 +4,7 @@ import sgbd.prototype.BData;
 import sgbd.prototype.metadata.FloatMetadata;
 import sgbd.prototype.metadata.IntegerMetadata;
 import sgbd.prototype.metadata.Metadata;
+import sgbd.util.global.UtilConversor;
 
 public class FloatField extends Field<Float>{
     private Integer value = null;
@@ -12,7 +13,7 @@ public class FloatField extends Field<Float>{
     }
 
     public FloatField(float value) {
-        super(FloatMetadata.generic, value);
+        super(FloatMetadata.generic,new BData(UtilConversor.floatToByteArray(value)), value);
     }
     @Override
     protected Float constructData() {

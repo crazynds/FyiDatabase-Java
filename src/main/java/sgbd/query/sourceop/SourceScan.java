@@ -13,7 +13,7 @@ import java.util.*;
 
 public class SourceScan extends SourceOperator{
 
-    private List<String> columns;
+    protected List<String> columns;
     protected RowIterator iterator;
 
     public SourceScan(Source t){
@@ -41,7 +41,6 @@ public class SourceScan extends SourceOperator{
         }else{
             iterator.restart();
         }
-
     }
 
     @Override

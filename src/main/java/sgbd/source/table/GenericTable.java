@@ -74,20 +74,6 @@ public abstract class GenericTable extends Table {
     @Override
 
     public RowIterator iterator(List<String> columns) {
-        return this.iterator(columns, null);
-    }
-
-    @Override
-    public RowIterator iterator() {
-        ArrayList<String> columns = new ArrayList<>();
-        for (Column c:this.getTranslator()) {
-            columns.add(c.getName());
-        }
-        return this.iterator(columns);
-    }
-
-    @Override
-    protected RowIterator iterator(List<String> columns,RowData lowerBound) {
         return new RowIterator() {
             boolean started = false;
             RecordStream<Long> recordStream;
@@ -95,7 +81,7 @@ public abstract class GenericTable extends Table {
 
             private void start(){
 
-                recordStream = (lowerBound==null)? storage.read(0L) :storage.read(lowerBound.getLong(Index.REFERENCE_COLUMN_NAME));
+                recordStream = storage.read(0L);
                 recordStream.open();
                 started=true;
             }
@@ -138,6 +124,60 @@ public abstract class GenericTable extends Table {
                 recordStream = null;
             }
 
+        };
+    }
+
+    @Override
+    public RowIterator iterator() {
+        ArrayList<String> columns = new ArrayList<>();
+        for (Column c:this.getTranslator()) {
+            columns.add(c.getName());
+        }
+        return this.iterator(columns);
+    }
+
+    @Override
+    public RowIterator iterator(List<String> columns,RowData lowerBound) {
+        return new RowIterator() {
+            boolean started = false;
+
+            RowIterator recordStream;
+            Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
+
+            private void start(){
+                // TODO: fazer loading a partir do lower bound no iterator.
+                recordStream = primaryIndex.iterator(columns, lowerBound);
+                started=true;
+            }
+
+            @Override
+            public void restart() {
+                if(!started || recordStream==null)start();
+                recordStream.restart();
+            }
+
+            @Override
+            public void unlock() {
+                if(recordStream!=null)
+                    recordStream.unlock();
+                recordStream = null;
+            }
+
+            @Override
+            public boolean hasNext() {
+                if(!started || recordStream==null)start();
+                return recordStream.hasNext();
+            }
+
+            @Override
+            public RowData next() {
+                RowData row = recordStream.next();
+                RecordStream<Long> stream = storage.read(row.getLong(Index.REFERENCE_COLUMN_NAME));
+                stream.open();
+                Record r = stream.next();
+                row= translatorApi.convertToRowData(r,metaInfo);
+                return row;
+            }
         };
     }
 
