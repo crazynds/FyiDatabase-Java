@@ -25,14 +25,45 @@ public class AttributeFilters {
 
     public void addEntry(String column, Value min, Value max){
         if(map.get(column)==null){
-            map.put(column,Map.entry(min,max));
+            map.put(column, new Map.Entry<Value, Value>() {
+                @Override
+                public Value getKey() {
+                    return min;
+                }
+
+                @Override
+                public Value getValue() {
+                    return max;
+                }
+                @Override
+                public Value setValue(Value value) {
+                    return null;
+                }
+            });
         }else {
             Map.Entry<Value,Value> entry = map.get(column);
             Value a = entry.getKey();
             Value b = entry.getValue();
             a = (a!=null && (min==null || a.getField().compareTo(min.getField())<=0))? a : min;
             b = (b!=null && (max==null || b.getField().compareTo(max.getField())<=0))? b : max;
-            map.put(column,Map.entry(a,b));
+            Value finalA = a;
+            Value finalB = b;
+            map.put(column, new Map.Entry<Value, Value>() {
+                @Override
+                public Value getKey() {
+                    return finalA;
+                }
+
+                @Override
+                public Value getValue() {
+                    return finalB;
+                }
+
+                @Override
+                public Value setValue(Value value) {
+                    return null;
+                }
+            });
         }
     }
 
