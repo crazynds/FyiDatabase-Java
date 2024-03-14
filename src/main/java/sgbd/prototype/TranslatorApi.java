@@ -2,10 +2,8 @@ package sgbd.prototype;
 
 import engine.exceptions.DataBaseException;
 import engine.file.streams.ReadByteStream;
-import engine.util.Util;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
-import engine.virtualization.record.instances.GenericRecord;
 import engine.virtualization.record.instances.GenericRecordPK;
 import lib.BigKey;
 import sgbd.prototype.column.Column;
@@ -28,7 +26,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
     private final HashMap<Integer,Integer> headerPosition;
 
     private final int primaryKeySize;
-    private byte[] bufferArrayPk;
+    private final byte[] bufferArrayPk;
 
     protected TranslatorApi(ArrayList<Column> columns){
         this.columns=columns;
@@ -110,7 +108,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         int offset = 0;
 
         for(Column c:primaryKey){
-            Field f = Field.createField(c,new BData(Arrays.copyOfRange(arr,offset,offset+c.getSize())));
+            Field<?> f = Field.createField(c,new BData(Arrays.copyOfRange(arr,offset,offset+c.getSize())));
             row.setField(c.getName(),f,c);
             offset += c.getSize();
         }
@@ -241,7 +239,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             if(data == null){
                 if(c.camBeNull()){
                     int posHeader = headerPosition.get(columns.indexOf(c));
-                    header[posHeader/8] |= 1<<(posHeader%8);
+                    header[posHeader/8] |= (byte) (1<<(posHeader%8));
                 }
             }else{
                 if(c.isDinamicSize()){
