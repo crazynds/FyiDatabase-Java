@@ -171,6 +171,7 @@ public abstract class GenericTable extends Table {
 
             @Override
             public RowData next() {
+                if(!hasNext())return null;
                 RowData row = recordStream.next();
                 RecordStream<Long> stream = storage.read(row.getLong(Index.REFERENCE_COLUMN_NAME));
                 stream.open();

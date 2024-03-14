@@ -34,14 +34,14 @@ public abstract class Index extends Table {
         Prototype py = new Prototype();
         if(header.getBool("non_unique") &&
                 header.getPrototype().getColumns().stream()
-                        .anyMatch(column -> column.getName().compareTo(UNIQUE_COLUMN_NAME)==0) == false){
+                        .noneMatch(column -> column.getName().compareTo(UNIQUE_COLUMN_NAME) == 0)){
             py.addColumn(UNIQUE_COLUMN_NAME,src.getTranslator().getPrimaryKeySize(), Metadata.PRIMARY_KEY|Metadata.IGNORE_COLUMN);
             throw new DataBaseException("Index->preparePrototype","Ainda não está funcionando os indices secundários não unicos.");
         }
         for(Column c:header.getPrototype()){
             if(c.isPrimaryKey()){
                 py.addColumn(c);
-            }
+            }else break;
         }
         if(header.getBool("primary_index")){
             py.addColumn(new LongColumn(REFERENCE_COLUMN_NAME));

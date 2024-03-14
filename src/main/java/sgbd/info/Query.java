@@ -11,6 +11,7 @@ public class Query {
 
     public static long SORT_TUPLES = 0;
 
-    public static long LOOK_UP_APPLIED = 0;
+    public static long LOOK_UP_LOWERBOUND= 0;
+    public static long LOOK_UP_UPPERBOUND= 0;
 
 }

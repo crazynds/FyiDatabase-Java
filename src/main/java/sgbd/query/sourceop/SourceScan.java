@@ -10,6 +10,8 @@ import sgbd.prototype.column.Column;
 import sgbd.prototype.metadata.Metadata;
 import sgbd.prototype.query.Tuple;
 import sgbd.prototype.query.fields.BinaryField;
+import sgbd.prototype.query.fields.Field;
+import sgbd.prototype.query.fields.NullField;
 import sgbd.source.Source;
 import sgbd.source.index.Index;
 import sgbd.source.table.Table;
@@ -24,8 +26,10 @@ public class SourceScan extends SourceOperator{
 
     // Lookup variables
     private RowData lowerbound = null;
-    private BigKey upperbound = null;
+    private List<Map.Entry<String, Field>> upperbound = null;
+
     private boolean forceStop;
+
 
     public SourceScan(Source t){
         super(t);
@@ -40,45 +44,35 @@ public class SourceScan extends SourceOperator{
     @Override
     public void lookup(AttributeFilters filters) {
         Source t = this.source;
-        RowData upperbound = null;
         lowerbound=null;
         for(Column c:t.getTranslator()){
             Map.Entry <Value, Value> entry = filters.getColumnFilter(sourceName()+'.'+c.getName());
             if(c.isPrimaryKey() && entry!=null && entry.getKey()!=null){
                 if(lowerbound==null) {
                     lowerbound = new RowData();
-                    upperbound = new RowData();
+                    upperbound = new ArrayList<>();
                 }
+                if(entry.getValue() !=null && lowerbound.size() == upperbound.size())
+                    upperbound.add(Map.entry(c.getName(), entry.getValue().getField()));
                 lowerbound.setField(c.getName(),entry.getKey().getField());
-                if(entry.getValue()==null){
-                    byte[] arr = new byte[c.getSize()];
-                    Arrays.fill(arr, (byte)-1);
-                    upperbound.setField(c.getName(), BinaryField.createField(c, new BData(arr)));
-                }else upperbound.setField(c.getName(),entry.getValue().getField());
             }else{
                 break;
             }
         }
         if(lowerbound!=null){
-            Query.LOOK_UP_APPLIED +=1;
-            this.upperbound = t.getTranslator().getPrimaryKey(upperbound);
+            Query.LOOK_UP_LOWERBOUND +=1;
         }
     }
 
     @Override
     public void open() {
-        if(iterator==null) {
-            if (lowerbound!=null) {
-                iterator = source.iterator(columns,lowerbound);
-            } else {
+        if (lowerbound!=null) {
+            freeResources();
+            iterator = source.iterator(columns,lowerbound);
+        } else {
+            if(iterator==null)
                 iterator = source.iterator(columns);
-            }
-        }else{
-            if (lowerbound!=null) {
-                iterator.unlock();
-                iterator = source.iterator(columns,lowerbound);
-            }else
-                iterator.restart();
+            else iterator.restart();
         }
     }
 
@@ -86,9 +80,16 @@ public class SourceScan extends SourceOperator{
     public Tuple next() {
         RowData row = iterator.next();
         if(row==null)return null;
-        if(upperbound!=null){
-            BigKey current = source.getTranslator().getPrimaryKey(row);
-            if(current.compareTo(upperbound) > 0)forceStop = true;
+        if(upperbound!=null && !upperbound.isEmpty()){
+            int status = 0;
+            for(Map.Entry<String,Field> field:upperbound){
+                status = row.getField(field.getKey()).compareTo(field.getValue());
+                if(status!=0)break;
+            }
+            if(status > 0){
+                forceStop = true;
+                Query.LOOK_UP_UPPERBOUND += 1;
+            }
         }
         Tuple tuple = new Tuple();
         tuple.setContent(sourceName(),row);
@@ -97,7 +98,7 @@ public class SourceScan extends SourceOperator{
 
     @Override
     public boolean hasNext() {
-        if(forceStop) return true;
+        if(forceStop) return false;
         return iterator.hasNext();
     }
 

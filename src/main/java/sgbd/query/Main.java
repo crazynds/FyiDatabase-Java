@@ -26,12 +26,12 @@ public class Main {
         Table table = Table.loadFromHeader("users.head");
         Table table2 = Table.loadFromHeader("cidades.head");
         Table table3 = Table.loadFromHeader("alunos.head");
-        table.open();
-        table2.open();
+        //table.open();
+        //table2.open();
         table3.open();
 
-        Operator scan = new TableScan(table);
-        Operator scan2 = new TableScan(table2);
+        //Operator scan = new TableScan(table);
+        //Operator scan2 = new TableScan(table2);
         Operator scan3 = new TableScan(table3);
 
 //        BooleanExpression b = new AtomicExpression(
@@ -42,7 +42,7 @@ public class Main {
         Operator filter = new FilterOperator(scan3,
                 new AtomicExpression(
                     new Variable("alunos.id"),
-                    new Value(new IntegerField(5)),
+                    new Value(new IntegerField(3)),
                     RelationalOperator.EQUAL
                 )
         );
@@ -61,6 +61,8 @@ public class Main {
         System.out.println("Comparações de FILTER: "+Query.COMPARE_FILTER);
         System.out.println("Comparações de JOIN: "+Query.COMPARE_JOIN);
         System.out.println("Comparações de TUPLAS DISTINTAS: "+Query.COMPARE_DISTINCT_TUPLE);
+        System.out.println("Index UPPERBOUND: "+Query.LOOK_UP_UPPERBOUND);
+        System.out.println("Index LOWERBOUND: "+Query.LOOK_UP_LOWERBOUND);
 
         System.out.println("Disk performance: ");
         System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

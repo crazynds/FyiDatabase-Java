@@ -1,6 +1,5 @@
 package sgbd.prototype;
 
-import com.mysql.cj.result.Row;
 import engine.exceptions.DataBaseException;
 import engine.file.streams.ReadByteStream;
 import engine.util.Util;
@@ -25,6 +24,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
 
 
     private final ArrayList<Column> columns;
+    private final List<Column> primaryKey;
     private final HashMap<Integer,Integer> headerPosition;
 
     private final int primaryKeySize;
@@ -70,6 +70,10 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         primaryKeySize = sizePk;
         bufferArrayPk = new byte[sizePk];
         headerBuffer = new byte[headerSize];
+        this.primaryKey = new ArrayList<>(columns.stream()
+                .filter(Column::isPrimaryKey)
+                .toList());
+        Collections.reverse(this.primaryKey);
     }
 
     public int maxRecordSize(){
@@ -82,18 +86,18 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
     }
 
     public BigKey getPrimaryKey(RowData rw){
+        return this.getPrimaryKey(rw,false);
+    }
+
+    public BigKey getPrimaryKey(RowData rw, boolean upper){
         ByteBuffer buffer = ByteBuffer.allocate(primaryKeySize);
-        for(Column c:columns){
-            if(c.isPrimaryKey()){
-                byte[] arr = rw.getData(c.getName());
-                if(arr==null){
-                    arr = new byte[c.getSize()];
-                    Arrays.fill(arr,(byte)0);
-                }
-                buffer.put(arr);
-            }else{
-                break;
+        for(Column c:this.primaryKey){
+            byte[] arr = rw.getData(c.getName());
+            if(arr==null){
+                arr = new byte[c.getSize()];
+                Arrays.fill(arr,(byte)(upper? -1 : 0));
             }
+            buffer.put(arr);
         }
         return new BigKey(buffer.array());
     }
@@ -105,14 +109,10 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
         byte[] arr = rw.getData();
         int offset = 0;
 
-        for(Column c:columns){
-            if(c.isPrimaryKey()){
-                Field f = Field.createField(c,new BData(Arrays.copyOfRange(arr,offset,offset+c.getSize())));
-                row.setField(c.getName(),f,c);
-                offset += c.getSize();
-            }else{
-                break;
-            }
+        for(Column c:primaryKey){
+            Field f = Field.createField(c,new BData(Arrays.copyOfRange(arr,offset,offset+c.getSize())));
+            row.setField(c.getName(),f,c);
+            offset += c.getSize();
         }
         return row;
     }
@@ -134,6 +134,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
     @Override
     public synchronized BigKey getPrimaryKey(ReadByteStream rbs) {
         rbs.read(this.headerSize,bufferArrayPk,0,primaryKeySize);
+
         return new BigKey(bufferArrayPk,true);
     }
 
