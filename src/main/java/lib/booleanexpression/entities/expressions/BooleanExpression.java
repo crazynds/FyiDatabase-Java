@@ -3,6 +3,7 @@ package lib.booleanexpression.entities.expressions;
 import lib.booleanexpression.entities.AttributeFilters;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.enums.*;
+import sgbd.prototype.RowData;
 import sgbd.prototype.query.Tuple;
 
 import java.util.ArrayList;
@@ -18,11 +19,14 @@ public abstract class BooleanExpression {
         this.booleanValue = booleanValue;
     }
 
-    public abstract Result solve(Tuple t);
+    public abstract void clear();
+    public abstract void applyTuple(Tuple t);
+    public abstract Result solve();
 
     public boolean isFalse(){
         return !booleanValue;
     }
+
 
     public abstract void applyAttributeFilters(AttributeFilters filter);
 

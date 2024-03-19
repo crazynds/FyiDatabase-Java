@@ -26,6 +26,7 @@ public class FilterOperator extends SimpleUnaryOperator {
 
     @Override
     public void lookup(AttributeFilters filters) {
+        expression.clear();
         expression.applyAttributeFilters(filters);
         operator.lookup(filters);
     }
@@ -42,7 +43,8 @@ public class FilterOperator extends SimpleUnaryOperator {
             Tuple temp = operator.next();
             Query.COMPARE_FILTER++;
             if (this.expression != null) {
-                if(this.expression.solve(temp).val())return temp;
+                this.expression.applyTuple(temp);
+                if(this.expression.solve().val())return temp;
             }else if(tupleFilter.match(temp)) {
                 return temp;
             }

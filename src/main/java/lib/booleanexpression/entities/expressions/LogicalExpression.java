@@ -2,6 +2,7 @@ package lib.booleanexpression.entities.expressions;
 
 import lib.booleanexpression.entities.AttributeFilters;
 import lib.booleanexpression.enums.*;
+import sgbd.prototype.RowData;
 import sgbd.prototype.query.Tuple;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
         this(logicalOperator, booleanValue, List.of(expressions));
     }
 
-    public Result solve(Tuple t){
+    public Result solve(){
         LogicalOperator operator = this.getLogicalOperator();
         Result anticipatedResult = Objects.equals(operator, LogicalOperator.OR) ? Result.TRUE : Result.FALSE;
 
@@ -52,7 +53,7 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
         for(BooleanExpression expression : this.getExpressions()) {
 
-            Result atomicResult = expression.solve(t);
+            Result atomicResult = expression.solve();
             if(expression.isFalse())atomicResult = atomicResult.invert();
 
             if(Objects.equals(atomicResult, anticipatedResult)) return anticipatedResult;
@@ -61,6 +62,20 @@ public class LogicalExpression extends BooleanExpression implements Iterable<Boo
 
         return hasNotReadyVariables ? Result.NOT_READY : (anticipatedResult.val() ? Result.FALSE : Result.TRUE);
 
+    }
+
+    @Override
+    public void clear() {
+        for(BooleanExpression expression : this.getExpressions()) {
+            expression.clear();
+        }
+    }
+
+    @Override
+    public void applyTuple(Tuple t) {
+        for(BooleanExpression expression : this.getExpressions()) {
+            expression.applyTuple(t);
+        }
     }
 
     @Override

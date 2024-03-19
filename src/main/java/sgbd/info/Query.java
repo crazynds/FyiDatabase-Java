@@ -14,4 +14,7 @@ public class Query {
     public static long LOOK_UP_LOWERBOUND= 0;
     public static long LOOK_UP_UPPERBOUND= 0;
 
+
+    public static boolean LOOK_UP_ENABLED = true;
+
 }

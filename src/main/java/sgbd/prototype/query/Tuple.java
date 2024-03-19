@@ -61,10 +61,12 @@ public class Tuple implements Iterable<Map.Entry<String, RowData>>,Comparable<Tu
                 if(f!=null)return f;
             }
         else if(splited.length>1){
-            Field f = sources.get(splited[0]).getField(splited[1]);
+            RowData row = sources.get(splited[0]);
+            if(row==null)return null;
+            Field f = row.getField(splited[1]);
             if(f!=null)return f;
         }
-        return NullField.generic;
+        return null;
     }
 
     public int compareTo(Tuple t){

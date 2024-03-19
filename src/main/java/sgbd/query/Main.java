@@ -26,20 +26,20 @@ public class Main {
         Table table = Table.loadFromHeader("users.head");
         Table table2 = Table.loadFromHeader("cidades.head");
         Table table3 = Table.loadFromHeader("alunos.head");
-        //table.open();
-        //table2.open();
+        table.open();
+        table2.open();
         table3.open();
 
-        //Operator scan = new TableScan(table);
-        //Operator scan2 = new TableScan(table2);
+        Operator scan = new TableScan(table);
+        Operator scan2 = new TableScan(table2);
         Operator scan3 = new TableScan(table3);
 
-//        BooleanExpression b = new AtomicExpression(
-//                new Variable("users.idCidade"),
-//                new Variable("cidades.id"), RelationalOperator.EQUAL);
-//        Operator join = new NestedLoopJoin(scan,scan2,b);
-//        Operator filter = new SelectColumnsOperator(join, List.of("cidades.id","users.idCidade","users.nome"));
-        Operator filter = new FilterOperator(scan3,
+        BooleanExpression b = new AtomicExpression(
+                new Variable("users.idCidade"),
+                new Variable("cidades.id"), RelationalOperator.EQUAL);
+        Operator join = new NestedLoopJoin(scan,scan2,b);
+        Operator filter = new SelectColumnsOperator(join, List.of("cidades.id","users.idCidade","users.nome"));
+        Operator filter2 = new FilterOperator(scan3,
                 new AtomicExpression(
                     new Variable("alunos.id"),
                     new Value(new IntegerField(3)),

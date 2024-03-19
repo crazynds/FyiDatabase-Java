@@ -10,6 +10,7 @@ import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.enums.RelationalOperator;
 import lib.booleanexpression.enums.Result;
+import sgbd.prototype.RowData;
 import sgbd.prototype.query.Tuple;
 import sgbd.prototype.query.fields.Field;
 
@@ -44,20 +45,9 @@ public class AtomicExpression extends BooleanExpression{
         return secondElement instanceof Variable;
     }
 
-    public Result solve(Tuple t){
+    public Result solve(){
         AtomicExpression expression = this;
-        Field obj1 = null,obj2 = null;
-        if(firstElement instanceof Variable firstVar){
-            obj1 = t.getField(firstVar.getNames());
-        }else{
-            obj1 = ((Value)firstElement).getField();
-        }
-        if(secondElement instanceof Variable secondVar){
-            obj2 = t.getField(secondVar.getNames());
-
-        }else{
-            obj2 = ((Value)secondElement).getField();
-        }
+        Field obj1 = firstElement.getField(),obj2 = secondElement.getField();
 
         if(obj1==null || obj2==null)return Result.NOT_READY;
 
@@ -76,26 +66,46 @@ public class AtomicExpression extends BooleanExpression{
     }
 
     @Override
+    public void clear() {
+        if(firstElement instanceof Variable firstVar)firstVar.setField(null);
+        if(secondElement instanceof Variable secondVar)secondVar.setField(null);
+    }
+
+    @Override
+    public void applyTuple(Tuple t) {
+        if(firstElement instanceof Variable firstVar){
+            Field f = t.getField(firstVar.getNames());
+            if(f!=null)
+                firstVar.setField(f);
+        }
+        if(secondElement instanceof Variable secondVar){
+            Field f = t.getField(secondVar.getNames());
+            if(f!=null)
+                secondVar.setField(f);
+        }
+    }
+
+    @Override
     public void applyAttributeFilters(AttributeFilters filter) {
         Variable var = null;
-        Value val = null;
-        if(firstElement instanceof Value && secondElement instanceof Variable){
-            var = (Variable) secondElement;
-            val = (Value) firstElement;
-        }else if(secondElement instanceof Value && firstElement instanceof Variable){
-            var = (Variable) firstElement;
-            val = (Value) secondElement;
+        Field field = null;
+        if(firstElement instanceof Variable firstVar && firstVar.getField()==null){
+            field = secondElement.getField();
+            var = firstVar;
+        }else if(secondElement instanceof Variable secondVar && secondVar.getField()==null){
+            field = firstElement.getField();
+            var = secondVar;
         }
-        if(var==null || val==null)return;
+        if(var==null || field==null)return;
         switch (getRelationalOperator()){
             case LESS_THAN, LESS_THAN_OR_EQUAL:
-                filter.addEntry(var.toString(),null,val);
+                filter.addEntry(var.toString(),null,field);
                 break;
             case GREATER_THAN, GREATER_THAN_OR_EQUAL:
-                filter.addEntry(var.toString(),val,null);
+                filter.addEntry(var.toString(),field,null);
                 break;
             case EQUAL:
-                filter.addEntry(var.toString(),val,val);
+                filter.addEntry(var.toString(),field,field);
                 break;
             case NOT_EQUAL:
             case IS:

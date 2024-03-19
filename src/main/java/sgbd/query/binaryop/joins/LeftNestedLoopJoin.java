@@ -31,6 +31,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
         while(currentLeftTuple!=null || left.hasNext()){
             if(currentLeftTuple==null){
                 currentLeftTuple = left.next();
+                this.applyLookup(currentLeftTuple);
                 right.open();
                 findAnyMatch = false;
             }

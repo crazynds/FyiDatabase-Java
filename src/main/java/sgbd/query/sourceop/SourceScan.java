@@ -43,18 +43,19 @@ public class SourceScan extends SourceOperator{
 
     @Override
     public void lookup(AttributeFilters filters) {
+        if(!Query.LOOK_UP_ENABLED)return;
         Source t = this.source;
         lowerbound=null;
         for(Column c:t.getTranslator()){
-            Map.Entry <Value, Value> entry = filters.getColumnFilter(sourceName()+'.'+c.getName());
+            Map.Entry <Field, Field> entry = filters.getColumnFilter(sourceName()+'.'+c.getName());
             if(c.isPrimaryKey() && entry!=null && entry.getKey()!=null){
                 if(lowerbound==null) {
                     lowerbound = new RowData();
                     upperbound = new ArrayList<>();
                 }
                 if(entry.getValue() !=null && lowerbound.size() == upperbound.size())
-                    upperbound.add(Map.entry(c.getName(), entry.getValue().getField()));
-                lowerbound.setField(c.getName(),entry.getKey().getField());
+                    upperbound.add(Map.entry(c.getName(), entry.getValue()));
+                lowerbound.setField(c.getName(),entry.getKey());
             }else{
                 break;
             }

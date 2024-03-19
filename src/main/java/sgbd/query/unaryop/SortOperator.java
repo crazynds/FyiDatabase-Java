@@ -19,6 +19,16 @@ public class SortOperator extends UnaryOperator {
         this.comparator = comparator;
     }
 
+    public SortOperator(Operator op) {
+        super(op);
+        this.comparator = new Comparator<Tuple>() {
+            @Override
+            public int compare(Tuple o1, Tuple o2) {
+                return o1.compareTo(o2);
+            }
+        };
+    }
+
     public SortOperator(Operator op, ResourceName resourceName) {
         this(op,resourceName,resourceName);
     }

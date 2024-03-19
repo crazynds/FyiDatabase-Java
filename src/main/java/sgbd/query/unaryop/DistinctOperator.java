@@ -4,24 +4,19 @@ import sgbd.info.Query;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 
-import java.util.ArrayList;
-
 public class DistinctOperator extends SimpleUnaryOperator{
 
-    private ArrayList<Tuple> tuples = new ArrayList<>();
+    Tuple lastTuple = null;
 
     public DistinctOperator(Operator op) {
-        super(op);
+        super(new SortOperator(op));
     }
 
 
     private boolean checkValid(Tuple newTuple){
-        for (Tuple t:
-                tuples) {
-            Query.COMPARE_DISTINCT_TUPLE++;
-            if(t.compareTo(newTuple)==0 && newTuple.compareTo(t)==0)return false;
-        }
-        tuples.add(newTuple);
+        if(lastTuple==null)return true;
+        Query.COMPARE_DISTINCT_TUPLE++;
+        if(lastTuple.compareTo(newTuple)==0 && newTuple.compareTo(lastTuple)==0)return false;
         return true;
     }
 
@@ -29,6 +24,7 @@ public class DistinctOperator extends SimpleUnaryOperator{
         while (operator.hasNext()) {
             Tuple t = operator.next();
             if (checkValid(t)) {
+                lastTuple = t;
                 return t;
             }
         }
@@ -38,7 +34,6 @@ public class DistinctOperator extends SimpleUnaryOperator{
     @Override
     public void open() {
         super.open();
-        tuples.clear();
     }
 
 }
