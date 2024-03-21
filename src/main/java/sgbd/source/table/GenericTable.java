@@ -89,7 +89,8 @@ public abstract class GenericTable extends Table {
             @Override
             public void restart() {
                 if(!started || recordStream==null)start();
-                recordStream.reset();
+                recordStream.close();
+                recordStream.open();
             }
 
             @Override
@@ -142,18 +143,22 @@ public abstract class GenericTable extends Table {
             boolean started = false;
 
             RowIterator recordStream;
+            RecordStream<Long> tableStream;
             Map<String, Column> metaInfo = translatorApi.generateMetaInfo(columns);
 
             private void start(){
-                // TODO: fazer loading a partir do lower bound no iterator.
                 recordStream = primaryIndex.iterator(columns, lowerBound);
                 started=true;
+                tableStream = storage.read(0L);
+                tableStream.open();
             }
 
             @Override
             public void restart() {
                 if(!started || recordStream==null)start();
                 recordStream.restart();
+                tableStream.close();
+                tableStream.open();
             }
 
             @Override
@@ -161,6 +166,9 @@ public abstract class GenericTable extends Table {
                 if(recordStream!=null)
                     recordStream.unlock();
                 recordStream = null;
+                if(tableStream!=null)
+                    tableStream.close();
+                tableStream = null;
             }
 
             @Override
@@ -173,9 +181,9 @@ public abstract class GenericTable extends Table {
             public RowData next() {
                 if(!hasNext())return null;
                 RowData row = recordStream.next();
-                RecordStream<Long> stream = storage.read(row.getLong(Index.REFERENCE_COLUMN_NAME));
-                stream.open();
-                Record r = stream.next();
+                Long key = row.getLong(Index.REFERENCE_COLUMN_NAME);
+                tableStream.seek(key);
+                Record r = tableStream.next();
                 row= translatorApi.convertToRowData(r,metaInfo);
                 return row;
             }

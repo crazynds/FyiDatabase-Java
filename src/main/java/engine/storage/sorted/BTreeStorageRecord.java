@@ -53,7 +53,7 @@ public class BTreeStorageRecord extends PkStorageRecord<BigKey> {
 
     @Override
     public RecordStream<BigKey> read(BigKey key) {
-        return new RecordStream<>() {
+        return new RecordStream<BigKey>() {
 
             Iterator<Map.Entry<BigKey, ByteBuffer>> iterator = null;
 
@@ -90,9 +90,8 @@ public class BTreeStorageRecord extends PkStorageRecord<BigKey> {
             }
 
             @Override
-            public void reset() {
-                this.close();
-                this.open();
+            public void seek(BigKey key) {
+                this.iterator = btree.iterator(key);
             }
 
             @Override

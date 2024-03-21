@@ -16,6 +16,7 @@ import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
 import sgbd.source.table.Table;
+import sgbd.util.classes.ResourceName;
 
 import java.util.List;
 
@@ -37,7 +38,8 @@ public class Main {
         BooleanExpression b = new AtomicExpression(
                 new Variable("users.idCidade"),
                 new Variable("cidades.id"), RelationalOperator.EQUAL);
-        Operator join = new NestedLoopJoin(scan,scan2,b);
+        Operator sort = new SortOperator(scan,new ResourceName("users","idCidade"));
+        Operator join = new NestedLoopJoin(sort,scan2,b);
         Operator filter = new SelectColumnsOperator(join, List.of("cidades.id","users.idCidade","users.nome"));
         Operator filter2 = new FilterOperator(scan3,
                 new AtomicExpression(

@@ -166,7 +166,8 @@ public class GenericTable1 extends Source {
                 if (!started || recordStream == null) {
                     start();
                 }
-                recordStream.reset();
+                recordStream.close();
+                recordStream.open();
             }
 
             @Override

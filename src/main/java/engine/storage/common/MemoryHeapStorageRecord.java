@@ -36,8 +36,8 @@ public class MemoryHeapStorageRecord extends AnonymousStorageRecord{
     }
 
     @Override
-    public RecordStream read(Long key) {
-        return new RecordStream() {
+    public RecordStream<Long> read(Long key) {
+        return new RecordStream<Long>() {
             Iterator<Record> it;
             long currentKey = 0;
             Record buffer;
@@ -70,9 +70,8 @@ public class MemoryHeapStorageRecord extends AnonymousStorageRecord{
             }
 
             @Override
-            public void reset() {
-                close();
-                open();
+            public void seek(Long key) {
+                currentKey = key;
             }
 
             @Override

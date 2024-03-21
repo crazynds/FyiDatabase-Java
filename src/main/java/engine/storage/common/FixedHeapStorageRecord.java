@@ -71,8 +71,8 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
 
 
     @Override
-    public RecordStream read(Long key) {
-        return new RecordStream() {
+    public RecordStream<Long> read(Long key) {
+        return new RecordStream<Long>() {
             long currentKey;
             Record buffer = new GenericRecord(new byte[sizeOfEachRecord + 8]);
 
@@ -84,6 +84,11 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
             @Override
             public void close() {
                 currentKey = -1;
+            }
+
+            @Override
+            public void seek(Long key) {
+                currentKey = key;
             }
 
             @Override
@@ -103,11 +108,6 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
                 if(currentKey <= 0) return;
                 heap.write(keyToPosition(currentKey - 1),r.getData(),r.size());
                 handler.updateRecord(r,currentKey - 1);
-            }
-
-            @Override
-            public void reset() {
-                currentKey = key;
             }
 
             @Override

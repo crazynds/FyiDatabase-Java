@@ -32,6 +32,7 @@ public class BTreeRecordStream implements RecordStream<BigKey>{
 
     @Override
     public void close() {
+        this.iterator = null;
     }
 
     @Override
@@ -50,8 +51,8 @@ public class BTreeRecordStream implements RecordStream<BigKey>{
     }
 
     @Override
-    public void reset() {
-        this.iterator = pairs.iterator();
+    public void seek(BigKey key) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

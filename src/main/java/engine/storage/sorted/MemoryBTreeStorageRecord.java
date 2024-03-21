@@ -73,9 +73,8 @@ public class MemoryBTreeStorageRecord extends PkStorageRecord<BigKey> {
             }
 
             @Override
-            public void reset() {
-                close();
-                open();
+            public void seek(BigKey key) {
+                this.iterator = arvoreB.iterator(key);
             }
 
             @Override

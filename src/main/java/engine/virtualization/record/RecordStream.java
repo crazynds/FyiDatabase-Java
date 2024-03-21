@@ -12,6 +12,7 @@ public interface RecordStream<T> extends Iterator<Record> {
 	 */
 	public void open();
 	public void close();
+	public void seek(T key);
 
 	/*
 	 * Retorna a chave da posição atual
@@ -28,12 +29,5 @@ public interface RecordStream<T> extends Iterator<Record> {
 	 * Caso seja necessário, o objeto ira fazer chamadas de atualização da posição dos outros records
 	 */
 	public void update(Record r);
-
-	
-	/*
-	 * Reinicia a leitura da stream, voltando para a primieira posição
-	 */
-	public void reset();
-
 
 }
