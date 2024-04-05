@@ -10,6 +10,8 @@ public class BigKey implements Comparable<BigKey>{
 
     private final byte[] data;
 
+    private BigInteger key = null;
+
 
     public BigKey(byte[] arr){
         this(arr,false);
@@ -18,7 +20,10 @@ public class BigKey implements Comparable<BigKey>{
         this.data = (clone)?arr.clone():arr;
     }
     public BigInteger toBigInteger(){
-        return Util.convertByteArrayToNumber(this.data);
+        if(key==null){
+            key = Util.convertByteArrayToNumber(this.data);
+        }
+        return key;
     }
 
     public Long longValue(){

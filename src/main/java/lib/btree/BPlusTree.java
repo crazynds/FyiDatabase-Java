@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class BPlusTree<T extends Comparable<T>,M>  implements Iterable<Map.Entry<T,M>>{
 
-    protected static final int ORDER  = 16;
+    protected static final int ORDER  = 32;
 
     private Node<T,M> rootNode;
     private Leaf<T,M> firstLeaf;

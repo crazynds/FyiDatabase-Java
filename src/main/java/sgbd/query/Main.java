@@ -26,14 +26,11 @@ public class Main {
 
         Table table = Table.loadFromHeader("users.head");
         Table table2 = Table.loadFromHeader("cidades.head");
-        Table table3 = Table.loadFromHeader("alunos.head");
         table.open();
         table2.open();
-        table3.open();
 
         Operator scan = new TableScan(table);
         Operator scan2 = new TableScan(table2);
-        Operator scan3 = new TableScan(table3);
 
         BooleanExpression b = new AtomicExpression(
                 new Variable("users.idCidade"),
@@ -41,15 +38,8 @@ public class Main {
         Operator sort = new SortOperator(scan,new ResourceName("users","idCidade"));
         Operator join = new NestedLoopJoin(sort,scan2,b);
         Operator filter = new SelectColumnsOperator(join, List.of("cidades.id","users.idCidade","users.nome"));
-        Operator filter2 = new FilterOperator(scan3,
-                new AtomicExpression(
-                    new Variable("alunos.id"),
-                    new Value(new IntegerField(3)),
-                    RelationalOperator.EQUAL
-                )
-        );
 
-        TestOperators.testOperator(filter);
+        TestOperators.testOperator(scan);
 
         //Fecha as tables, não serão mais acessadas
 
@@ -65,6 +55,7 @@ public class Main {
         System.out.println("Comparações de TUPLAS DISTINTAS: "+Query.COMPARE_DISTINCT_TUPLE);
         System.out.println("Index UPPERBOUND: "+Query.LOOK_UP_UPPERBOUND);
         System.out.println("Index LOWERBOUND: "+Query.LOOK_UP_LOWERBOUND);
+        System.out.println("Full Table Scan: "+Query.FULL_TABLE_SCAN);
 
         System.out.println("Disk performance: ");
         System.out.println("Tempo seek escrita: "+(Parameters.IO_SEEK_WRITE_TIME)/1000000f+"ms");

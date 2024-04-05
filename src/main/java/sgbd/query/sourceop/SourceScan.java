@@ -71,6 +71,9 @@ public class SourceScan extends SourceOperator{
             freeResources();
             iterator = source.iterator(columns,lowerbound);
         } else {
+
+            if(upperbound==null)Query.FULL_TABLE_SCAN += 1;
+
             if(iterator==null)
                 iterator = source.iterator(columns);
             else iterator.restart();
