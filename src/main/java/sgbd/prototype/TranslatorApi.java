@@ -95,6 +95,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
                 arr = new byte[c.getSize()];
                 Arrays.fill(arr,(byte)(upper? -1 : 0));
             }
+            if(arr.length!=c.getSize())throw new DataBaseException("TranslatorApi->getPrimaryKey","Tamanho inválido na coluna "+c.getName());
             buffer.put(arr);
         }
         return new BigKey(buffer.array());
