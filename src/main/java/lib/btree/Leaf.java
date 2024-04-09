@@ -110,15 +110,31 @@ public class Leaf<T extends Comparable<T>,M> extends Node<T,M>{
 
     public Map.Entry<T,M> insert(T key, M data){
         Map.Entry<T,M> entry = new AbstractMap.SimpleEntry<>(key,data);
-        if(Arrays.stream(itens).noneMatch(n->n!=null && n.getKey().compareTo(key)==0)
-                && qtd == itens.length)return entry;
-        for(int x=0;x<qtd;x++){
+        if(qtd == itens.length && get(key)==null)
+            return entry;
+        int min= 0;
+        int max = qtd;
+        while(min<max){
+            int med = min+ (max-min)/2;
+            T t = itens[med].getKey();
+            switch(key.compareTo(t)){
+                case 0:
+                    min = max = med;
+                    break;
+                case 1:
+                    min = med+1;
+                    break;
+                case -1:
+                    max = med-1;
+                    break;
+            }
+        }
+        for(int x=min;x<qtd;x++){
             T k = itens[x].getKey();
             M d = itens[x].getValue();
             switch (key.compareTo(k)){
                 case 0:
                     itens[x].setValue(data);
-                    entry = null;
                     return null;
                 case -1:
                     Map.Entry<T,M> aux = itens[x];

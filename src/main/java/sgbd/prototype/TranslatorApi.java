@@ -96,7 +96,12 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
                 arr = new byte[c.getSize()];
                 Arrays.fill(arr,(byte)(upper? -1 : 0));
             }
-            if(arr.length!=c.getSize())throw new DataBaseException("TranslatorApi->getPrimaryKey","Tamanho inválido na coluna "+c.getName());
+            if(arr.length>c.getSize()){
+                Field f = rw.getField(c.getName());
+                throw new DataBaseException("TranslatorApi->getPrimaryKey","Tamanho inválido na coluna "+c.getName()+" | "+arr.length+" | "+f.getMetadata().toString());
+            } else if (arr.length < c.getSize()) {
+                throw new DataBaseException("TranslatorApi->getPrimaryKey","Tamanho de dado menor do que o esperado para essa coluna");
+            }
             buffer.put(arr);
         }
         return new BigKey(buffer.array());
@@ -209,6 +214,7 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             int size = c.getSize();
             if (c.isDinamicSize()) {
                 size = UtilConversor.byteArrayToInt(Arrays.copyOfRange(data, offset, offset + 4));
+                size = Math.min(c.getSize(),size);
                 offset += 4;
                 if(checkColumn) {
                     byte[] arr = Arrays.copyOfRange(data, offset, offset + size);
