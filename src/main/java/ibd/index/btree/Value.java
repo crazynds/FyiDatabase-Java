@@ -5,6 +5,7 @@
  */
 package ibd.index.btree;
 
+import engine.info.Parameters;
 import engine.virtualization.record.instances.GenericRecord;
 import ibd.persistent.ExternalizablePage;
 import java.io.DataInput;
@@ -120,6 +121,7 @@ public class Value implements ExternalizablePage {
                 case 'R':
                     byte b[] = new byte[schema.getSize(i)];
                     in.readFully(b);
+                    Parameters.MEMORY_ALLOCATED_BY_RECORDS += schema.getSize(i);
                     objects[i] = new GenericRecord(b);
             }
         }

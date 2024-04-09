@@ -5,7 +5,7 @@ import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
 import engine.virtualization.record.RecordStream;
 import engine.virtualization.record.instances.GenericRecord;
-import engine.virtualization.record.instances.GenericRecordPK;
+import engine.virtualization.record.instances.CompleteGenericRecord;
 import lib.BigKey;
 import lib.btree.BPlusTree;
 
@@ -63,7 +63,7 @@ public class MemoryBTreeStorageRecord extends PkStorageRecord<BigKey> {
 
             @Override
             public Record getRecord() {
-                if(current!=null)return new GenericRecordPK(current.getKey(),current.getValue());
+                if(current!=null)return new GenericRecord(current.getValue());
                 return null;
             }
 

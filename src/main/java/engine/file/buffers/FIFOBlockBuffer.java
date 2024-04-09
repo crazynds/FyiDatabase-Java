@@ -13,6 +13,7 @@ import engine.file.blocks.commitable.CommitableBlockStream;
 import engine.file.blocks.commitable.WriteBack;
 import engine.file.blocks.commitable.WriteCache;
 import engine.file.streams.WriteByteStream;
+import engine.info.Parameters;
 
 public class FIFOBlockBuffer extends BlockBuffer {
 	protected LinkedList<EntryBlock> blocks;
@@ -214,8 +215,12 @@ public class FIFOBlockBuffer extends BlockBuffer {
 				break;
 			}else e=null;
 		}
-		if(e!=null)
+		if(e!=null) {
 			blocks.addLast(e);
+			Parameters.CACHE_HIT += 1;
+		}else{
+			Parameters.CACHE_MISS += 1;
+		}
 		return e;
 	}
 

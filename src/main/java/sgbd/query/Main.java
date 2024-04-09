@@ -1,22 +1,15 @@
 package sgbd.query;
 
 import engine.info.Parameters;
-import lib.booleanexpression.entities.constructor.ExpressionConstructor;
-import lib.booleanexpression.entities.elements.Element;
-import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.entities.expressions.AtomicExpression;
-import lib.booleanexpression.entities.expressions.BooleanExpression;
-import lib.booleanexpression.entities.expressions.LogicalExpression;
-import lib.booleanexpression.enums.LogicalOperator;
 import lib.booleanexpression.enums.RelationalOperator;
 import sgbd.info.Query;
-import sgbd.prototype.query.fields.IntegerField;
+import sgbd.prototype.column.Column;
 import sgbd.query.binaryop.joins.NestedLoopJoin;
 import sgbd.query.sourceop.TableScan;
 import sgbd.query.unaryop.*;
 import sgbd.source.table.Table;
-import sgbd.util.classes.ResourceName;
 
 import java.util.List;
 
@@ -24,32 +17,40 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Table table = Table.loadFromHeader("users.head");
-        Table table2 = Table.loadFromHeader("cidades.head");
-        Table table3 = Table.loadFromHeader("alunos.head");
-        table.open();
-        table2.open();
-        table3.open();
+        Table movies_cast = Table.loadFromHeader("movies_cast.head");
+        Table movies_movie = Table.loadFromHeader("movies_movie.head");
+        Table movies_person = Table.loadFromHeader("movies_person.head");
+        Table movies_movie_crew = Table.loadFromHeader("movie_crew.head");
+        movies_cast.open();
+        movies_movie.open();
+        movies_person.open();
+        movies_movie_crew.open();
 
-        Operator scan = new TableScan(table);
-        Operator scan2 = new TableScan(table2);
-        Operator scan3 = new TableScan(table3);
+        Operator cast = new TableScan(movies_cast);
+        Operator movie = new TableScan(movies_movie);
+        Operator person = new TableScan(movies_person);
+        Operator crew = new TableScan(movies_movie_crew);
 
-        BooleanExpression b = new AtomicExpression(
-                new Variable("users.idCidade"),
-                new Variable("cidades.id"), RelationalOperator.EQUAL);
-        Operator sort = new SortOperator(scan,new ResourceName("users","idCidade"));
-        Operator join = new NestedLoopJoin(sort,scan2,b);
-        Operator filter = new SelectColumnsOperator(join, List.of("cidades.id","users.idCidade","users.nome"));
-        Operator filter2 = new FilterOperator(scan3,
-                new AtomicExpression(
-                    new Variable("alunos.id"),
-                    new Value(new IntegerField(3)),
-                    RelationalOperator.EQUAL
-                )
-        );
+        Operator join2 = new NestedLoopJoin(cast,movie, new AtomicExpression(
+                new Variable("movies_cast.movie_id"),
+                new Variable("movies_movie.movie_id"), RelationalOperator.EQUAL));
+        Operator join = new NestedLoopJoin(join2,person, new AtomicExpression(
+                new Variable("movies_person.person_id"),
+                new Variable("movies_cast.person_id"), RelationalOperator.EQUAL));
 
-        TestOperators.testOperator(filter);
+
+        Operator join3 = new NestedLoopJoin(join2,crew, new AtomicExpression(
+                new Variable("movies_movie.movie_id"),
+                new Variable("movie_crew.movie_id"), RelationalOperator.EQUAL));
+
+
+        Operator sort = new SortOperator(join2);
+
+        for(Column c:movies_person.getTranslator()){
+            System.out.println(c.getName()+" "+c.isPrimaryKey());
+        }
+
+        TestOperators.testOperator(join);
 
         //Fecha as tables, não serão mais acessadas
 
@@ -79,5 +80,13 @@ public class Main {
             +Parameters.IO_WRITE_TIME)/1000000f+"ms");
         System.out.println("Blocos carregados: "+Parameters.BLOCK_LOADED);
         System.out.println("Blocos salvos: "+Parameters.BLOCK_SAVED);
+        System.out.println("Memory by blocks: "+Parameters.MEMORY_ALLOCATED_BY_BLOCKS);
+        System.out.println("Memory by byte arrays: "+Parameters.MEMORY_ALLOCATED_BY_BYTE_ARRAY);
+        System.out.println("Memory by commitable blocks: "+Parameters.MEMORY_ALLOCATED_BY_COMMITTABLE_BLOCKS);
+        System.out.println("Memory by direct blocks: "+Parameters.MEMORY_ALLOCATED_BY_DIRECT_BLOCKS);
+        System.out.println("Memory by indirect blocks: "+Parameters.MEMORY_ALLOCATED_BY_INDIRECT_BLOCKS);
+        System.out.println("Memory by records: "+Parameters.MEMORY_ALLOCATED_BY_RECORDS);
+        System.out.println("Cache hit: "+Parameters.CACHE_HIT);
+        System.out.println("Cache miss: "+Parameters.CACHE_MISS);
     }
 }

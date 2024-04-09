@@ -20,5 +20,9 @@ public final class Parameters {
 	public static long MEMORY_ALLOCATED_BY_COMMITTABLE_BLOCKS = 0;
 	
 	public static long MEMORY_ALLOCATED_BY_BYTE_ARRAY = 0;
-	
+
+
+	public static long CACHE_MISS = 0;
+	public static long CACHE_HIT = 0;
+
 }

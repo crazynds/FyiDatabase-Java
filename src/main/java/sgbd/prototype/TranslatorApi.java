@@ -2,9 +2,10 @@ package sgbd.prototype;
 
 import engine.exceptions.DataBaseException;
 import engine.file.streams.ReadByteStream;
+import engine.info.Parameters;
 import engine.virtualization.record.Record;
 import engine.virtualization.record.RecordInfoExtractor;
-import engine.virtualization.record.instances.GenericRecordPK;
+import engine.virtualization.record.instances.CompleteGenericRecord;
 import lib.BigKey;
 import sgbd.prototype.column.Column;
 import sgbd.prototype.query.fields.Field;
@@ -268,7 +269,8 @@ public class TranslatorApi implements RecordInfoExtractor, Iterable<Column>{
             System.arraycopy(data,0,bufferRecord,offset,data.length);
             offset+=data.length;
         }
-        return new GenericRecordPK(this.getPrimaryKey(rw),bufferRecord);
+        Parameters.MEMORY_ALLOCATED_BY_RECORDS += size;
+        return new CompleteGenericRecord(rw,bufferRecord);
     }
 
     public Map<String,Column> generateMetaInfo(List<String> select){

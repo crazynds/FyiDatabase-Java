@@ -9,6 +9,7 @@ import engine.file.blocks.commitable.WriteBack;
 import engine.file.blocks.commitable.WriteCache;
 import engine.file.streams.BlockStream;
 import engine.file.streams.WriteByteStream;
+import engine.info.Parameters;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -210,7 +211,11 @@ public class OptimizedFIFOBlockBuffer extends BlockBuffer {
 
     protected synchronized EntryBlock getBlockInBuffer(int block) {
         Integer i = blockMaping.get(block);
-        if(i==null)return null;
+        if(i==null){
+            Parameters.CACHE_MISS += 1;
+            return null;
+        }
+        Parameters.CACHE_HIT += 1;
         return entries[i];
     }
 

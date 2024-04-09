@@ -1,5 +1,6 @@
 package sgbd.query.unaryop;
 
+import lib.booleanexpression.entities.AttributeFilters;
 import sgbd.prototype.RowData;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
@@ -15,6 +16,12 @@ public class RenameSourceOperator extends SimpleUnaryOperator{
         super(op);
         this.sourceSrc = sourceSrc;
         this.sourceDst = sourceDst;
+    }
+
+    @Override
+    public void lookup(AttributeFilters filters) {
+
+        super.lookup(filters);
     }
 
     @Override

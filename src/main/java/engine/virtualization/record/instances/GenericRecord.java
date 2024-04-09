@@ -35,11 +35,6 @@ public class GenericRecord extends Record {
 
 
 	@Override
-	public BigKey primaryKey() {
-	    return null;
-	}
-
-	@Override
 	public int size() {
 		if (size < 0) return data.length;
 		return size;

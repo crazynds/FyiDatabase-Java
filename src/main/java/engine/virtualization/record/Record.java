@@ -15,8 +15,6 @@ public abstract class Record implements ReadByteStream{
 
 	public abstract byte[] getData();
 
-	public abstract BigKey primaryKey();
-	
 	@Override
 	public void setPointer(long pos) {
 		this.pointer=pos;

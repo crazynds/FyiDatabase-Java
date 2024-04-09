@@ -2,6 +2,7 @@ package engine.storage.common;
 
 import engine.exceptions.DataBaseException;
 import engine.file.FileManager;
+import engine.info.Parameters;
 import engine.util.Util;
 import engine.virtualization.interfaces.HeapStorage;
 import engine.virtualization.interfaces.StorageEventHandler;
@@ -75,6 +76,11 @@ public class FixedHeapStorageRecord extends AnonymousStorageRecord{
         return new RecordStream<Long>() {
             long currentKey;
             Record buffer = new GenericRecord(new byte[sizeOfEachRecord + 8]);
+
+            {
+                Parameters.MEMORY_ALLOCATED_BY_RECORDS += sizeOfEachRecord;
+            }
+
 
             @Override
             public void open() {
