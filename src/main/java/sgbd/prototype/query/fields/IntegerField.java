@@ -24,7 +24,7 @@ public class IntegerField extends Field<Integer> {
 
     @Override
     public int compareTo(Field f) {
-        if(f == null)return NULL_COMPARE;
+        if(f == null || f.getBufferedData() == null)return NULL_COMPARE;
         if(f.metadata.isString() || f.metadata.isFloat())return f.compareTo(this);
         if(!f.metadata.isInt())return NOT_DEFINED;
         if(f.metadata.getSize()==8)return f.compareTo(this);

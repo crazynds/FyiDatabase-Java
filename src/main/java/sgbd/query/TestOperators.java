@@ -27,7 +27,7 @@ public class TestOperators {
         executor.open();
         while (executor.hasNext() && count!=limit) {
             Tuple t = executor.next();
-            /*String str = "";
+            String str = "";
             for(Map.Entry<String, List<String>> content: executor.getContentInfo().entrySet()){
                 for(String col:content.getValue()){
                     RowData row = t.getContent(content.getKey());
@@ -58,7 +58,7 @@ public class TestOperators {
                     str += " | ";
                 }
             }
-            System.out.println(str);*/
+            System.out.println(str);
             count++;
             if(count%10000==0) System.out.println(count);
         }

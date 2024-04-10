@@ -23,7 +23,7 @@ public class NullField extends Field<Object>{
 
     @Override
     public int compareTo(Field f) {
-        if(f==null)return 0;
+        if(f==null || f.getBData() == null)return 0;
         return NULL_COMPARE * -1;
     }
 }

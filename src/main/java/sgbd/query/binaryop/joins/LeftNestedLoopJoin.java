@@ -1,14 +1,20 @@
 package sgbd.query.binaryop.joins;
 
 import lib.booleanexpression.entities.expressions.BooleanExpression;
-import sgbd.info.Query;
+import sgbd.prototype.RowData;
+import sgbd.prototype.query.fields.NullField;
 import sgbd.query.Operator;
 import sgbd.prototype.query.Tuple;
 import sgbd.util.interfaces.ComparableFilter;
 
+import java.util.List;
+import java.util.Map;
+
 public class LeftNestedLoopJoin extends NestedLoopJoin{
 
     protected boolean findAnyMatch = false;
+
+    protected Tuple nullColumns = null;
 
     @Deprecated
     public LeftNestedLoopJoin(Operator left, Operator right, ComparableFilter<Tuple> comparator) {
@@ -23,6 +29,14 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
     public void open() {
         super.open();
         findAnyMatch = false;
+        nullColumns = new Tuple();
+        for(Map.Entry<String, List<String>> entry:getRightOperator().getContentInfo().entrySet()){
+            RowData row = new RowData();
+            for(String s:entry.getValue()){
+                row.setField(s, NullField.generic);
+            }
+            nullColumns.setContent(entry.getKey(),row);
+        }
     }
 
     @Override
@@ -49,7 +63,7 @@ public class LeftNestedLoopJoin extends NestedLoopJoin{
             if(!findAnyMatch){
                 Tuple t = currentLeftTuple;
                 currentLeftTuple = null;
-                return t;
+                return new Tuple(t,nullColumns);
             }else currentLeftTuple=null;
         }
         return null;

@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import engine.exceptions.DataBaseException;
 import lib.booleanexpression.entities.AttributeFilters;
 import lib.booleanexpression.entities.elements.Element;
-import lib.booleanexpression.entities.elements.Value;
 import lib.booleanexpression.entities.elements.Variable;
 import lib.booleanexpression.enums.RelationalOperator;
 import lib.booleanexpression.enums.Result;
-import sgbd.prototype.RowData;
 import sgbd.prototype.query.Tuple;
 import sgbd.prototype.query.fields.Field;
 
@@ -49,7 +48,9 @@ public class AtomicExpression extends BooleanExpression{
         AtomicExpression expression = this;
         Field obj1 = firstElement.getField(),obj2 = secondElement.getField();
 
-        if(obj1==null || obj2==null)return Result.NOT_READY;
+        if(obj1==null || obj2==null){
+            throw new DataBaseException("AtomicExpression->solve", "NOT_READY");
+        }
 
         int compareResult = obj1.compareTo(obj2);
 
@@ -60,8 +61,8 @@ public class AtomicExpression extends BooleanExpression{
             case LESS_THAN_OR_EQUAL -> Result.evaluate(compareResult <= 0);
             case EQUAL -> Result.evaluate(compareResult == 0);
             case NOT_EQUAL -> Result.evaluate(compareResult != 0);
-            case IS -> Result.evaluate(true);
-            case IS_NOT -> Result.evaluate(false);
+            case IS -> Result.evaluate(compareResult == 0);
+            case IS_NOT -> Result.evaluate(compareResult != 0);
         };
     }
 
