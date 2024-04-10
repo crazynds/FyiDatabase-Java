@@ -108,6 +108,10 @@ public class SourceScan extends SourceOperator{
 
     @Override
     public void close() {
+        if(lowerbound!=null){
+            freeResources();
+            iterator = null;
+        }
         lowerbound = null;
         upperbound = null;
         forceStop = false;
