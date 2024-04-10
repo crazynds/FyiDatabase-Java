@@ -21,11 +21,11 @@ public class RowData implements Iterable<Map.Entry<String,Field>>,Comparable<Row
 	private long byteSize = 0;
 
 	public RowData() {
-		data=new TreeMap<>();
+		data=new HashMap<>();
 		metadata=new HashMap<>();
 	}
 	protected RowData(RowData cloneData) {
-		data=new TreeMap<>(cloneData.data);
+		data=new HashMap<>(cloneData.data);
 		metadata=new HashMap<>(cloneData.metadata);
 		byteSize = cloneData.byteSize;
 	}
