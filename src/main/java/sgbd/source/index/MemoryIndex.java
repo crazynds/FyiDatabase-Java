@@ -52,7 +52,7 @@ public class MemoryIndex extends Index{
 
             @Override
             public void restart() {
-                it = storage.iterator(lowerbound);
+                it = lowerbound==null ? storage.iterator() : storage.iterator(lowerbound);
             }
 
             @Override
