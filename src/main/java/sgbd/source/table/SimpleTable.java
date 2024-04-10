@@ -32,7 +32,7 @@ public class SimpleTable extends GenericTable {
             this.primaryIndex = new MemoryIndex(idxHeader,this);
             this.storage = new FixedHeapStorageRecord((r, key) -> {
                 RowData row;
-                if(r instanceof CompleteGenericRecord record){
+                if(r instanceof CompleteGenericRecord record && record.getRowData()!=null){
                     row = record.getRowData();
                 }else{
                     row = this.translatorApi.convertBinaryToRowData(r.getData(),null,true, true);
